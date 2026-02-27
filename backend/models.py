@@ -54,6 +54,7 @@ class GalleryImage(BaseModel):
     url: str
     caption: Optional[str] = None
     category: str = "general"  # general, apartment, food, sightseeing
+    media_type: str = "image"  # image or video
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 

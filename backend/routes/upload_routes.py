@@ -13,13 +13,19 @@ UPLOAD_DIR = Path("/app/backend/uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 # Allowed file extensions
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".webm", ".mov", ".avi", ".mkv"}
+ALLOWED_EXTENSIONS = ALLOWED_IMAGE_EXTENSIONS | ALLOWED_VIDEO_EXTENSIONS
 
 
-def validate_image(filename: str) -> bool:
-    """Validate if file is an allowed image type"""
+def validate_file(filename: str) -> tuple[bool, str]:
+    """Validate if file is an allowed type and return media type"""
     ext = os.path.splitext(filename)[1].lower()
-    return ext in ALLOWED_EXTENSIONS
+    if ext in ALLOWED_IMAGE_EXTENSIONS:
+        return True, "image"
+    elif ext in ALLOWED_VIDEO_EXTENSIONS:
+        return True, "video"
+    return False, None
 
 
 @router.post("/image", status_code=status.HTTP_201_CREATED)
@@ -27,12 +33,13 @@ async def upload_image(
     file: UploadFile = File(...),
     current_user = Depends(get_current_user)
 ):
-    """Upload a single image (admin only)"""
+    """Upload a single image or video (admin only)"""
     # Validate file type
-    if not validate_image(file.filename):
+    is_valid, media_type = validate_file(file.filename)
+    if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File type not allowed. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
+            detail=f"File type not allowed. Allowed types: Images ({', '.join(ALLOWED_IMAGE_EXTENSIONS)}), Videos ({', '.join(ALLOWED_VIDEO_EXTENSIONS)})"
         )
     
     # Generate unique filename
@@ -54,7 +61,8 @@ async def upload_image(
     file_url = f"/api/uploads/{unique_filename}"
     return {
         "url": file_url,
-        "filename": unique_filename
+        "filename": unique_filename,
+        "media_type": media_type
     }
 
 
@@ -63,12 +71,13 @@ async def upload_multiple_images(
     files: List[UploadFile] = File(...),
     current_user = Depends(get_current_user)
 ):
-    """Upload multiple images (admin only)"""
+    """Upload multiple images or videos (admin only)"""
     uploaded_files = []
     
     for file in files:
         # Validate file type
-        if not validate_image(file.filename):
+        is_valid, media_type = validate_file(file.filename)
+        if not is_valid:
             continue  # Skip invalid files
         
         # Generate unique filename
@@ -84,7 +93,8 @@ async def upload_multiple_images(
             uploaded_files.append({
                 "url": f"/api/uploads/{unique_filename}",
                 "filename": unique_filename,
-                "original_filename": file.filename
+                "original_filename": file.filename,
+                "media_type": media_type
             })
         except Exception as e:
             print(f"Failed to save {file.filename}: {str(e)}")
