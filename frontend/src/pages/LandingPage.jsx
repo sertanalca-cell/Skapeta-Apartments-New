@@ -186,7 +186,7 @@ export const LandingPage = () => {
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-4 text-slate-900 animate-fade-in">
-              {t.hero.title}
+              {settings?.hero_title || t.hero.title}
             </h1>
             
             {/* Star Rating */}
@@ -199,7 +199,7 @@ export const LandingPage = () => {
             )}
             
             <p className="text-xl md:text-2xl text-slate-600 mb-10 leading-relaxed whitespace-pre-line">
-              {t.hero.subtitle}
+              {settings?.hero_subtitle || t.hero.subtitle}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -230,14 +230,14 @@ export const LandingPage = () => {
       <section id="about" className="py-20 px-4 bg-white">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{t.about.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{settings?.about_title || t.about.title}</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full"></div>
           </div>
           
           <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
             <div>
               <p className="text-lg text-slate-600 leading-relaxed">
-                {t.about.description}
+                {settings?.about_description || t.about.description}
               </p>
               <div className="mt-6 grid grid-cols-2 gap-4">
                 {[
@@ -400,13 +400,13 @@ export const LandingPage = () => {
       <section id="food" className="py-20 px-4 bg-gradient-to-b from-slate-50 to-white">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{t.food.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{settings?.food_service_title || t.food.title}</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full"></div>
           </div>
 
           <div className="bg-white rounded-2xl p-8 shadow-xl mb-12">
-            <p className="text-xl text-center text-slate-700 mb-6">{t.food.description}</p>
-            <p className="text-lg text-center text-slate-600 italic">{t.food.quality}</p>
+            <p className="text-xl text-center text-slate-700 mb-6">{settings?.food_service_description || t.food.description}</p>
+            <p className="text-lg text-center text-slate-600 italic">{settings?.food_service_subtitle || t.food.quality}</p>
           </div>
 
           {gallery.filter(img => img.category === 'food').length > 0 ? (
@@ -544,16 +544,28 @@ export const LandingPage = () => {
                 {t.contact.maps}
               </Button>
               
-              {/* Sponsored Link */}
+              {/* Sponsored Link - Red Button */}
               {settings?.sponsored_by_text && settings?.sponsored_by_url && (
-                <a
-                  href={settings.sponsored_by_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-center text-slate-600 hover:text-sky-600 transition-colors mt-4"
+                <Button
+                  className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-6 text-lg"
+                  onClick={() => window.open(settings.sponsored_by_url, '_blank')}
                 >
+                  <Instagram className="w-5 h-5 mr-2" />
                   {settings.sponsored_by_text}
-                </a>
+                </Button>
+              )}
+
+              {/* Custom Contact Links */}
+              {settings?.custom_contact_links && settings.custom_contact_links.length > 0 && (
+                settings.custom_contact_links.map((link, index) => (
+                  <Button
+                    key={index}
+                    className="w-full bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white py-6 text-lg"
+                    onClick={() => window.open(link.url, '_blank')}
+                  >
+                    {link.name}
+                  </Button>
+                ))
               )}
             </div>
 
