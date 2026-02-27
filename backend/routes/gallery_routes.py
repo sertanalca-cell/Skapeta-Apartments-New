@@ -1,0 +1,45 @@
+from fastapi import APIRouter, HTTPException, status, Depends
+from motor.motor_asyncio import AsyncIOMotorDatabase
+from typing import List, Optional
+from models import GalleryImage
+from auth import get_current_user
+
+router = APIRouter(prefix="/gallery", tags=["Gallery"])
+
+
+@router.get("", response_model=List[GalleryImage])
+async def get_gallery_images(
+    category: Optional[str] = None,
+    db: AsyncIOMotorDatabase = None
+):
+    """Get all gallery images (public)"""
+    query = {"category": category} if category else {}
+    images = await db.gallery.find(query).to_list(200)
+    return [GalleryImage(**img) for img in images]
+
+
+@router.post("", response_model=GalleryImage, status_code=status.HTTP_201_CREATED)
+async def add_gallery_image(
+    image_data: GalleryImage,
+    db: AsyncIOMotorDatabase,
+    current_user = Depends(get_current_user)
+):
+    """Add a new gallery image (admin only)"""
+    await db.gallery.insert_one(image_data.dict())
+    return image_data
+
+
+@router.delete("/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_gallery_image(
+    image_id: str,
+    db: AsyncIOMotorDatabase,
+    current_user = Depends(get_current_user)
+):
+    """Delete a gallery image (admin only)"""
+    result = await db.gallery.delete_one({"id": image_id})
+    if result.deleted_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Image not found"
+        )
+    return None
