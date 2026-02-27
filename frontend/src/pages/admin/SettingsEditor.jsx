@@ -15,7 +15,7 @@ export const SettingsEditor = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState({ logo: false, hero: false });
+  const [uploading, setUploading] = useState({ logo: false, hero: false, about: false });
 
   useEffect(() => {
     loadSettings();
@@ -50,6 +50,8 @@ export const SettingsEditor = () => {
           hero_background_url: fileUrl,
           hero_background_type: result.media_type || 'image'
         }));
+      } else if (type === 'about') {
+        setSettings(prev => ({ ...prev, about_image_url: fileUrl }));
       }
       
       toast.success(`${type} uploaded`);
@@ -79,6 +81,7 @@ export const SettingsEditor = () => {
         footer_custom_text: settings.footer_custom_text,
         hero_background_url: settings.hero_background_url,
         hero_background_type: settings.hero_background_type,
+        about_image_url: settings.about_image_url,
         star_rating: settings.star_rating,
       });
       
@@ -118,10 +121,11 @@ export const SettingsEditor = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Logo</Label>
+                <Label>Logo (Circular)</Label>
+                <p className="text-sm text-slate-500 mb-2">Upload a square image for best results</p>
                 {settings.logo_url && (
-                  <div className="w-32 h-32 border-2 border-slate-200 rounded-lg overflow-hidden mt-2 bg-white p-2">
-                    <img src={settings.logo_url} alt="Logo" className="w-full h-full object-contain" />
+                  <div className="w-32 h-32 border-2 border-slate-200 rounded-full overflow-hidden mt-2 bg-white p-2">
+                    <img src={settings.logo_url} alt="Logo" className="w-full h-full object-cover rounded-full" />
                   </div>
                 )}
                 <input
@@ -172,7 +176,7 @@ export const SettingsEditor = () => {
           {/* Hero Background */}
           <Card>
             <CardHeader>
-              <CardTitle>Hero Background</CardTitle>
+              <CardTitle>Hero Section (Home)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -203,7 +207,43 @@ export const SettingsEditor = () => {
                   disabled={uploading.hero}
                 >
                   <Upload className="w-4 h-4 mr-2" />
-                  {uploading.hero ? 'Uploading...' : 'Upload Background'}
+                  {uploading.hero ? 'Uploading...' : 'Upload Hero Background'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* About Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>About Section</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>About Section Image</Label>
+                <p className="text-sm text-slate-500 mb-2">Upload an image for the About section</p>
+                {settings.about_image_url && (
+                  <div className="w-full aspect-square max-w-md border-2 border-slate-200 rounded-lg overflow-hidden mt-2">
+                    <img src={settings.about_image_url} alt="About" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e, 'about')}
+                  className="hidden"
+                  id="about-upload"
+                  disabled={uploading.about}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-2"
+                  onClick={() => document.getElementById('about-upload').click()}
+                  disabled={uploading.about}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {uploading.about ? 'Uploading...' : 'Upload About Image'}
                 </Button>
               </div>
             </CardContent>
