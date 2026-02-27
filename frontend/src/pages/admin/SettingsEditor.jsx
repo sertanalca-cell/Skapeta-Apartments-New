@@ -6,7 +6,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { settingsAPI, uploadAPI } from '../../services/api';
-import { Upload, Save, Star } from 'lucide-react';
+import { Upload, Save, Star, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -289,9 +289,90 @@ export const SettingsEditor = () => {
                 <li>Upload your food photos and menu images</li>
                 <li>Images will automatically appear in the Food Service section on the website</li>
               </ol>
-              <p className="text-sm text-slate-500 mt-3">
-                Note: All images uploaded to Gallery will show in the Food Service section
-              </p>
+            </CardContent>
+          </Card>
+
+          {/* Content Sections */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Page Content</CardTitle>
+              <p className="text-sm text-slate-500">Edit text content for different sections</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Hero Content */}
+              <div className="space-y-4 p-4 bg-slate-50 rounded-lg">
+                <h3 className="font-semibold text-lg">Home Section (Hero)</h3>
+                <div>
+                  <Label htmlFor="hero_title">Main Title</Label>
+                  <Input
+                    id="hero_title"
+                    value={settings.hero_title || 'Skapeta Apartments'}
+                    onChange={(e) => setSettings({ ...settings, hero_title: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="hero_subtitle">Subtitle</Label>
+                  <Textarea
+                    id="hero_subtitle"
+                    rows={3}
+                    value={settings.hero_subtitle || ''}
+                    onChange={(e) => setSettings({ ...settings, hero_subtitle: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* About Content */}
+              <div className="space-y-4 p-4 bg-slate-50 rounded-lg">
+                <h3 className="font-semibold text-lg">About Section</h3>
+                <div>
+                  <Label htmlFor="about_title">About Title</Label>
+                  <Input
+                    id="about_title"
+                    value={settings.about_title || ''}
+                    onChange={(e) => setSettings({ ...settings, about_title: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="about_description">About Description</Label>
+                  <Textarea
+                    id="about_description"
+                    rows={4}
+                    value={settings.about_description || ''}
+                    onChange={(e) => setSettings({ ...settings, about_description: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Food Service Content */}
+              <div className="space-y-4 p-4 bg-slate-50 rounded-lg">
+                <h3 className="font-semibold text-lg">Food Service Section</h3>
+                <div>
+                  <Label htmlFor="food_service_title">Food Service Title</Label>
+                  <Input
+                    id="food_service_title"
+                    value={settings.food_service_title || 'Food Service'}
+                    onChange={(e) => setSettings({ ...settings, food_service_title: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="food_service_description">Main Description</Label>
+                  <Textarea
+                    id="food_service_description"
+                    rows={2}
+                    value={settings.food_service_description || ''}
+                    onChange={(e) => setSettings({ ...settings, food_service_description: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="food_service_subtitle">Subtitle/Quality Message</Label>
+                  <Textarea
+                    id="food_service_subtitle"
+                    rows={2}
+                    value={settings.food_service_subtitle || ''}
+                    onChange={(e) => setSettings({ ...settings, food_service_subtitle: e.target.value })}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -386,6 +467,58 @@ export const SettingsEditor = () => {
                   value={settings.sponsored_by_url}
                   onChange={(e) => setSettings({ ...settings, sponsored_by_url: e.target.value })}
                 />
+                <p className="text-sm text-slate-500 mt-1">Will appear as red button in contact section</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Custom Contact Links */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Custom Contact Links</CardTitle>
+              <p className="text-sm text-slate-500">Add additional links to the contact section</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {settings.custom_contact_links && settings.custom_contact_links.length > 0 && (
+                <div className="space-y-2">
+                  {settings.custom_contact_links.map((link, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <div>
+                        <p className="font-medium">{link.name}</p>
+                        <p className="text-sm text-slate-500">{link.url}</p>
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => removeCustomLink(index)}
+                        className="text-red-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Link Name (e.g., TripAdvisor)"
+                    value={newLink.name}
+                    onChange={(e) => setNewLink({ ...newLink, name: e.target.value })}
+                  />
+                </div>
+                <div className="flex-1">
+                  <Input
+                    placeholder="URL"
+                    value={newLink.url}
+                    onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
+                  />
+                </div>
+                <Button type="button" onClick={addCustomLink}>
+                  <Plus className="w-4 h-4" />
+                </Button>
               </div>
             </CardContent>
           </Card>
