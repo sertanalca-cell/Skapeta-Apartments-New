@@ -256,7 +256,7 @@ export const LandingPage = () => {
             <div className="relative">
               <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
                 <img 
-                  src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800" 
+                  src={settings?.about_image_url || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800"} 
                   alt="Skapeta Apartments"
                   className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
                 />
