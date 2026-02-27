@@ -249,6 +249,26 @@ export const SettingsEditor = () => {
             </CardContent>
           </Card>
 
+          {/* Food Service Note */}
+          <Card className="bg-sky-50 border-sky-200">
+            <CardHeader>
+              <CardTitle>Food Service Gallery</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-600 mb-3">
+                To add food service photos and menu images:
+              </p>
+              <ol className="list-decimal list-inside space-y-2 text-slate-600">
+                <li>Go to the <strong>Gallery</strong> tab in admin menu</li>
+                <li>Upload your food photos and menu images</li>
+                <li>Images will automatically appear in the Food Service section on the website</li>
+              </ol>
+              <p className="text-sm text-slate-500 mt-3">
+                Note: All images uploaded to Gallery will show in the Food Service section
+              </p>
+            </CardContent>
+          </Card>
+
           {/* Contact Information */}
           <Card>
             <CardHeader>
