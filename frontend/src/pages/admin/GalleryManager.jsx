@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
 import { galleryAPI, uploadAPI } from '../../services/api';
 import { Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -132,24 +133,27 @@ export const GalleryManager = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {images.map((item) => (
               <div key={item.id} className="relative group">
-                <div className="aspect-square rounded-lg overflow-hidden shadow-md bg-slate-900">
-                  {item.media_type === 'video' ? (
+                {item.media_type === 'video' ? (
+                  <div className="relative w-full rounded-lg overflow-hidden shadow-md bg-slate-900" style={{ paddingBottom: '56.25%' }}>
                     <video
                       src={item.url}
-                      className="w-full h-full object-cover"
+                      className="absolute top-0 left-0 w-full h-full object-cover"
                       controls
                     />
-                  ) : (
+                    <Badge className="absolute top-2 left-2 bg-purple-500 z-10">Video</Badge>
+                  </div>
+                ) : (
+                  <div className="aspect-square rounded-lg overflow-hidden shadow-md bg-slate-900">
                     <img
                       src={item.url}
                       alt={item.caption || 'Gallery item'}
                       className="w-full h-full object-cover"
                     />
-                  )}
-                </div>
+                  </div>
+                )}
                 
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                   <Button
@@ -161,10 +165,6 @@ export const GalleryManager = () => {
                     Delete
                   </Button>
                 </div>
-                
-                {item.media_type === 'video' && (
-                  <Badge className="absolute top-2 left-2 bg-purple-500">Video</Badge>
-                )}
               </div>
             ))}
           </div>
