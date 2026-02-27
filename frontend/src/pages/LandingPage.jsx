@@ -315,19 +315,19 @@ export const LandingPage = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {gallery.slice(0, 12).map((item, idx) => (
-                <div key={item.id || idx} className="relative rounded-xl overflow-hidden shadow-lg group cursor-pointer">
+                <div key={item.id || idx} className="relative rounded-xl overflow-hidden shadow-lg group">
                   {item.media_type === 'video' ? (
-                    <div className="relative aspect-video bg-slate-900">
+                    <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
                       <video
                         src={item.url}
-                        className="w-full h-full object-cover"
+                        className="absolute top-0 left-0 w-full h-full object-cover rounded-xl"
                         autoPlay
                         muted
                         loop
                         playsInline
                         preload="metadata"
                       />
-                      <div className="absolute top-4 right-4 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      <div className="absolute top-4 right-4 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium z-10">
                         Video
                       </div>
                     </div>
@@ -342,7 +342,7 @@ export const LandingPage = () => {
                     </div>
                   )}
                   {item.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 z-10">
                       <p className="text-white text-sm">{item.caption}</p>
                     </div>
                   )}
