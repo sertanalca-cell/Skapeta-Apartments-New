@@ -342,17 +342,23 @@ export const LandingPage = () => {
             <p className="text-lg text-center text-slate-600 italic">{t.food.quality}</p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {foodImages.map((img, idx) => (
-              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden shadow-lg group">
-                <img 
-                  src={img} 
-                  alt={`Food ${idx + 1}`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-              </div>
-            ))}
-          </div>
+          {gallery.filter(img => img.category === 'food').length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {gallery.filter(img => img.category === 'food').slice(0, 8).map((img, idx) => (
+                <div key={img.id || idx} className="relative aspect-square rounded-xl overflow-hidden shadow-lg group">
+                  <img 
+                    src={img.url} 
+                    alt={img.caption || `Food ${idx + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-slate-500">Food gallery coming soon...</p>
+            </div>
+          )}
         </div>
       </section>
 
