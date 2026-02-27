@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Building2, Image, Settings as SettingsIcon, TrendingUp } from 'lucide-react';
+import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit } from 'lucide-react';
 import { apartmentsAPI, galleryAPI, settingsAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,6 +9,7 @@ export const AdminDashboard = () => {
   const [stats, setStats] = useState({
     apartments: 0,
     galleryImages: 0,
+    foodImages: 0,
     loading: true,
   });
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ export const AdminDashboard = () => {
       setStats({
         apartments: apartments.length,
         galleryImages: gallery.length,
+        foodImages: gallery.filter(img => img.category === 'food').length,
         loading: false,
       });
     } catch (error) {
@@ -48,6 +50,13 @@ export const AdminDashboard = () => {
       value: stats.galleryImages,
       icon: Image,
       color: 'from-purple-400 to-pink-600',
+      path: '/admin/gallery',
+    },
+    {
+      title: 'Food Service',
+      value: stats.foodImages,
+      icon: Utensils,
+      color: 'from-orange-400 to-red-600',
       path: '/admin/gallery',
     },
     {
