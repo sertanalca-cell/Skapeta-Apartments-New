@@ -313,15 +313,36 @@ export const LandingPage = () => {
               <p className="text-slate-600">Gallery coming soon...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {gallery.slice(0, 12).map((img, idx) => (
-                <div key={img.id || idx} className="relative aspect-square rounded-xl overflow-hidden shadow-lg group cursor-pointer">
-                  <img 
-                    src={img.url} 
-                    alt={img.caption || `Gallery ${idx + 1}`}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {gallery.slice(0, 12).map((item, idx) => (
+                <div key={item.id || idx} className="relative rounded-xl overflow-hidden shadow-lg group cursor-pointer">
+                  {item.media_type === 'video' ? (
+                    <div className="relative aspect-video bg-slate-900">
+                      <video
+                        src={item.url}
+                        className="w-full h-full object-cover"
+                        controls
+                        preload="metadata"
+                      />
+                      <div className="absolute top-4 right-4 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Video
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="relative aspect-square">
+                      <img 
+                        src={item.url} 
+                        alt={item.caption || `Gallery ${idx + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+                    </div>
+                  )}
+                  {item.caption && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                      <p className="text-white text-sm">{item.caption}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
