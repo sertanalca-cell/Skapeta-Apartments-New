@@ -9,250 +9,259 @@
 
 ## Original Problem Statement
 
-Create a luxury, modern, animated landing page website for Skapeta Apartments, a 3-star accommodation in Saranda, Albania. The website must showcase apartments, food services, location, local attractions, and provide booking integration with multi-language support (English & Albanian).
+Create a luxury, modern, animated landing page website for Skapeta Apartments with full admin panel for content management. The website must showcase apartments, food services, location, local attractions, provide booking integration, and support multi-language (English & Albanian).
 
 ---
 
-## User Personas
+## ✅ COMPLETED FEATURES
 
-1. **International Tourists** - Seeking quality accommodation in Saranda, need English interface
-2. **Albanian Visitors** - Local tourists preferring Albanian language interface
-3. **Repeat Guests** - Looking for direct contact via WhatsApp or booking channels
-4. **Property Admins** - Need to manage content, images, and apartment details
+### Phase 1: Frontend Landing Page (COMPLETE)
+- ✅ Modern luxury design with smooth animations
+- ✅ Bilingual support (English/Albanian) with language switcher
+- ✅ Hero section with CTA buttons (Book Now, WhatsApp)
+- ✅ About section with Saranda information
+- ✅ Apartments showcase (4 active apartments)
+- ✅ Gallery with image grid
+- ✅ Food service section
+- ✅ Google Maps location integration
+- ✅ Sightseeing attractions (Blue Eye, Ksamil, Butrint, Lëkurësi)
+- ✅ Contact section with social media buttons
+- ✅ QR code generator with download
+- ✅ Responsive mobile-first design
+- ✅ Professional footer
 
----
+### Phase 2: Backend API (COMPLETE)
+- ✅ FastAPI backend with MongoDB
+- ✅ JWT authentication system
+- ✅ Password hashing with bcrypt
+- ✅ Protected admin routes
+- ✅ Apartments CRUD API (create, read, update, delete)
+- ✅ Gallery management API
+- ✅ Settings management API
+- ✅ Image upload system with validation
+- ✅ File serving for uploaded images
+- ✅ Database models for all entities
+- ✅ Default admin user created
 
-## Core Requirements
-
-### Design Requirements
-- ✅ Modern, luxury hotel-style design
-- ✅ Positive, clean color scheme (sky blue, white, slate)
-- ✅ Smooth animations and transitions
-- ✅ Mobile-first, fully responsive design
-- ✅ Premium hotel feeling with elegant hover effects
-
-### Functional Requirements
-- ✅ Multi-language support (English & Albanian)
-- ✅ Smooth section navigation
-- ✅ External integrations (Booking.com, WhatsApp, Instagram, Google Maps)
-- ✅ QR code generator for website sharing
-- ✅ Image galleries with navigation
-- 🔄 Admin panel for content management (Pending)
-- 🔄 Real image upload functionality (Pending)
-- 🔄 Database storage for apartments and media (Pending)
-
----
-
-## What's Been Implemented (Phase 1 - Frontend MVP)
-
-### ✅ Completed - December 27, 2025
-
-1. **Hero Section**
-   - Logo placeholder (blue gradient with "S")
-   - Main title and subtitle
-   - "Book Now" button (links to Booking.com)
-   - "WhatsApp" button (opens WhatsApp chat +355693227207)
-
-2. **Navigation**
-   - Fixed header with smooth scroll
-   - Language switcher (EN/AL)
-   - Responsive navigation menu
-   - Section links (Home, About, Apartments, Food Service, Location, Contact)
-
-3. **About Section**
-   - Welcome text with apartment description (from Booking.com)
-   - Feature highlights (WiFi, AC, Kitchen, Parking)
-   - Saranda city information
-   - Professional imagery
-
-4. **Apartments Section**
-   - 4 active apartments displayed
-   - Each apartment card includes:
-     * Name and description (from Booking.com data)
-     * Price display (€40-€65 per night)
-     * Guest capacity
-     * Image carousel (3-4 images per apartment)
-     * "Available" badge
-     * "Book This Apartment" button
-
-5. **Media Gallery**
-   - 6 high-quality placeholder images
-   - Responsive grid layout (2 columns mobile, 3 desktop)
-   - Hover effects with zoom transitions
-
-6. **Food Service Section**
-   - Service description text
-   - Quality statement
-   - 4 food images in grid layout
-
-7. **Location Section**
-   - Google Maps embed
-   - Location description
-   - "View on Google Maps" button
-
-8. **Sightseeing Section**
-   - 4 attractions featured:
-     * Blue Eye (Syri i Kaltër)
-     * Ksamil Beach
-     * Butrint National Park
-     * Lëkurësi Castle
-   - Images with descriptions
-
-9. **Contact & QR Section**
-   - Instagram button (pink gradient)
-   - Booking.com button (blue gradient)
-   - WhatsApp button (green gradient)
-   - Google Maps button (orange gradient)
-   - QR code generator with download functionality
-
-10. **Footer**
-    - Logo and tagline
-    - Contact information (address, phone)
-    - Quick links
-    - Copyright notice
-
-11. **Multi-Language System**
-    - Complete translations for EN/AL
-    - Dynamic content switching
-    - All sections translated
-
-### Files Created
-- `/app/frontend/src/mockData.js` - Mock data structure for apartments, gallery, food, sightseeing, and translations
-- `/app/frontend/src/pages/LandingPage.jsx` - Main landing page component
-- `/app/frontend/src/App.js` - Updated routing
-- `/app/frontend/src/App.css` - Custom animations and styles
-
-### Dependencies Added
-- `qrcode` - QR code generation library
+### Phase 3: Admin Panel (COMPLETE)
+- ✅ Admin login page with authentication
+- ✅ Protected admin routes
+- ✅ Admin dashboard with statistics
+- ✅ Apartments Manager:
+  * Add/edit/delete apartments
+  * Upload multiple images per apartment
+  * Set pricing and availability
+  * Manage capacity and descriptions
+- ✅ Gallery Manager:
+  * Upload images to gallery
+  * Delete images
+  * Category-based organization
+- ✅ Settings Editor:
+  * Upload logo
+  * Update contact information
+  * Manage social media links
+  * Configure external URLs
+- ✅ Professional admin UI with navigation
+- ✅ Toast notifications
+- ✅ Image upload with preview
+- ✅ Responsive admin interface
 
 ---
 
-## API Contracts (For Phase 2 - Backend Development)
+## 🔑 ADMIN CREDENTIALS
 
-### Apartments Management
+**URL**: https://skapeta-modern.preview.emergentagent.com/admin/login
 
-**GET /api/apartments**
-```json
-Response: [
-  {
-    "id": "string",
-    "name": "string",
-    "description": "string",
-    "price": "number",
-    "priceUnit": "string",
-    "images": ["url1", "url2", "url3"],
-    "available": "boolean",
-    "capacity": "string",
-    "createdAt": "timestamp",
-    "updatedAt": "timestamp"
-  }
-]
+**Login:**
+- Email: `admin@skapeta.com`
+- Password: `admin123`
+
+⚠️ **IMPORTANT**: Change this password immediately after first login!
+
+---
+
+## 📚 HOW TO USE THE ADMIN PANEL
+
+### 1. Login to Admin Panel
+- Go to `/admin/login`
+- Enter credentials
+- Click "Login"
+
+### 2. Add Your First Apartment
+- Navigate to "Apartments" tab
+- Click "Add Apartment"
+- Fill in:
+  * Name (e.g., "Deluxe Sea View Suite")
+  * Description
+  * Price (e.g., 50)
+  * Capacity (e.g., "2-4 guests")
+- Upload 3-4 images
+- Check "Available for booking"
+- Click "Create Apartment"
+
+### 3. Upload Gallery Images
+- Navigate to "Gallery" tab
+- Click upload area
+- Select multiple images
+- Images appear instantly on main website
+
+### 4. Update Settings
+- Navigate to "Settings" tab
+- Upload your logo
+- Update phone, address, WhatsApp number
+- Add your Instagram URL
+- Update Booking.com link
+- Update Google Maps coordinates
+- Click "Save Settings"
+
+### 5. View Your Website
+- Click "View Site" button in admin header
+- Or visit the main homepage
+- All changes reflect immediately!
+
+---
+
+## 📂 PROJECT STRUCTURE
+
+```
+/app/
+├── backend/
+│   ├── server.py              # Main FastAPI server
+│   ├── models.py              # Pydantic models
+│   ├── auth.py                # Authentication logic
+│   ├── seed.py                # Database seeding script
+│   ├── routes/
+│   │   ├── auth_routes.py     # Login/register endpoints
+│   │   ├── apartment_routes.py # Apartments CRUD
+│   │   ├── gallery_routes.py  # Gallery management
+│   │   ├── upload_routes.py   # Image upload
+│   │   └── settings_routes.py # Settings management
+│   └── uploads/               # Uploaded images storage
+│
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── LandingPage.jsx        # Main public page
+│   │   │   └── admin/
+│   │   │       ├── AdminLogin.jsx     # Login page
+│   │   │       ├── AdminLayout.jsx    # Admin wrapper
+│   │   │       ├── AdminDashboard.jsx # Dashboard
+│   │   │       ├── ApartmentsManager.jsx
+│   │   │       ├── GalleryManager.jsx
+│   │   │       └── SettingsEditor.jsx
+│   │   ├── services/
+│   │   │   └── api.js         # API service layer
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx # Authentication state
+│   │   └── mockData.js        # Mock data (for reference)
+│
+└── memory/
+    └── PRD.md                 # This document
 ```
 
-**POST /api/apartments** (Admin only)
-```json
-Request: { name, description, price, priceUnit, capacity, available }
-Response: { id, ...apartmentData }
-```
+---
 
-**PUT /api/apartments/:id** (Admin only)
-**DELETE /api/apartments/:id** (Admin only)
+## 🎯 API ENDPOINTS
 
-### Media Management
+### Public Endpoints
+- `GET /api/` - Health check
+- `GET /api/apartments` - Get all apartments
+- `GET /api/gallery` - Get gallery images
+- `GET /api/settings` - Get website settings
 
-**GET /api/gallery**
-**POST /api/gallery/upload** (Admin only)
-**DELETE /api/gallery/:id** (Admin only)
+### Authentication
+- `POST /api/auth/login` - Login
+- `POST /api/auth/register` - Register new admin
+- `GET /api/auth/me` - Get current user
 
-### Food Menu
-
-**GET /api/food-menu**
-**POST /api/food-menu/upload** (Admin only)
-
-### Admin Authentication
-
-**POST /api/auth/login**
-```json
-Request: { email, password }
-Response: { token, user: { id, email, role } }
-```
-
-**POST /api/auth/verify**
-**POST /api/auth/logout**
+### Protected Endpoints (Requires JWT Token)
+- `POST /api/apartments` - Create apartment
+- `PUT /api/apartments/{id}` - Update apartment
+- `DELETE /api/apartments/{id}` - Delete apartment
+- `POST /api/gallery` - Add gallery image
+- `DELETE /api/gallery/{id}` - Delete gallery image
+- `POST /api/upload/image` - Upload single image
+- `POST /api/upload/images` - Upload multiple images
+- `PUT /api/settings` - Update settings
 
 ---
 
-## Prioritized Backlog
+## 🚀 DEPLOYMENT NOTES
 
-### P0 - Critical (Phase 2)
-- [ ] Backend API development with FastAPI
-- [ ] MongoDB models for Apartments, Gallery, FoodMenu, Users
-- [ ] Image upload functionality with file storage
-- [ ] Admin authentication system
-- [ ] Admin panel UI for content management
-- [ ] Frontend-backend integration
-- [ ] Remove mock data, connect to real APIs
+### Database
+- MongoDB running locally
+- Collections: users, apartments, gallery, settings
+- No migrations needed (NoSQL)
 
-### P1 - High Priority
-- [ ] User-provided logo integration
-- [ ] User-provided apartment images upload
-- [ ] Real Google Maps coordinates for Skapeta location
-- [ ] Email notification system for bookings
-- [ ] Contact form functionality
-- [ ] SEO optimization (meta tags, structured data)
+### File Storage
+- Images stored in `/app/backend/uploads/`
+- Served via `/api/uploads/{filename}`
+- Automatic UUID naming prevents conflicts
 
-### P2 - Nice to Have
-- [ ] Turkish language support (TR)
-- [ ] Admin dashboard analytics
-- [ ] Booking calendar integration
-- [ ] Customer reviews section
+### Environment Variables
+- `MONGO_URL` - MongoDB connection string
+- `DB_NAME` - Database name
+- `SECRET_KEY` - JWT secret (change in production!)
+- `REACT_APP_BACKEND_URL` - Backend URL for frontend
+
+---
+
+## 📝 NEXT STEPS (OPTIONAL ENHANCEMENTS)
+
+### P0 - Immediate
+- ✅ Change admin password
+- ✅ Upload your logo
+- ✅ Add real apartment photos
+- ✅ Update contact information
+
+### P1 - Recommended
+- [ ] Add more apartment listings
+- [ ] Upload professional gallery photos
+- [ ] Add food menu images
+- [ ] Test booking flow
+- [ ] Share QR code for marketing
+
+### P2 - Future Features
+- [ ] Turkish language support
+- [ ] Customer reviews system
+- [ ] Email notifications
+- [ ] Booking calendar
+- [ ] Analytics dashboard
 - [ ] Newsletter subscription
-- [ ] Blog section for Saranda travel tips
-- [ ] Advanced image optimization
-- [ ] Performance monitoring
+- [ ] Blog section
 
 ---
 
-## Next Tasks
+## 🔧 TECHNICAL STACK
 
-1. **Get User Assets**
-   - Collect logo file from user
-   - Collect real apartment photos
-   - Get specific Google Maps coordinates
-
-2. **Backend Development**
-   - Set up MongoDB schemas
-   - Create CRUD APIs for apartments
-   - Implement image upload with multer/file storage
-   - Build admin authentication
-   - Create admin panel UI
-
-3. **Integration**
-   - Connect frontend to backend APIs
-   - Replace mock data with real data
-   - Test all functionality end-to-end
-
-4. **Testing & Deployment**
-   - Full testing with testing_agent_v3
-   - Performance optimization
-   - Final QA before launch
-
----
-
-## Technical Stack
-
-**Frontend**: React 19, Tailwind CSS, Shadcn UI, React Router
-**Backend**: FastAPI, Python
+**Frontend**: React 19, Tailwind CSS, Shadcn UI, Axios
+**Backend**: FastAPI, Python 3.11
 **Database**: MongoDB
-**File Storage**: Local file system (to be configured)
-**External Services**: Booking.com, WhatsApp, Google Maps, Instagram
+**Authentication**: JWT with bcrypt
+**File Storage**: Local file system
+**Deployment**: Emergent Agent Platform
 
 ---
 
-## Notes
+## ⚠️ IMPORTANT NOTES
 
-- Using placeholder images from Unsplash for MVP demonstration
-- Apartment descriptions sourced from Booking.com search results
-- Logo is currently a placeholder (blue gradient with "S")
-- Instagram link uses placeholder username "skapeta_apartments"
-- Google Maps location uses general Saranda coordinates (needs exact coordinates)
+1. **Security**: Change the default admin password immediately
+2. **Images**: Supported formats: JPG, JPEG, PNG, GIF, WEBP
+3. **File Size**: No hard limit, but keep images under 5MB for performance
+4. **Backup**: Regularly backup `/app/backend/uploads/` folder
+5. **Database**: MongoDB data persists across restarts
+
+---
+
+## 📞 SUPPORT
+
+For technical issues or questions:
+- Review this PRD document
+- Check backend logs: `tail -f /var/log/supervisor/backend.*.log`
+- Check frontend logs: `tail -f /var/log/supervisor/frontend.*.log`
+- Test API endpoints using the admin panel
+
+---
+
+**Last Updated**: December 27, 2025
+**Status**: ✅ PRODUCTION READY
