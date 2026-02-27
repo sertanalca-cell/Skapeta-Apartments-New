@@ -6,7 +6,6 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from functools import wraps
 
 # Import route modules
 from routes import auth_routes, apartment_routes, upload_routes, gallery_routes, settings_routes
@@ -20,35 +19,17 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db_instance = client[os.environ['DB_NAME']]
 
+# Inject database into route modules
+auth_routes.set_db(db_instance)
+apartment_routes.set_db(db_instance)
+gallery_routes.set_db(db_instance)
+settings_routes.set_db(db_instance)
+
 # Create the main app
 app = FastAPI(title="Skapeta Apartments API")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
-
-# Monkey patch routes to inject database
-def inject_db_into_routes(router_module):
-    """Inject database into route functions"""
-    original_routes = []
-    for route in router_module.router.routes:
-        if hasattr(route, 'endpoint'):
-            original_endpoint = route.endpoint
-            
-            # Create wrapper that injects db
-            @wraps(original_endpoint)
-            async def wrapped_endpoint(*args, **kwargs):
-                # Inject db if not already present
-                if 'db' not in kwargs or kwargs['db'] is None:
-                    kwargs['db'] = db_instance
-                return await original_endpoint(*args, **kwargs)
-            
-            route.endpoint = wrapped_endpoint
-
-# Inject DB into all route modules
-inject_db_into_routes(auth_routes)
-inject_db_into_routes(apartment_routes)
-inject_db_into_routes(gallery_routes)
-inject_db_into_routes(settings_routes)
 
 # Include routers
 api_router.include_router(auth_routes.router)
