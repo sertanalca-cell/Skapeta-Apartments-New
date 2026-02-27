@@ -57,26 +57,38 @@ def decode_token(token: str) -> TokenData:
         )
 
 
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db = None
-) -> UserInDB:
-    """Get the current authenticated user"""
-    token = credentials.credentials
-    token_data = decode_token(token)
+class CurrentUserDep:
+    """Dependency class for getting current user with database"""
+    def __init__(self):
+        self.db = None
     
-    # Get user from database
-    if db is None:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Database connection not available"
-        )
+    def set_db(self, db):
+        self.db = db
     
-    user = await db.users.find_one({"email": token_data.email})
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
-        )
-    
-    return UserInDB(**user)
+    async def __call__(
+        self,
+        credentials: HTTPAuthorizationCredentials = Depends(security)
+    ) -> UserInDB:
+        """Get the current authenticated user"""
+        token = credentials.credentials
+        token_data = decode_token(token)
+        
+        # Get user from database
+        if self.db is None:
+            # Import here to avoid circular dependency
+            from server import db_instance
+            db = db_instance
+        else:
+            db = self.db
+        
+        user = await db.users.find_one({"email": token_data.email})
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found"
+            )
+        
+        return UserInDB(**user)
+
+# Create singleton instance
+get_current_user = CurrentUserDep()
