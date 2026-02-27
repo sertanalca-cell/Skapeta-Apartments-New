@@ -1,11 +1,12 @@
-from fastapi import FastAPI, APIRouter, Request, Depends
+from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
+from functools import wraps
 
 # Import route modules
 from routes import auth_routes, apartment_routes, upload_routes, gallery_routes, settings_routes
@@ -17,7 +18,7 @@ load_dotenv(ROOT_DIR / '.env')
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
-db_client = client[os.environ['DB_NAME']]
+db_instance = client[os.environ['DB_NAME']]
 
 # Create the main app
 app = FastAPI(title="Skapeta Apartments API")
@@ -25,21 +26,29 @@ app = FastAPI(title="Skapeta Apartments API")
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Dependency to get database
-async def get_db():
-    return db_client
+# Monkey patch routes to inject database
+def inject_db_into_routes(router_module):
+    """Inject database into route functions"""
+    original_routes = []
+    for route in router_module.router.routes:
+        if hasattr(route, 'endpoint'):
+            original_endpoint = route.endpoint
+            
+            # Create wrapper that injects db
+            @wraps(original_endpoint)
+            async def wrapped_endpoint(*args, **kwargs):
+                # Inject db if not already present
+                if 'db' not in kwargs or kwargs['db'] is None:
+                    kwargs['db'] = db_instance
+                return await original_endpoint(*args, **kwargs)
+            
+            route.endpoint = wrapped_endpoint
 
-# Helper to inject DB into route functions
-def create_db_endpoint(func):
-    async def wrapper(*args, **kwargs):
-        return await func(*args, **kwargs, db=db_client)
-    return wrapper
-
-# Update routes to include DB dependency
-auth_routes.router.dependencies.append(Depends(lambda: db_client))
-apartment_routes.router.dependencies.append(Depends(lambda: db_client))
-gallery_routes.router.dependencies.append(Depends(lambda: db_client))
-settings_routes.router.dependencies.append(Depends(lambda: db_client))
+# Inject DB into all route modules
+inject_db_into_routes(auth_routes)
+inject_db_into_routes(apartment_routes)
+inject_db_into_routes(gallery_routes)
+inject_db_into_routes(settings_routes)
 
 # Include routers
 api_router.include_router(auth_routes.router)
