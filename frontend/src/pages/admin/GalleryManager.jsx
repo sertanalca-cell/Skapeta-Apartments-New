@@ -75,6 +75,11 @@ export const GalleryManager = () => {
     }
   };
 
+  // Filter images based on active category
+  const filteredImages = activeCategory === 'all' 
+    ? images 
+    : images.filter(img => img.category === activeCategory);
+
   if (loading) {
     return (
       <AdminLayout>
@@ -92,112 +97,286 @@ export const GalleryManager = () => {
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-3xl font-bold text-slate-900">Gallery</h2>
-            <p className="text-slate-600">Manage your gallery images</p>
+            <p className="text-slate-600">Manage your gallery images and videos</p>
           </div>
         </div>
 
-        {/* Upload Area */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
-              <input
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                onChange={handleImageUpload}
-                className="hidden"
-                id="gallery-upload"
-                disabled={uploading}
-              />
-              <label
-                htmlFor="gallery-upload"
-                className="cursor-pointer flex flex-col items-center"
-              >
-                <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mb-4">
-                  {activeCategory === 'food' ? (
-                    <Utensils className="w-8 h-8 text-sky-600" />
-                  ) : (
-                    <Upload className="w-8 h-8 text-sky-600" />
-                  )}
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                  {uploading ? 'Uploading...' : activeCategory === 'food' ? 'Upload Food Service Images' : 'Upload Images & Videos'}
-                </h3>
-                <p className="text-slate-600">
-                  {activeCategory === 'food' 
-                    ? 'Upload food photos, menu images, and videos'
-                    : 'Click to select images and videos to upload'
-                  }
-                </p>
-                <p className="text-sm text-slate-500 mt-2">
-                  Supported: JPG, PNG, GIF, MP4, WEBM, MOV
-                </p>
-              </label>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Tabs for Categories */}
+        <Tabs defaultValue="all" onValueChange={setActiveCategory}>
+          <TabsList className="grid w-full max-w-md grid-cols-3">
+            <TabsTrigger value="all">
+              <ImageIcon className="w-4 h-4 mr-2" />
+              All ({images.length})
+            </TabsTrigger>
+            <TabsTrigger value="general">
+              General ({images.filter(i => i.category === 'general').length})
+            </TabsTrigger>
+            <TabsTrigger value="food">
+              <Utensils className="w-4 h-4 mr-2" />
+              Food ({images.filter(i => i.category === 'food').length})
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Gallery Grid */}
-        {filteredImages.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-slate-600">
-                {activeCategory === 'food' 
-                  ? 'No food service images yet. Upload your first menu item!' 
-                  : 'No images or videos in gallery yet'}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredImages.map((item) => (
-              <div key={item.id} className="relative group">
-                {item.media_type === 'video' ? (
-                  <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-md bg-slate-900">
-                    <video
-                      src={item.url}
-                      className="absolute top-0 left-0 w-full h-full object-cover"
-                      controls
-                    />
-                    <Badge className="absolute top-2 left-2 bg-purple-500 z-10">Video</Badge>
-                  </div>
-                ) : (
-                  <div className="aspect-square rounded-lg overflow-hidden shadow-md bg-slate-900">
-                    <img
-                      src={item.url}
-                      alt={item.caption || 'Gallery item'}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                
-                {item.category === 'food' && (
-                  <Badge className="absolute top-2 right-2 bg-orange-500 z-10">
-                    <Utensils className="w-3 h-3 mr-1" />
-                    Food
-                  </Badge>
-                )}
-                
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDelete(item)}
+          <TabsContent value="all" className="space-y-6">
+            {/* Upload Area */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    id="gallery-upload-all"
+                    disabled={uploading}
+                  />
+                  <label
+                    htmlFor="gallery-upload-all"
+                    className="cursor-pointer flex flex-col items-center"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
-                  </Button>
+                    <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mb-4">
+                      <Upload className="w-8 h-8 text-sky-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                      {uploading ? 'Uploading...' : 'Upload Images & Videos'}
+                    </h3>
+                    <p className="text-slate-600">
+                      Click to select images and videos to upload
+                    </p>
+                    <p className="text-sm text-slate-500 mt-2">
+                      Supported: JPG, PNG, GIF, MP4, WEBM, MOV
+                    </p>
+                  </label>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              </CardContent>
+            </Card>
 
-        <div className="text-center text-sm text-slate-500">
-          {activeCategory === 'all' && `Total: ${images.length} item(s) (${images.filter(i => i.media_type === 'video').length} videos, ${images.filter(i => i.media_type !== 'video').length} images)`}
-          {activeCategory === 'general' && `General Gallery: ${filteredImages.length} item(s)`}
-          {activeCategory === 'food' && `Food Service: ${filteredImages.length} item(s)`}
-        </div>
+            {/* Gallery Grid */}
+            {filteredImages.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-slate-600">No images or videos in gallery yet</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredImages.map((item) => (
+                  <div key={item.id} className="relative group">
+                    {item.media_type === 'video' ? (
+                      <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-md bg-slate-900">
+                        <video
+                          src={item.url}
+                          className="absolute top-0 left-0 w-full h-full object-cover"
+                          controls
+                        />
+                        <Badge className="absolute top-2 left-2 bg-purple-500 z-10">Video</Badge>
+                      </div>
+                    ) : (
+                      <div className="aspect-square rounded-lg overflow-hidden shadow-md bg-slate-900">
+                        <img
+                          src={item.url}
+                          alt={item.caption || 'Gallery item'}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    
+                    {item.category === 'food' && (
+                      <Badge className="absolute top-2 right-2 bg-orange-500 z-10">
+                        <Utensils className="w-3 h-3 mr-1" />
+                        Food
+                      </Badge>
+                    )}
+                    
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(item)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="text-center text-sm text-slate-500">
+              Total: {images.length} item(s) ({images.filter(i => i.media_type === 'video').length} videos, {images.filter(i => i.media_type !== 'video').length} images)
+            </div>
+          </TabsContent>
+
+          <TabsContent value="general" className="space-y-6">
+            {/* Upload Area */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    id="gallery-upload-general"
+                    disabled={uploading}
+                  />
+                  <label
+                    htmlFor="gallery-upload-general"
+                    className="cursor-pointer flex flex-col items-center"
+                  >
+                    <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mb-4">
+                      <Upload className="w-8 h-8 text-sky-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                      {uploading ? 'Uploading...' : 'Upload General Images & Videos'}
+                    </h3>
+                    <p className="text-slate-600">
+                      Click to select images and videos for general gallery
+                    </p>
+                    <p className="text-sm text-slate-500 mt-2">
+                      Supported: JPG, PNG, GIF, MP4, WEBM, MOV
+                    </p>
+                  </label>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Gallery Grid */}
+            {filteredImages.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-slate-600">No general gallery items yet. Upload your first image or video!</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredImages.map((item) => (
+                  <div key={item.id} className="relative group">
+                    {item.media_type === 'video' ? (
+                      <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-md bg-slate-900">
+                        <video
+                          src={item.url}
+                          className="absolute top-0 left-0 w-full h-full object-cover"
+                          controls
+                        />
+                        <Badge className="absolute top-2 left-2 bg-purple-500 z-10">Video</Badge>
+                      </div>
+                    ) : (
+                      <div className="aspect-square rounded-lg overflow-hidden shadow-md bg-slate-900">
+                        <img
+                          src={item.url}
+                          alt={item.caption || 'Gallery item'}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(item)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="text-center text-sm text-slate-500">
+              General Gallery: {filteredImages.length} item(s)
+            </div>
+          </TabsContent>
+
+          <TabsContent value="food" className="space-y-6">
+            {/* Upload Area */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    id="gallery-upload-food"
+                    disabled={uploading}
+                  />
+                  <label
+                    htmlFor="gallery-upload-food"
+                    className="cursor-pointer flex flex-col items-center"
+                  >
+                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                      <Utensils className="w-8 h-8 text-orange-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                      {uploading ? 'Uploading...' : 'Upload Food Service Images'}
+                    </h3>
+                    <p className="text-slate-600">
+                      Upload food photos, menu images, and videos
+                    </p>
+                    <p className="text-sm text-slate-500 mt-2">
+                      Supported: JPG, PNG, GIF, MP4, WEBM, MOV
+                    </p>
+                  </label>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Gallery Grid */}
+            {filteredImages.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-slate-600">No food service images yet. Upload your first menu item!</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredImages.map((item) => (
+                  <div key={item.id} className="relative group">
+                    {item.media_type === 'video' ? (
+                      <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-md bg-slate-900">
+                        <video
+                          src={item.url}
+                          className="absolute top-0 left-0 w-full h-full object-cover"
+                          controls
+                        />
+                        <Badge className="absolute top-2 left-2 bg-purple-500 z-10">Video</Badge>
+                      </div>
+                    ) : (
+                      <div className="aspect-square rounded-lg overflow-hidden shadow-md bg-slate-900">
+                        <img
+                          src={item.url}
+                          alt={item.caption || 'Gallery item'}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(item)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="text-center text-sm text-slate-500">
+              Food Service: {filteredImages.length} item(s)
+            </div>
           </TabsContent>
         </Tabs>
       </div>
