@@ -109,9 +109,9 @@ export const LandingPage = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               {settings?.logo_url ? (
-                <img src={settings.logo_url} alt="Logo" className="w-12 h-12 object-contain" />
+                <img src={settings.logo_url} alt="Logo" className="w-12 h-12 rounded-full object-cover border-2 border-sky-500" />
               ) : (
-                <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-xl">S</span>
                 </div>
               )}
@@ -177,9 +177,9 @@ export const LandingPage = () => {
           <div className="text-center max-w-4xl mx-auto">
             <div className="mb-8 inline-block animate-fade-in">
               {settings?.logo_url ? (
-                <img src={settings.logo_url} alt="Logo" className="w-24 h-24 object-contain mx-auto" />
+                <img src={settings.logo_url} alt="Logo" className="w-24 h-24 rounded-full object-cover shadow-2xl mx-auto border-4 border-sky-500" />
               ) : (
-                <div className="w-24 h-24 bg-gradient-to-br from-sky-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl mx-auto">
+                <div className="w-24 h-24 bg-gradient-to-br from-sky-400 to-blue-600 rounded-full flex items-center justify-center shadow-2xl mx-auto">
                   <span className="text-white font-bold text-4xl">S</span>
                 </div>
               )}
@@ -587,9 +587,9 @@ export const LandingPage = () => {
             <div>
               <div className="flex items-center gap-3 mb-4">
                 {settings?.logo_url ? (
-                  <img src={settings.logo_url} alt="Logo" className="w-12 h-12 object-contain" />
+                  <img src={settings.logo_url} alt="Logo" className="w-12 h-12 rounded-full object-cover border-2 border-sky-500" />
                 ) : (
-                  <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-600 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-600 rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-xl">S</span>
                   </div>
                 )}
