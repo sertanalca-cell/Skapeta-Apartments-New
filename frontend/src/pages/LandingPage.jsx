@@ -321,7 +321,10 @@ export const LandingPage = () => {
                       <video
                         src={item.url}
                         className="w-full h-full object-cover"
-                        controls
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
                         preload="metadata"
                       />
                       <div className="absolute top-4 right-4 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
