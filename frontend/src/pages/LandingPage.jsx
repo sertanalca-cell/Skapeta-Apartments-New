@@ -7,15 +7,43 @@ import {
   MapIcon, Check, ChevronLeft, ChevronRight,
   Upload, Calendar
 } from 'lucide-react';
-import { apartmentsData, galleryImages, foodImages, sightseeingData, translations } from '../mockData';
+import { apartmentsAPI, galleryAPI, settingsAPI } from '../services/api';
+import { sightseeingData, translations } from '../mockData';
 import QRCode from 'qrcode';
 
 export const LandingPage = () => {
   const [language, setLanguage] = useState('en');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState({});
+  const [apartments, setApartments] = useState([]);
+  const [gallery, setGallery] = useState([]);
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
   
   const t = translations[language];
+
+  // Fetch data from backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [apartmentsData, galleryData, settingsData] = await Promise.all([
+          apartmentsAPI.getAll(),
+          galleryAPI.getAll(),
+          settingsAPI.get(),
+        ]);
+        
+        setApartments(apartmentsData);
+        setGallery(galleryData);
+        setSettings(settingsData);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
 
   useEffect(() => {
     // Generate QR code for the website
@@ -37,7 +65,9 @@ export const LandingPage = () => {
 
   const handleImageNavigation = (apartmentId, direction) => {
     setCurrentImageIndex(prev => {
-      const apartment = apartmentsData.find(a => a.id === apartmentId);
+      const apartment = apartments.find(a => a.id === apartmentId);
+      if (!apartment || apartment.images.length === 0) return prev;
+      
       const currentIndex = prev[apartmentId] || 0;
       const maxIndex = apartment.images.length - 1;
       
@@ -48,6 +78,17 @@ export const LandingPage = () => {
       }
     });
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const downloadQRCode = () => {
     const link = document.createElement('a');
@@ -122,7 +163,7 @@ export const LandingPage = () => {
               <Button 
                 size="lg" 
                 className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-                onClick={() => window.open('https://www.booking.com/hotel/al/pirro-39-s-vacation-home.html', '_blank')}
+                onClick={() => window.open(settings?.booking_url || 'https://www.booking.com/hotel/al/pirro-39-s-vacation-home.html', '_blank')}
               >
                 <Calendar className="w-5 h-5 mr-2" />
                 {t.hero.bookNow}
@@ -132,7 +173,7 @@ export const LandingPage = () => {
                 size="lg" 
                 variant="outline"
                 className="border-2 border-green-500 text-green-600 hover:bg-green-50 px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-                onClick={() => window.open('https://wa.me/355693227207', '_blank')}
+                onClick={() => window.open(`https://wa.me/${settings?.whatsapp_number?.replace(/[^0-9]/g, '') || '355693227207'}`, '_blank')}
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 {t.hero.whatsapp}
@@ -246,7 +287,7 @@ export const LandingPage = () => {
 
                     <Button 
                       className="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
-                      onClick={() => window.open('https://www.booking.com/hotel/al/pirro-39-s-vacation-home.html', '_blank')}
+                      onClick={() => window.open(settings?.booking_url || 'https://www.booking.com/hotel/al/pirro-39-s-vacation-home.html', '_blank')}
                     >
                       {t.apartments.bookNow}
                     </Button>
@@ -254,7 +295,8 @@ export const LandingPage = () => {
                 </Card>
               );
             })}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -266,18 +308,24 @@ export const LandingPage = () => {
             <div className="w-24 h-1 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full"></div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {galleryImages.map((img, idx) => (
-              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden shadow-lg group cursor-pointer">
-                <img 
-                  src={img} 
-                  alt={`Gallery ${idx + 1}`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
-              </div>
-            ))}
-          </div>
+          {gallery.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-slate-600">Gallery coming soon...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {gallery.slice(0, 12).map((img, idx) => (
+                <div key={img.id || idx} className="relative aspect-square rounded-xl overflow-hidden shadow-lg group cursor-pointer">
+                  <img 
+                    src={img.url} 
+                    alt={img.caption || `Gallery ${idx + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -336,7 +384,7 @@ export const LandingPage = () => {
             <Button 
               size="lg"
               className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
-              onClick={() => window.open('https://maps.google.com/?q=Saranda,Albania', '_blank')}
+              onClick={() => window.open(settings?.google_maps_url || 'https://maps.google.com/?q=Saranda,Albania', '_blank')}
             >
               <MapIcon className="w-5 h-5 mr-2" />
               {t.location.viewMap}
@@ -387,7 +435,7 @@ export const LandingPage = () => {
             <div className="space-y-4">
               <Button 
                 className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white py-6 text-lg"
-                onClick={() => window.open('https://www.instagram.com/skapeta_apartments', '_blank')}
+                onClick={() => window.open(settings?.instagram_url || 'https://www.instagram.com/skapeta_apartments', '_blank')}
               >
                 <Instagram className="w-5 h-5 mr-2" />
                 {t.contact.instagram}
@@ -395,7 +443,7 @@ export const LandingPage = () => {
 
               <Button 
                 className="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white py-6 text-lg"
-                onClick={() => window.open('https://www.booking.com/hotel/al/pirro-39-s-vacation-home.html', '_blank')}
+                onClick={() => window.open(settings?.booking_url || 'https://www.booking.com/hotel/al/pirro-39-s-vacation-home.html', '_blank')}
               >
                 <Calendar className="w-5 h-5 mr-2" />
                 {t.contact.booking}
@@ -403,7 +451,7 @@ export const LandingPage = () => {
 
               <Button 
                 className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-6 text-lg"
-                onClick={() => window.open('https://wa.me/355693227207', '_blank')}
+                onClick={() => window.open(`https://wa.me/${settings?.whatsapp_number?.replace(/[^0-9]/g, '') || '355693227207'}`, '_blank')}
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 {t.contact.whatsapp}
@@ -411,7 +459,7 @@ export const LandingPage = () => {
 
               <Button 
                 className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white py-6 text-lg"
-                onClick={() => window.open('https://maps.google.com/?q=Saranda,Albania', '_blank')}
+                onClick={() => window.open(settings?.google_maps_url || 'https://maps.google.com/?q=Saranda,Albania', '_blank')}
               >
                 <MapPin className="w-5 h-5 mr-2" />
                 {t.contact.maps}
@@ -460,11 +508,11 @@ export const LandingPage = () => {
               <div className="space-y-2 text-slate-400">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
-                  <span>{t.footer.address}</span>
+                  <span>{settings?.address || t.footer.address}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4" />
-                  <span>{t.footer.phone}</span>
+                  <span>{settings?.phone || t.footer.phone}</span>
                 </div>
               </div>
             </div>
