@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
+import { Textarea } from '../../components/ui/textarea';
 import { settingsAPI, uploadAPI } from '../../services/api';
-import { Upload, Save } from 'lucide-react';
+import { Upload, Save, Star } from 'lucide-react';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -14,7 +15,7 @@ export const SettingsEditor = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploading, setUploading] = useState({ logo: false, hero: false });
 
   useEffect(() => {
     loadSettings();
@@ -32,26 +33,31 @@ export const SettingsEditor = () => {
     }
   };
 
-  const handleLogoUpload = async (e) => {
+  const handleFileUpload = async (e, type) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setUploadingLogo(true);
+    setUploading(prev => ({ ...prev, [type]: true }));
     try {
       const result = await uploadAPI.uploadImage(file);
-      const logoUrl = `${BACKEND_URL}${result.url}`;
+      const fileUrl = `${BACKEND_URL}${result.url}`;
       
-      setSettings(prev => ({
-        ...prev,
-        logo_url: logoUrl,
-      }));
+      if (type === 'logo') {
+        setSettings(prev => ({ ...prev, logo_url: fileUrl }));
+      } else if (type === 'hero') {
+        setSettings(prev => ({ 
+          ...prev, 
+          hero_background_url: fileUrl,
+          hero_background_type: result.media_type || 'image'
+        }));
+      }
       
-      toast.success('Logo uploaded');
+      toast.success(`${type} uploaded`);
     } catch (error) {
       console.error('Upload failed:', error);
-      toast.error('Failed to upload logo');
+      toast.error(`Failed to upload ${type}`);
     } finally {
-      setUploadingLogo(false);
+      setUploading(prev => ({ ...prev, [type]: false }));
     }
   };
 
@@ -68,6 +74,12 @@ export const SettingsEditor = () => {
         google_maps_url: settings.google_maps_url,
         phone: settings.phone,
         address: settings.address,
+        sponsored_by_text: settings.sponsored_by_text,
+        sponsored_by_url: settings.sponsored_by_url,
+        footer_custom_text: settings.footer_custom_text,
+        hero_background_url: settings.hero_background_url,
+        hero_background_type: settings.hero_background_type,
+        star_rating: settings.star_rating,
       });
       
       toast.success('Settings saved successfully');
@@ -92,46 +104,106 @@ export const SettingsEditor = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6 max-w-3xl">
+      <div className="space-y-6 max-w-4xl">
         <div>
           <h2 className="text-3xl font-bold text-slate-900">Settings</h2>
-          <p className="text-slate-600">Manage website settings and information</p>
+          <p className="text-slate-600">Manage website settings and branding</p>
         </div>
 
         <form onSubmit={handleSave} className="space-y-6">
-          {/* Logo */}
+          {/* Logo & Branding */}
           <Card>
             <CardHeader>
-              <CardTitle>Logo</CardTitle>
+              <CardTitle>Logo & Branding</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {settings.logo_url && (
-                <div className="w-32 h-32 border-2 border-slate-200 rounded-lg overflow-hidden">
-                  <img
-                    src={settings.logo_url}
-                    alt="Logo"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-              )}
-              
               <div>
+                <Label>Logo</Label>
+                {settings.logo_url && (
+                  <div className="w-32 h-32 border-2 border-slate-200 rounded-lg overflow-hidden mt-2 bg-white p-2">
+                    <img src={settings.logo_url} alt="Logo" className="w-full h-full object-contain" />
+                  </div>
+                )}
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={handleLogoUpload}
+                  onChange={(e) => handleFileUpload(e, 'logo')}
                   className="hidden"
                   id="logo-upload"
-                  disabled={uploadingLogo}
+                  disabled={uploading.logo}
                 />
                 <Button
                   type="button"
                   variant="outline"
+                  className="mt-2"
                   onClick={() => document.getElementById('logo-upload').click()}
-                  disabled={uploadingLogo}
+                  disabled={uploading.logo}
                 >
                   <Upload className="w-4 h-4 mr-2" />
-                  {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                  {uploading.logo ? 'Uploading...' : 'Upload Logo'}
+                </Button>
+              </div>
+
+              <div>
+                <Label htmlFor="star_rating">Star Rating</Label>
+                <div className="flex items-center gap-4 mt-2">
+                  <Input
+                    id="star_rating"
+                    type="number"
+                    min="1"
+                    max="5"
+                    value={settings.star_rating}
+                    onChange={(e) => setSettings({ ...settings, star_rating: parseInt(e.target.value) })}
+                    className="w-24"
+                  />
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-5 h-5 ${i < settings.star_rating ? 'fill-yellow-400 text-yellow-400' : 'text-slate-300'}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Hero Background */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Hero Background</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Background Image/Video</Label>
+                <p className="text-sm text-slate-500 mb-2">Upload an image or video for the hero section background</p>
+                {settings.hero_background_url && (
+                  <div className="w-full aspect-video border-2 border-slate-200 rounded-lg overflow-hidden mt-2">
+                    {settings.hero_background_type === 'video' ? (
+                      <video src={settings.hero_background_url} className="w-full h-full object-cover" controls />
+                    ) : (
+                      <img src={settings.hero_background_url} alt="Hero Background" className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={(e) => handleFileUpload(e, 'hero')}
+                  className="hidden"
+                  id="hero-upload"
+                  disabled={uploading.hero}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-2"
+                  onClick={() => document.getElementById('hero-upload').click()}
+                  disabled={uploading.hero}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {uploading.hero ? 'Uploading...' : 'Upload Background'}
                 </Button>
               </div>
             </CardContent>
@@ -208,6 +280,46 @@ export const SettingsEditor = () => {
                   onChange={(e) => setSettings({ ...settings, google_maps_url: e.target.value })}
                 />
               </div>
+
+              <div>
+                <Label htmlFor="sponsored_text">Sponsored By Text</Label>
+                <Input
+                  id="sponsored_text"
+                  placeholder="sponsored by @albaniatourism_"
+                  value={settings.sponsored_by_text}
+                  onChange={(e) => setSettings({ ...settings, sponsored_by_text: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="sponsored_url">Sponsored By URL</Label>
+                <Input
+                  id="sponsored_url"
+                  type="url"
+                  placeholder="https://www.instagram.com/albaniatourism_"
+                  value={settings.sponsored_by_url}
+                  onChange={(e) => setSettings({ ...settings, sponsored_by_url: e.target.value })}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Footer */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Footer</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div>
+                <Label htmlFor="footer_text">Custom Footer Text</Label>
+                <Textarea
+                  id="footer_text"
+                  rows={3}
+                  placeholder="This website was created by..."
+                  value={settings.footer_custom_text}
+                  onChange={(e) => setSettings({ ...settings, footer_custom_text: e.target.value })}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -218,7 +330,7 @@ export const SettingsEditor = () => {
               disabled={saving}
             >
               <Save className="w-4 h-4 mr-2" />
-              {saving ? 'Saving...' : 'Save Settings'}
+              {saving ? 'Saving...' : 'Save All Settings'}
             </Button>
           </div>
         </form>
