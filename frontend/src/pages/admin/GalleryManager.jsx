@@ -137,7 +137,7 @@ export const GalleryManager = () => {
             {images.map((item) => (
               <div key={item.id} className="relative group">
                 {item.media_type === 'video' ? (
-                  <div className="relative w-full rounded-lg overflow-hidden shadow-md bg-slate-900" style={{ paddingBottom: '56.25%' }}>
+                  <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-md bg-slate-900">
                     <video
                       src={item.url}
                       className="absolute top-0 left-0 w-full h-full object-cover"
