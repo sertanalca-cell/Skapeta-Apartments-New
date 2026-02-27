@@ -6,6 +6,7 @@ import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { ApartmentsManager } from "./pages/admin/ApartmentsManager";
 import { GalleryManager } from "./pages/admin/GalleryManager";
 import { SettingsEditor } from "./pages/admin/SettingsEditor";
+import { SightseeingManager } from "./pages/admin/SightseeingManager";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "./components/ui/sonner";
 
@@ -20,6 +21,7 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/apartments" element={<ApartmentsManager />} />
             <Route path="/admin/gallery" element={<GalleryManager />} />
+            <Route path="/admin/sightseeing" element={<SightseeingManager />} />
             <Route path="/admin/settings" element={<SettingsEditor />} />
           </Routes>
         </BrowserRouter>
