@@ -16,6 +16,7 @@ export const SettingsEditor = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState({ logo: false, hero: false, about: false });
+  const [newLink, setNewLink] = useState({ name: '', url: '' });
 
   useEffect(() => {
     loadSettings();
@@ -83,6 +84,14 @@ export const SettingsEditor = () => {
         hero_background_type: settings.hero_background_type,
         about_image_url: settings.about_image_url,
         star_rating: settings.star_rating,
+        hero_title: settings.hero_title,
+        hero_subtitle: settings.hero_subtitle,
+        about_title: settings.about_title,
+        about_description: settings.about_description,
+        food_service_title: settings.food_service_title,
+        food_service_description: settings.food_service_description,
+        food_service_subtitle: settings.food_service_subtitle,
+        custom_contact_links: settings.custom_contact_links || [],
       });
       
       toast.success('Settings saved successfully');
@@ -92,6 +101,23 @@ export const SettingsEditor = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const addCustomLink = () => {
+    if (!newLink.name || !newLink.url) {
+      toast.error('Please fill in name and URL');
+      return;
+    }
+    
+    const updatedLinks = [...(settings.custom_contact_links || []), newLink];
+    setSettings(prev => ({ ...prev, custom_contact_links: updatedLinks }));
+    setNewLink({ name: '', url: '' });
+    toast.success('Link added');
+  };
+
+  const removeCustomLink = (index) => {
+    const updatedLinks = settings.custom_contact_links.filter((_, i) => i !== index);
+    setSettings(prev => ({ ...prev, custom_contact_links: updatedLinks }));
   };
 
   if (loading) {
