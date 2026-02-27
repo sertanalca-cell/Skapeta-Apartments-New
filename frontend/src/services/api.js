@@ -129,4 +129,31 @@ export const settingsAPI = {
   },
 };
 
+// Sightseeing API
+export const sightseeingAPI = {
+  getAll: async () => {
+    const response = await api.get('/sightseeing');
+    return response.data;
+  },
+  
+  getById: async (id) => {
+    const response = await api.get(`/sightseeing/${id}`);
+    return response.data;
+  },
+  
+  create: async (placeData) => {
+    const response = await api.post('/sightseeing', placeData);
+    return response.data;
+  },
+  
+  update: async (id, placeData) => {
+    const response = await api.put(`/sightseeing/${id}`, placeData);
+    return response.data;
+  },
+  
+  delete: async (id) => {
+    await api.delete(`/sightseeing/${id}`);
+  },
+};
+
 export default api;
