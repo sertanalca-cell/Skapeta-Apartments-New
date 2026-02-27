@@ -91,6 +91,11 @@ class SightseeingPlaceUpdate(BaseModel):
 
 
 # Settings Models
+class CustomLink(BaseModel):
+    name: str
+    url: str
+    icon: str = "link"  # lucide icon name
+
 class Settings(BaseModel):
     id: str = "settings"
     logo_url: Optional[str] = None
@@ -107,6 +112,16 @@ class Settings(BaseModel):
     hero_background_type: str = "none"  # none, image, video
     about_image_url: Optional[str] = None
     star_rating: int = 3
+    # Content sections
+    hero_title: str = "Skapeta Apartments"
+    hero_subtitle: str = "3-star apartments in Saranda.\nLocated 8–10 minutes walk to the city center,\n3–5 minutes walk to the beach."
+    about_title: str = "Welcome to Skapeta Apartments"
+    about_description: str = "Experience comfort and hospitality in the heart of Saranda. Our recently renovated 3-star apartments offer modern amenities, stunning mountain views, and a perfect location just minutes from the beach and city center."
+    food_service_title: str = "Food Service"
+    food_service_description: str = "We also offer breakfast, lunch, and dinner service for our guests."
+    food_service_subtitle: str = "All meals are prepared with love, care, and quality ingredients."
+    # Custom contact links
+    custom_contact_links: List[dict] = []
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 class SettingsUpdate(BaseModel):
@@ -124,6 +139,14 @@ class SettingsUpdate(BaseModel):
     hero_background_type: Optional[str] = None
     about_image_url: Optional[str] = None
     star_rating: Optional[int] = None
+    hero_title: Optional[str] = None
+    hero_subtitle: Optional[str] = None
+    about_title: Optional[str] = None
+    about_description: Optional[str] = None
+    food_service_title: Optional[str] = None
+    food_service_description: Optional[str] = None
+    food_service_subtitle: Optional[str] = None
+    custom_contact_links: Optional[List[dict]] = None
 
 
 # Authentication Models
