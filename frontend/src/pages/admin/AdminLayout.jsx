@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
 import { 
   LogOut, Home, Building2, Image, Settings, 
-  LayoutDashboard 
+  LayoutDashboard, MapIcon 
 } from 'lucide-react';
 
 export const AdminLayout = ({ children }) => {
@@ -36,6 +36,7 @@ export const AdminLayout = ({ children }) => {
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/admin/apartments', icon: Building2, label: 'Apartments' },
     { path: '/admin/gallery', icon: Image, label: 'Gallery' },
+    { path: '/admin/sightseeing', icon: MapIcon, label: 'Sightseeing' },
     { path: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
