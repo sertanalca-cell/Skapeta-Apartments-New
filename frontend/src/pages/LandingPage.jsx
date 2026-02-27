@@ -7,9 +7,10 @@ import {
   MapIcon, Check, ChevronLeft, ChevronRight,
   Upload, Calendar
 } from 'lucide-react';
-import { apartmentsAPI, galleryAPI, settingsAPI } from '../services/api';
-import { sightseeingData, translations } from '../mockData';
+import { apartmentsAPI, galleryAPI, sightseeingAPI, settingsAPI } from '../services/api';
+import { translations } from '../mockData';
 import QRCode from 'qrcode';
+import { Star } from 'lucide-react';
 
 export const LandingPage = () => {
   const [language, setLanguage] = useState('en');
@@ -17,6 +18,7 @@ export const LandingPage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState({});
   const [apartments, setApartments] = useState([]);
   const [gallery, setGallery] = useState([]);
+  const [sightseeing, setSightseeing] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -26,14 +28,16 @@ export const LandingPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [apartmentsData, galleryData, settingsData] = await Promise.all([
+        const [apartmentsData, galleryData, sightseeingData, settingsData] = await Promise.all([
           apartmentsAPI.getAll(),
           galleryAPI.getAll(),
+          sightseeingAPI.getAll(),
           settingsAPI.get(),
         ]);
         
         setApartments(apartmentsData);
         setGallery(galleryData);
+        setSightseeing(sightseeingData);
         setSettings(settingsData);
       } catch (error) {
         console.error('Failed to fetch data:', error);
@@ -104,9 +108,13 @@ export const LandingPage = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">S</span>
-              </div>
+              {settings?.logo_url ? (
+                <img src={settings.logo_url} alt="Logo" className="w-12 h-12 object-contain" />
+              ) : (
+                <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-xl">S</span>
+                </div>
+              )}
               <span className="font-semibold text-xl text-slate-800">Skapeta</span>
             </div>
             
@@ -139,6 +147,28 @@ export const LandingPage = () => {
 
       {/* Hero Section */}
       <section id="home" className="pt-32 pb-20 px-4 relative overflow-hidden">
+        {/* Hero Background */}
+        {settings?.hero_background_url && settings.hero_background_type !== 'none' && (
+          <div className="absolute inset-0 z-0">
+            {settings.hero_background_type === 'video' ? (
+              <video
+                src={settings.hero_background_url}
+                className="w-full h-full object-cover opacity-20"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : (
+              <img
+                src={settings.hero_background_url}
+                alt="Background"
+                className="w-full h-full object-cover opacity-20"
+              />
+            )}
+          </div>
+        )}
+        
         <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-blue-50 to-slate-50 opacity-70"></div>
         <div className="absolute top-20 right-10 w-72 h-72 bg-sky-200 rounded-full blur-3xl opacity-20 animate-pulse"></div>
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-20 animate-pulse"></div>
@@ -146,14 +176,27 @@ export const LandingPage = () => {
         <div className="container mx-auto relative z-10">
           <div className="text-center max-w-4xl mx-auto">
             <div className="mb-8 inline-block animate-fade-in">
-              <div className="w-24 h-24 bg-gradient-to-br from-sky-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl mx-auto">
-                <span className="text-white font-bold text-4xl">S</span>
-              </div>
+              {settings?.logo_url ? (
+                <img src={settings.logo_url} alt="Logo" className="w-24 h-24 object-contain mx-auto" />
+              ) : (
+                <div className="w-24 h-24 bg-gradient-to-br from-sky-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl mx-auto">
+                  <span className="text-white font-bold text-4xl">S</span>
+                </div>
+              )}
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 text-slate-900 animate-fade-in">
+            <h1 className="text-5xl md:text-7xl font-bold mb-4 text-slate-900 animate-fade-in">
               {t.hero.title}
             </h1>
+            
+            {/* Star Rating */}
+            {settings?.star_rating > 0 && (
+              <div className="flex justify-center gap-1 mb-6">
+                {[...Array(settings.star_rating)].map((_, i) => (
+                  <Star key={i} className="w-8 h-8 fill-yellow-400 text-yellow-400" />
+                ))}
+              </div>
+            )}
             
             <p className="text-xl md:text-2xl text-slate-600 mb-10 leading-relaxed whitespace-pre-line">
               {t.hero.subtitle}
@@ -431,24 +474,30 @@ export const LandingPage = () => {
             <div className="w-24 h-1 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full"></div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {sightseeingData.map((place) => (
-              <Card key={place.id} className="overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
-                <div className="relative aspect-video">
-                  <img 
-                    src={place.image} 
-                    alt={place.name}
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <h3 className="absolute bottom-4 left-4 text-2xl font-bold text-white">{place.name}</h3>
-                </div>
-                <CardContent className="p-6">
-                  <p className="text-slate-600">{place.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {sightseeing.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-slate-600">Coming soon...</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-8">
+              {sightseeing.map((place) => (
+                <Card key={place.id} className="overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+                  <div className="relative aspect-video">
+                    <img 
+                      src={place.image_url} 
+                      alt={place.name}
+                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <h3 className="absolute bottom-4 left-4 text-2xl font-bold text-white">{place.name}</h3>
+                  </div>
+                  <CardContent className="p-6">
+                    <p className="text-slate-600">{place.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -494,6 +543,18 @@ export const LandingPage = () => {
                 <MapPin className="w-5 h-5 mr-2" />
                 {t.contact.maps}
               </Button>
+              
+              {/* Sponsored Link */}
+              {settings?.sponsored_by_text && settings?.sponsored_by_url && (
+                <a
+                  href={settings.sponsored_by_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-center text-slate-600 hover:text-sky-600 transition-colors mt-4"
+                >
+                  {settings.sponsored_by_text}
+                </a>
+              )}
             </div>
 
             {/* QR Code */}
@@ -525,12 +586,23 @@ export const LandingPage = () => {
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">S</span>
-                </div>
+                {settings?.logo_url ? (
+                  <img src={settings.logo_url} alt="Logo" className="w-12 h-12 object-contain" />
+                ) : (
+                  <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-xl">S</span>
+                  </div>
+                )}
                 <span className="font-semibold text-xl">Skapeta Apartments</span>
               </div>
               <p className="text-slate-400">{t.hero.subtitle.split('\n')[0]}</p>
+              {settings?.star_rating > 0 && (
+                <div className="flex gap-1 mt-2">
+                  {[...Array(settings.star_rating)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>
@@ -557,8 +629,11 @@ export const LandingPage = () => {
             </div>
           </div>
 
-          <div className="border-t border-slate-800 pt-8 text-center text-slate-400">
-            <p>© {new Date().getFullYear()} Skapeta Apartments. {t.footer.rights}</p>
+          <div className="border-t border-slate-800 pt-8">
+            {settings?.footer_custom_text && (
+              <p className="text-slate-400 text-sm text-center mb-4">{settings.footer_custom_text}</p>
+            )}
+            <p className="text-center text-slate-400">© {new Date().getFullYear()} Skapeta Apartments. {t.footer.rights}</p>
           </div>
         </div>
       </footer>
