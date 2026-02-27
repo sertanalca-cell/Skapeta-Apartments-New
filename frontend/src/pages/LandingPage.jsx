@@ -313,14 +313,14 @@ export const LandingPage = () => {
               <p className="text-slate-600">Gallery coming soon...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {gallery.slice(0, 12).map((item, idx) => (
                 <div key={item.id || idx} className="relative rounded-xl overflow-hidden shadow-lg group">
                   {item.media_type === 'video' ? (
-                    <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <div className="relative aspect-square bg-slate-900">
                       <video
                         src={item.url}
-                        className="absolute top-0 left-0 w-full h-full object-cover rounded-xl"
+                        className="absolute top-0 left-0 w-full h-full object-cover"
                         autoPlay
                         muted
                         loop
