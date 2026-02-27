@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from motor.motor_asyncio import AsyncIOMotorDatabase
 from models import LoginRequest, Token, User, UserCreate, UserInDB
 from auth import (
     verify_password, 
@@ -11,20 +10,32 @@ from datetime import timedelta
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
+# Database will be injected by server.py
+_db = None
 
-async def get_user_by_email(db: AsyncIOMotorDatabase, email: str):
+def set_db(database):
+    """Set database instance"""
+    global _db
+    _db = database
+
+def get_db():
+    """Get database instance"""
+    return _db
+
+
+async def get_user_by_email(email: str):
     """Get user by email"""
-    user = await db.users.find_one({"email": email})
+    user = await _db.users.find_one({"email": email})
     if user:
         return UserInDB(**user)
     return None
 
 
 @router.post("/register", response_model=User, status_code=status.HTTP_201_CREATED)
-async def register(user_data: UserCreate, db: AsyncIOMotorDatabase):
+async def register(user_data: UserCreate):
     """Register a new admin user"""
     # Check if user already exists
-    existing_user = await get_user_by_email(db, user_data.email)
+    existing_user = await get_user_by_email(user_data.email)
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -38,16 +49,16 @@ async def register(user_data: UserCreate, db: AsyncIOMotorDatabase):
         hashed_password=get_password_hash(user_data.password)
     )
     
-    await db.users.insert_one(user.dict())
+    await _db.users.insert_one(user.dict())
     
     return User(**user.dict())
 
 
 @router.post("/login", response_model=Token)
-async def login(login_data: LoginRequest, db: AsyncIOMotorDatabase):
+async def login(login_data: LoginRequest):
     """Login and get access token"""
     # Get user
-    user = await get_user_by_email(db, login_data.email)
+    user = await get_user_by_email(login_data.email)
     
     if not user or not verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
