@@ -40,7 +40,7 @@ export const AdminLogin = () => {
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="space-y-2">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-sky-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="w-16 h-16 bg-gradient-to-br from-sky-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-3xl">S</span>
             </div>
           </div>
