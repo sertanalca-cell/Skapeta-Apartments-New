@@ -112,14 +112,14 @@ export const AdminDashboard = () => {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               <button
                 onClick={() => navigate('/admin/apartments')}
                 className="p-4 border-2 border-slate-200 rounded-lg hover:border-sky-500 hover:bg-sky-50 transition-all text-left"
               >
                 <Building2 className="w-8 h-8 text-sky-600 mb-2" />
-                <h3 className="font-semibold text-slate-900">Add New Apartment</h3>
-                <p className="text-sm text-slate-600">Create a new apartment listing</p>
+                <h3 className="font-semibold text-slate-900">Manage Apartments</h3>
+                <p className="text-sm text-slate-600">Add, edit or remove apartments</p>
               </button>
 
               <button
@@ -127,8 +127,44 @@ export const AdminDashboard = () => {
                 className="p-4 border-2 border-slate-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-all text-left"
               >
                 <Image className="w-8 h-8 text-purple-600 mb-2" />
-                <h3 className="font-semibold text-slate-900">Upload Images</h3>
-                <p className="text-sm text-slate-600">Add photos to gallery</p>
+                <h3 className="font-semibold text-slate-900">Manage Gallery</h3>
+                <p className="text-sm text-slate-600">Upload and organize photos & videos</p>
+              </button>
+
+              <button
+                onClick={() => navigate('/admin/gallery')}
+                className="p-4 border-2 border-slate-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all text-left"
+              >
+                <Utensils className="w-8 h-8 text-orange-600 mb-2" />
+                <h3 className="font-semibold text-slate-900">Food Service Gallery</h3>
+                <p className="text-sm text-slate-600">Manage menu and food images</p>
+              </button>
+
+              <button
+                onClick={() => navigate('/admin/sightseeing')}
+                className="p-4 border-2 border-slate-200 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all text-left"
+              >
+                <MapIcon className="w-8 h-8 text-teal-600 mb-2" />
+                <h3 className="font-semibold text-slate-900">Manage Sightseeing</h3>
+                <p className="text-sm text-slate-600">Add tourist attractions & spots</p>
+              </button>
+
+              <button
+                onClick={() => navigate('/admin/settings')}
+                className="p-4 border-2 border-slate-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all text-left"
+              >
+                <SettingsIcon className="w-8 h-8 text-green-600 mb-2" />
+                <h3 className="font-semibold text-slate-900">Website Settings</h3>
+                <p className="text-sm text-slate-600">Edit site content and links</p>
+              </button>
+
+              <button
+                onClick={() => navigate('/admin/settings')}
+                className="p-4 border-2 border-slate-200 rounded-lg hover:border-amber-500 hover:bg-amber-50 transition-all text-left"
+              >
+                <Edit className="w-8 h-8 text-amber-600 mb-2" />
+                <h3 className="font-semibold text-slate-900">Quick Edit</h3>
+                <p className="text-sm text-slate-600">Update hero, about & contact info</p>
               </button>
             </div>
           </CardContent>
