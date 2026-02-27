@@ -74,7 +74,20 @@ class SightseeingPlace(BaseModel):
     name: str
     description: str
     image_url: str
+    order: int = 0
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SightseeingPlaceCreate(BaseModel):
+    name: str
+    description: str
+    image_url: str
+    order: int = 0
+
+class SightseeingPlaceUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    order: Optional[int] = None
 
 
 # Settings Models
@@ -87,6 +100,12 @@ class Settings(BaseModel):
     google_maps_url: str = "https://maps.google.com/?q=Saranda,Albania"
     phone: str = "+355 69 322 7207"
     address: str = "Saranda, Albania"
+    sponsored_by_text: str = "sponsored by @albaniatourism_"
+    sponsored_by_url: str = "https://www.instagram.com/albaniatourism_"
+    footer_custom_text: str = "This website was created by Sertan Nalça and for any support, please contact 00355692033673"
+    hero_background_url: Optional[str] = None
+    hero_background_type: str = "none"  # none, image, video
+    star_rating: int = 3
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 class SettingsUpdate(BaseModel):
@@ -97,6 +116,12 @@ class SettingsUpdate(BaseModel):
     google_maps_url: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
+    sponsored_by_text: Optional[str] = None
+    sponsored_by_url: Optional[str] = None
+    footer_custom_text: Optional[str] = None
+    hero_background_url: Optional[str] = None
+    hero_background_type: Optional[str] = None
+    star_rating: Optional[int] = None
 
 
 # Authentication Models
