@@ -240,7 +240,7 @@ export const LandingPage = () => {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {apartmentsData.map((apartment) => {
+            {apartments.map((apartment) => {
               const currentIdx = currentImageIndex[apartment.id] || 0;
               return (
                 <Card key={apartment.id} className="overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
