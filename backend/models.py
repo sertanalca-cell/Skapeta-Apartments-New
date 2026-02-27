@@ -105,6 +105,7 @@ class Settings(BaseModel):
     footer_custom_text: str = "This website was created by Sertan Nalça and for any support, please contact 00355692033673"
     hero_background_url: Optional[str] = None
     hero_background_type: str = "none"  # none, image, video
+    about_image_url: Optional[str] = None
     star_rating: int = 3
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -121,6 +122,7 @@ class SettingsUpdate(BaseModel):
     footer_custom_text: Optional[str] = None
     hero_background_url: Optional[str] = None
     hero_background_type: Optional[str] = None
+    about_image_url: Optional[str] = None
     star_rating: Optional[int] = None
 
 
