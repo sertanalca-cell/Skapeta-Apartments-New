@@ -11,11 +11,21 @@ export const OrdersManager = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [lastOrderCount, setLastOrderCount] = useState(0);
+  const [audioInitialized, setAudioInitialized] = useState(false);
+
+  // Initialize notification sound
+  const notificationSound = React.useRef(null);
+
+  useEffect(() => {
+    // Create audio element for notification
+    notificationSound.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE'); 
+  }, []);
 
   useEffect(() => {
     loadOrders();
-    // Poll for new orders every 10 seconds
-    const interval = setInterval(loadOrders, 10000);
+    // Poll for new orders every 5 seconds
+    const interval = setInterval(loadOrders, 5000);
     return () => clearInterval(interval);
   }, [statusFilter]);
 
