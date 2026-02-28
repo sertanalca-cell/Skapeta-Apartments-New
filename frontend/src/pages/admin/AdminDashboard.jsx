@@ -112,7 +112,7 @@ export const AdminDashboard = () => {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               <button
                 onClick={() => navigate('/admin/apartments')}
                 className="p-4 border-2 border-slate-200 rounded-lg hover:border-sky-500 hover:bg-sky-50 transition-all text-left"
@@ -147,6 +147,24 @@ export const AdminDashboard = () => {
                 <MapIcon className="w-8 h-8 text-teal-600 mb-2" />
                 <h3 className="font-semibold text-slate-900">Manage Sightseeing</h3>
                 <p className="text-sm text-slate-600">Add tourist attractions & spots</p>
+              </button>
+
+              <button
+                onClick={() => navigate('/admin/orders')}
+                className="p-4 border-2 border-slate-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-all text-left"
+              >
+                <ShoppingCart className="w-8 h-8 text-red-600 mb-2" />
+                <h3 className="font-semibold text-slate-900">Food Orders</h3>
+                <p className="text-sm text-slate-600">Manage customer food orders</p>
+              </button>
+
+              <button
+                onClick={() => navigate('/admin/menu')}
+                className="p-4 border-2 border-slate-200 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition-all text-left"
+              >
+                <UtensilsCrossed className="w-8 h-8 text-yellow-600 mb-2" />
+                <h3 className="font-semibold text-slate-900">Menu Management</h3>
+                <p className="text-sm text-slate-600">Edit food menu items</p>
               </button>
 
               <button
