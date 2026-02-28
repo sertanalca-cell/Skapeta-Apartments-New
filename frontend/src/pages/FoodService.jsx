@@ -130,7 +130,10 @@ export const FoodService = () => {
         }))
       };
 
-      await ordersAPI.create(orderData);
+      const newOrder = await ordersAPI.create(orderData);
+      
+      // Send WhatsApp notification
+      sendWhatsAppNotification(newOrder);
       
       toast.success('Order placed successfully!');
       setCartItems([]);
@@ -147,6 +150,30 @@ export const FoodService = () => {
       console.error('Failed to place order:', error);
       toast.error('Failed to place order. Please try again.');
     }
+  };
+
+  const sendWhatsAppNotification = (order) => {
+    // Format order details for WhatsApp
+    const itemsText = order.items.map(item => 
+      `  • ${item.quantity}x ${item.menu_item_name} - €${(item.price * item.quantity).toFixed(2)}`
+    ).join('\n');
+    
+    const message = `🔔 *NEW ORDER RECEIVED*\n\n` +
+      `📋 Order #*${order.order_number}*\n` +
+      `👤 Customer: *${order.first_name} ${order.last_name}*\n` +
+      `📞 Phone: ${order.phone || 'N/A'}\n` +
+      `🏠 Apartment: *${order.apartment_number}*\n\n` +
+      `🍽️ *Order Items:*\n${itemsText}\n\n` +
+      `💰 *Total: €${order.total_price.toFixed(2)}*\n\n` +
+      `📝 Notes: ${order.notes || 'None'}`;
+    
+    // Open WhatsApp with pre-filled message
+    const whatsappNumber = '355693227207';
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+    
+    // Open in new tab
+    window.open(whatsappUrl, '_blank');
   };
 
   const getStatusIcon = (status) => {
