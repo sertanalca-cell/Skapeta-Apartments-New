@@ -2,10 +2,19 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from models import MenuItem, MenuItemCreate, MenuItemUpdate
-from server import get_database
 from auth import get_current_user
 
 router = APIRouter()
+
+# Database dependency
+_db = None
+
+def set_db(db):
+    global _db
+    _db = db
+
+def get_database():
+    return _db
 
 
 @router.get("/menu-items", response_model=List[MenuItem])
