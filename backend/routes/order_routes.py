@@ -119,9 +119,12 @@ async def send_whatsapp_notification(order: dict):
     
     # Log the WhatsApp notification (will be picked up by frontend)
     print(f"📱 WhatsApp notification prepared for order #{order_number}")
+    print(f"Message: {message[:100]}...")  # Log first 100 chars
     
     # Note: This creates the data structure. The actual WhatsApp send
     # will be triggered from frontend using WhatsApp Web API
+    # whatsapp_data is prepared for future use if needed
+    return whatsapp_data
 
 
 @router.put("/orders/{order_id}", response_model=Order)
