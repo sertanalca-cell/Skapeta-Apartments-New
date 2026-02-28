@@ -348,8 +348,7 @@ export const LandingPage = () => {
                 </Card>
               );
             })}
-            </div>
-          )}
+          </div>
         </div>
       </section>
 
