@@ -33,7 +33,32 @@ export const OrdersManager = () => {
     try {
       const filter = statusFilter === 'all' ? null : statusFilter;
       const data = await ordersAPI.getAll(filter);
+      
+      // Check for new orders and play sound
+      if (audioInitialized && data.length > lastOrderCount) {
+        const newOrders = data.filter(order => 
+          order.status === 'pending' && 
+          !orders.some(existing => existing.id === order.id)
+        );
+        
+        if (newOrders.length > 0 && notificationSound.current) {
+          notificationSound.current.play().catch(err => console.log('Sound play failed:', err));
+          
+          // Browser notification
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(`${newOrders.length} New Order${newOrders.length > 1 ? 's' : ''}!`, {
+              body: `Order #${newOrders[0].order_number} from ${newOrders[0].first_name} ${newOrders[0].last_name}`,
+              icon: '/logo192.png',
+              tag: 'new-order'
+            });
+          }
+        }
+      }
+      
       setOrders(data);
+      if (audioInitialized) {
+        setLastOrderCount(data.length);
+      }
     } catch (error) {
       console.error('Failed to load orders:', error);
       toast.error('Failed to load orders');
@@ -41,6 +66,14 @@ export const OrdersManager = () => {
       setLoading(false);
     }
   };
+
+  // Request notification permission on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+    setAudioInitialized(true);
+  }, []);
 
   const updateOrderStatus = async (orderId, status, estimatedTime = null) => {
     try {
