@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit } from 'lucide-react';
-import { apartmentsAPI, galleryAPI, settingsAPI } from '../../services/api';
+import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit, ShoppingCart, UtensilsCrossed, DollarSign, Package } from 'lucide-react';
+import { apartmentsAPI, galleryAPI, settingsAPI, ordersAPI, menuAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
 export const AdminDashboard = () => {
@@ -10,6 +10,11 @@ export const AdminDashboard = () => {
     apartments: 0,
     galleryImages: 0,
     foodImages: 0,
+    totalOrders: 0,
+    pendingOrders: 0,
+    totalRevenue: 0,
+    todayRevenue: 0,
+    menuItems: 0,
     loading: true,
   });
   const navigate = useNavigate();
@@ -20,15 +25,29 @@ export const AdminDashboard = () => {
 
   const loadStats = async () => {
     try {
-      const [apartments, gallery] = await Promise.all([
+      const [apartments, gallery, orders, menuItems] = await Promise.all([
         apartmentsAPI.getAll(),
         galleryAPI.getAll(),
+        ordersAPI.getAll(),
+        menuAPI.getAll(),
       ]);
+
+      // Calculate today's revenue
+      const today = new Date().toDateString();
+      const todayOrders = orders.filter(order => 
+        new Date(order.created_at).toDateString() === today
+      );
+      const todayRevenue = todayOrders.reduce((sum, order) => sum + order.total_price, 0);
 
       setStats({
         apartments: apartments.length,
         galleryImages: gallery.length,
         foodImages: gallery.filter(img => img.category === 'food').length,
+        totalOrders: orders.length,
+        pendingOrders: orders.filter(o => o.status === 'pending').length,
+        totalRevenue: orders.reduce((sum, o) => sum + o.total_price, 0),
+        todayRevenue: todayRevenue,
+        menuItems: menuItems.length,
         loading: false,
       });
     } catch (error) {
