@@ -95,14 +95,14 @@ async def delete_order(
     return {"message": "Order deleted successfully"}
 
 
-@router.get("/orders/customer/{apartment_number}", response_model=List[Order])
-async def get_customer_orders(
-    apartment_number: str,
+@router.get("/orders/user/{user_id}", response_model=List[Order])
+async def get_user_orders(
+    user_id: str,
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
-    """Get orders for a specific apartment (for customer tracking)"""
+    """Get orders for a specific user (for customer tracking by user_id)"""
     orders = await db.orders.find(
-        {"apartment_number": apartment_number},
+        {"user_id": user_id},
         {"_id": 0}
     ).sort("created_at", -1).to_list(100)
     return orders
