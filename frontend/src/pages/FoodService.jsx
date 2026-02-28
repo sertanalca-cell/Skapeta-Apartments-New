@@ -1,0 +1,413 @@
+import React, { useState, useEffect } from 'react';
+import { Button } from '../components/ui/button';
+import { Card, CardContent } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { ShoppingCart, Search, Clock, CheckCircle2, Truck, Package } from 'lucide-react';
+import { menuAPI, ordersAPI } from '../services/api';
+import { Cart } from '../components/Cart';
+import { toast } from 'sonner';
+
+export const FoodService = () => {
+  const [menuItems, setMenuItems] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
+  const [showCart, setShowCart] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [customerName, setCustomerName] = useState('');
+  const [apartmentNumber, setApartmentNumber] = useState('');
+  const [orderNotes, setOrderNotes] = useState('');
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [showOrders, setShowOrders] = useState(false);
+
+  useEffect(() => {
+    loadMenu();
+    loadRecentOrders();
+  }, []);
+
+  const loadMenu = async () => {
+    try {
+      const items = await menuAPI.getAll(true);
+      setMenuItems(items);
+    } catch (error) {
+      console.error('Failed to load menu:', error);
+      toast.error('Failed to load menu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadRecentOrders = () => {
+    const savedApartment = localStorage.getItem('apartmentNumber');
+    if (savedApartment) {
+      setApartmentNumber(savedApartment);
+      fetchCustomerOrders(savedApartment);
+    }
+  };
+
+  const fetchCustomerOrders = async (apartment) => {
+    try {
+      const orders = await ordersAPI.getByApartment(apartment);
+      setRecentOrders(orders.slice(0, 3));
+    } catch (error) {
+      console.error('Failed to load orders:', error);
+    }
+  };
+
+  const categories = ['All', ...new Set(menuItems.map(item => item.category))];
+
+  const filteredItems = menuItems.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const addToCart = (item) => {
+    const existingItem = cartItems.find(ci => ci.id === item.id);
+    if (existingItem) {
+      setCartItems(cartItems.map(ci => 
+        ci.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci
+      ));
+    } else {
+      setCartItems([...cartItems, { ...item, quantity: 1 }]);
+    }
+    setShowCart(true);
+    toast.success(`${item.name} added to cart`);
+  };
+
+  const updateQuantity = (itemId, newQuantity) => {
+    if (newQuantity < 1) {
+      removeFromCart(itemId);
+      return;
+    }
+    setCartItems(cartItems.map(item => 
+      item.id === itemId ? { ...item, quantity: newQuantity } : item
+    ));
+  };
+
+  const removeFromCart = (itemId) => {
+    setCartItems(cartItems.filter(item => item.id !== itemId));
+    toast.info('Item removed from cart');
+  };
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      toast.error('Your cart is empty');
+      return;
+    }
+    setShowCheckout(true);
+    setShowCart(false);
+  };
+
+  const submitOrder = async () => {
+    if (!customerName.trim() || !apartmentNumber.trim()) {
+      toast.error('Please fill in your name and apartment number');
+      return;
+    }
+
+    try {
+      const orderData = {
+        customer_name: customerName,
+        apartment_number: apartmentNumber,
+        notes: orderNotes,
+        items: cartItems.map(item => ({
+          menu_item_id: item.id,
+          menu_item_name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      };
+
+      const order = await ordersAPI.create(orderData);
+      localStorage.setItem('apartmentNumber', apartmentNumber);
+      
+      toast.success('Order placed successfully!');
+      setCartItems([]);
+      setShowCheckout(false);
+      setOrderNotes('');
+      
+      // Reload recent orders
+      fetchCustomerOrders(apartmentNumber);
+      
+      // Show order tracking
+      setTimeout(() => setShowOrders(true), 500);
+    } catch (error) {
+      console.error('Failed to place order:', error);
+      toast.error('Failed to place order. Please try again.');
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'pending': return <Clock className="w-4 h-4" />;
+      case 'accepted': return <CheckCircle2 className="w-4 h-4" />;
+      case 'preparing': return <Package className="w-4 h-4" />;
+      case 'on_the_way': return <Truck className="w-4 h-4" />;
+      case 'delivered': return <CheckCircle2 className="w-4 h-4" />;
+      default: return <Clock className="w-4 h-4" />;
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-500';
+      case 'accepted': return 'bg-blue-500';
+      case 'preparing': return 'bg-orange-500';
+      case 'on_the_way': return 'bg-purple-500';
+      case 'delivered': return 'bg-green-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getStatusText = (status) => {
+    return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-400">Loading menu...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 pt-20 pb-20">
+      <div className="container mx-auto px-4 max-w-7xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+            Food Service Menu
+          </h1>
+          <p className="text-lg text-slate-600 dark:text-slate-300">
+            Order delicious meals delivered to your apartment
+          </p>
+        </div>
+
+        {/* Cart Button (Mobile) */}
+        <button
+          onClick={() => setShowCart(!showCart)}
+          className="fixed bottom-6 right-6 md:hidden bg-sky-500 text-white p-4 rounded-full shadow-2xl z-30 hover:bg-sky-600 transition-all"
+        >
+          <ShoppingCart className="w-6 h-6" />
+          {cartItems.length > 0 && (
+            <Badge className="absolute -top-2 -right-2 bg-red-500 text-white">
+              {cartItems.length}
+            </Badge>
+          )}
+        </button>
+
+        {/* Search and Filters */}
+        <div className="mb-8 space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search menu..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-sky-500 outline-none"
+            />
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
+                  selectedCategory === category
+                    ? 'bg-sky-500 text-white'
+                    : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Orders */}
+        {recentOrders.length > 0 && (
+          <Card className="mb-8 bg-gradient-to-r from-sky-50 to-blue-50 dark:from-slate-800 dark:to-slate-700 border-sky-200 dark:border-sky-800">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Your Recent Orders
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowOrders(!showOrders)}
+                >
+                  {showOrders ? 'Hide' : 'View All'}
+                </Button>
+              </div>
+              {showOrders && (
+                <div className="space-y-3">
+                  {recentOrders.map(order => (
+                    <div key={order.id} className="bg-white dark:bg-slate-800 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-slate-900 dark:text-white">
+                          Order #{order.id.slice(0, 8)}
+                        </span>
+                        <Badge className={`${getStatusColor(order.status)} text-white`}>
+                          {getStatusIcon(order.status)}
+                          <span className="ml-1">{getStatusText(order.status)}</span>
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        {order.items.length} items • €{order.total_price.toFixed(2)}
+                      </p>
+                      {order.estimated_time && order.status !== 'delivered' && (
+                        <p className="text-sm text-sky-600 dark:text-sky-400 mt-2">
+                          <Clock className="w-4 h-4 inline mr-1" />
+                          Estimated time: {order.estimated_time} minutes
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Menu Items Grid */}
+        {filteredItems.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-slate-600 dark:text-slate-400">No menu items found</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-20">
+            {filteredItems.map(item => (
+              <Card key={item.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border-0">
+                <div className="relative aspect-video">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-sky-100 to-blue-100 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">
+                      <span className="text-4xl">🍽️</span>
+                    </div>
+                  )}
+                  <Badge className="absolute top-2 right-2 bg-sky-500 text-white">
+                    {item.category}
+                  </Badge>
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">
+                    {item.name}
+                  </h3>
+                  {item.description && (
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
+                      {item.description}
+                    </p>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold text-sky-600 dark:text-sky-400">
+                      €{item.price.toFixed(2)}
+                    </span>
+                    <Button
+                      onClick={() => addToCart(item)}
+                      className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
+                    >
+                      <ShoppingCart className="w-4 h-4 mr-2" />
+                      Add
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Cart Sidebar */}
+        {showCart && (
+          <Cart
+            items={cartItems}
+            onUpdateQuantity={updateQuantity}
+            onRemove={removeFromCart}
+            onCheckout={handleCheckout}
+            onClose={() => setShowCart(false)}
+          />
+        )}
+
+        {/* Checkout Modal */}
+        {showCheckout && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+                Complete Your Order
+              </h2>
+              
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Your Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    placeholder="John Doe"
+                    className="w-full px-4 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Apartment/Room Number *
+                  </label>
+                  <input
+                    type="text"
+                    value={apartmentNumber}
+                    onChange={(e) => setApartmentNumber(e.target.value)}
+                    placeholder="A-101"
+                    className="w-full px-4 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Special Instructions (Optional)
+                  </label>
+                  <textarea
+                    value={orderNotes}
+                    onChange={(e) => setOrderNotes(e.target.value)}
+                    placeholder="Any special requests..."
+                    rows={3}
+                    className="w-full px-4 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 outline-none resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCheckout(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={submitOrder}
+                  className="flex-1 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
+                >
+                  Place Order
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
