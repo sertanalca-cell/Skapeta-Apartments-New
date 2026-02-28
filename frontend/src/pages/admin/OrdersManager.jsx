@@ -419,6 +419,15 @@ export const OrdersManager = () => {
             ))}
           </div>
         )}
+
+        {/* Invoice Modal */}
+        {selectedOrderForInvoice && (
+          <InvoiceModal
+            order={selectedOrderForInvoice}
+            settings={settings}
+            onClose={() => setSelectedOrderForInvoice(null)}
+          />
+        )}
       </div>
     </AdminLayout>
   );
