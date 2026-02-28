@@ -134,7 +134,7 @@ export const LandingPage = () => {
               <button onClick={() => scrollToSection('home')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.home}</button>
               <button onClick={() => scrollToSection('about')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.about}</button>
               <button onClick={() => scrollToSection('apartments')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.apartments}</button>
-              <button onClick={() => scrollToSection('food')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.food}</button>
+              <button onClick={() => navigate('/food-service')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors font-semibold">🍔 Order Food</button>
               <button onClick={() => scrollToSection('location')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.location}</button>
               <button onClick={() => scrollToSection('contact')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.contact}</button>
             </div>
