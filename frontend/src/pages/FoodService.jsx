@@ -62,6 +62,12 @@ export const FoodService = () => {
   });
 
   const addToCart = (item) => {
+    if (!customer) {
+      toast.error('Please login to add items to cart');
+      setShowLoginModal(true);
+      return;
+    }
+    
     const existingItem = cartItems.find(ci => ci.id === item.id);
     if (existingItem) {
       setCartItems(cartItems.map(ci => 
