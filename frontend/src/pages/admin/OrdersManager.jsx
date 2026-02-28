@@ -3,8 +3,9 @@ import { AdminLayout } from './AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
-import { Clock, CheckCircle2, Truck, Package, X, User, Home } from 'lucide-react';
-import { ordersAPI } from '../../services/api';
+import { Clock, CheckCircle2, Truck, Package, X, User, Home, FileText } from 'lucide-react';
+import { ordersAPI, settingsAPI } from '../../services/api';
+import { InvoiceModal } from '../../components/InvoiceModal';
 import { toast } from 'sonner';
 
 export const OrdersManager = () => {
@@ -13,14 +14,27 @@ export const OrdersManager = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [lastOrderCount, setLastOrderCount] = useState(0);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState(null);
+  const [settings, setSettings] = useState(null);
 
   // Initialize notification sound
   const notificationSound = React.useRef(null);
 
   useEffect(() => {
+    // Load settings for invoice
+    loadSettings();
     // Create audio element for notification
     notificationSound.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE'); 
   }, []);
+
+  const loadSettings = async () => {
+    try {
+      const data = await settingsAPI.get();
+      setSettings(data);
+    } catch (error) {
+      console.error('Failed to load settings:', error);
+    }
+  };
 
   useEffect(() => {
     loadOrders();
