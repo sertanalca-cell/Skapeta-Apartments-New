@@ -211,7 +211,7 @@ class OrderCreate(OrderBase):
 
 class Order(OrderBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    order_number: int  # Sequential order number
+    order_number: Optional[int] = None  # Optional for backward compatibility
     status: str = "pending"  # pending, accepted, preparing, on_the_way, delivered, cancelled
     estimated_time: Optional[int] = None  # in minutes
     total_price: float
