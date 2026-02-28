@@ -7,6 +7,61 @@ export const InvoiceModal = ({ order, onClose, settings }) => {
     window.print();
   };
 
+  const handleSendWhatsApp = () => {
+    // Format invoice for WhatsApp
+    const invoiceText = `
+🧾 *INVOICE #${order.order_number}*
+
+📅 Date: ${formatDate(order.created_at)}
+
+━━━━━━━━━━━━━━━━━━━━━━
+*SKAPETA APARTMENTS*
+Spiro Skapeta
+Saranda, Albania
+VAT: M34631808J
+━━━━━━━━━━━━━━━━━━━━━━
+
+*BILL TO:*
+👤 ${order.first_name} ${order.last_name}
+📞 ${order.phone || 'N/A'}
+🏠 Apartment ${order.apartment_number}
+
+━━━━━━━━━━━━━━━━━━━━━━
+*ORDER ITEMS:*
+
+${order.items.map((item, idx) => 
+  `${idx + 1}. ${item.menu_item_name}
+   Qty: ${item.quantity} × €${item.price.toFixed(2)} = €${(item.price * item.quantity).toFixed(2)}`
+).join('\n\n')}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+*Subtotal:* €${order.total_price.toFixed(2)}
+*TOTAL:* €${order.total_price.toFixed(2)}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+${order.notes ? `📝 Notes: ${order.notes}\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n` : ''}Thank you for your order! 🙏
+
+_Skapeta Apartments_
+_Saranda, Albania_
+_VAT: M34631808J_
+    `.trim();
+
+    // Get customer phone number
+    const customerPhone = order.phone ? order.phone.replace(/[^0-9]/g, '') : null;
+    
+    if (!customerPhone) {
+      alert('Customer phone number not available. Please add phone number to send invoice via WhatsApp.');
+      return;
+    }
+
+    // Open WhatsApp with invoice
+    const encodedMessage = encodeURIComponent(invoiceText);
+    const whatsappUrl = `https://wa.me/${customerPhone}?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
