@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { ShoppingCart, Search, Clock, CheckCircle2, Truck, Package, LogOut, User } from 'lucide-react';
+import { ShoppingCart, Search, Clock, CheckCircle2, Truck, Package, LogOut, User, Receipt } from 'lucide-react';
 import { menuAPI, ordersAPI } from '../services/api';
 import { Cart } from '../components/Cart';
 import { CustomerLoginModal } from '../components/CustomerLoginModal';
+import { OrderHistoryModal } from '../components/OrderHistoryModal';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { toast } from 'sonner';
 
@@ -21,8 +22,10 @@ export const FoodService = () => {
   const [apartmentNumber, setApartmentNumber] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
   const [recentOrders, setRecentOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [showOrders, setShowOrders] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showOrderHistory, setShowOrderHistory] = useState(false);
 
   useEffect(() => {
     loadMenu();
