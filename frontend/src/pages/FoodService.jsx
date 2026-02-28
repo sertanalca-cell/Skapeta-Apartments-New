@@ -105,14 +105,17 @@ export const FoodService = () => {
   };
 
   const submitOrder = async () => {
-    if (!customerName.trim() || !apartmentNumber.trim()) {
-      toast.error('Please fill in your name and apartment number');
+    if (!apartmentNumber.trim()) {
+      toast.error('Please enter your apartment/room number');
       return;
     }
 
     try {
       const orderData = {
-        customer_name: customerName,
+        user_id: customer.id,
+        first_name: customer.first_name,
+        last_name: customer.last_name,
+        phone: customer.phone || null,
         apartment_number: apartmentNumber,
         notes: orderNotes,
         items: cartItems.map(item => ({
@@ -123,16 +126,16 @@ export const FoodService = () => {
         }))
       };
 
-      const order = await ordersAPI.create(orderData);
-      localStorage.setItem('apartmentNumber', apartmentNumber);
+      await ordersAPI.create(orderData);
       
       toast.success('Order placed successfully!');
       setCartItems([]);
       setShowCheckout(false);
       setOrderNotes('');
+      setApartmentNumber('');
       
       // Reload recent orders
-      fetchCustomerOrders(apartmentNumber);
+      fetchCustomerOrders();
       
       // Show order tracking
       setTimeout(() => setShowOrders(true), 500);
