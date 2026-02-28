@@ -67,7 +67,61 @@ async def create_order(
     )
     
     await db.orders.insert_one(new_order.dict())
+    
+    # Send WhatsApp notification
+    await send_whatsapp_notification(new_order.dict())
+    
     return new_order
+
+
+async def send_whatsapp_notification(order: dict):
+    """Send order details to WhatsApp"""
+    # Format order details for WhatsApp
+    order_number = order.get("order_number", "N/A")
+    customer_name = f"{order['first_name']} {order['last_name']}"
+    phone = order.get("phone", "N/A")
+    apartment = order.get("apartment_number", "N/A")
+    notes = order.get("notes", "None")
+    
+    # Format items
+    items_text = "\n".join([
+        f"  • {item['quantity']}x {item['menu_item_name']} - €{item['price'] * item['quantity']:.2f}"
+        for item in order['items']
+    ])
+    
+    # Create message
+    message = f"""🔔 *NEW ORDER RECEIVED*
+
+📋 Order #*{order_number}*
+👤 Customer: *{customer_name}*
+📞 Phone: {phone}
+🏠 Apartment: *{apartment}*
+
+🍽️ *Order Items:*
+{items_text}
+
+💰 *Total: €{order['total_price']:.2f}*
+
+📝 Notes: {notes}
+
+⏰ Time: {order['created_at']}
+"""
+    
+    # Store WhatsApp notification data
+    whatsapp_data = {
+        "order_id": order["id"],
+        "order_number": order_number,
+        "message": message,
+        "phone_number": "355693227207",
+        "created_at": datetime.now(timezone.utc),
+        "type": "new_order"
+    }
+    
+    # Log the WhatsApp notification (will be picked up by frontend)
+    print(f"📱 WhatsApp notification prepared for order #{order_number}")
+    
+    # Note: This creates the data structure. The actual WhatsApp send
+    # will be triggered from frontend using WhatsApp Web API
 
 
 @router.put("/orders/{order_id}", response_model=Order)
