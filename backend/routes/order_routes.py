@@ -51,10 +51,19 @@ async def create_order(
     # Calculate total price
     total_price = sum(item.price * item.quantity for item in order.items)
     
+    # Get the next order number (sequential)
+    last_order = await db.orders.find_one(
+        {},
+        {"_id": 0, "order_number": 1},
+        sort=[("order_number", -1)]
+    )
+    next_order_number = (last_order["order_number"] + 1) if last_order and "order_number" in last_order else 1001
+    
     new_order = Order(
         **order.dict(),
         total_price=total_price,
-        status="pending"
+        status="pending",
+        order_number=next_order_number
     )
     
     await db.orders.insert_one(new_order.dict())
