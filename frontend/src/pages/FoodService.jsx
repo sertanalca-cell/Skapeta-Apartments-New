@@ -26,8 +26,10 @@ export const FoodService = () => {
 
   useEffect(() => {
     loadMenu();
-    loadRecentOrders();
-  }, []);
+    if (customer) {
+      fetchCustomerOrders();
+    }
+  }, [customer]);
 
   const loadMenu = async () => {
     try {
@@ -41,17 +43,10 @@ export const FoodService = () => {
     }
   };
 
-  const loadRecentOrders = () => {
-    const savedApartment = localStorage.getItem('apartmentNumber');
-    if (savedApartment) {
-      setApartmentNumber(savedApartment);
-      fetchCustomerOrders(savedApartment);
-    }
-  };
-
-  const fetchCustomerOrders = async (apartment) => {
+  const fetchCustomerOrders = async () => {
+    if (!customer) return;
     try {
-      const orders = await ordersAPI.getByApartment(apartment);
+      const orders = await ordersAPI.getByUserId(customer.id);
       setRecentOrders(orders.slice(0, 3));
     } catch (error) {
       console.error('Failed to load orders:', error);
