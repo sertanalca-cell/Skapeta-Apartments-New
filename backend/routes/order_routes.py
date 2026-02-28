@@ -3,10 +3,19 @@ from typing import List
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from datetime import datetime, timezone
 from models import Order, OrderCreate, OrderUpdate
-from server import get_database
 from auth import get_current_user
 
 router = APIRouter()
+
+# Database dependency
+_db = None
+
+def set_db(db):
+    global _db
+    _db = db
+
+def get_database():
+    return _db
 
 
 @router.get("/orders", response_model=List[Order])
