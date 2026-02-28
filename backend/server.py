@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 
 # Import route modules
-from routes import auth_routes, apartment_routes, upload_routes, gallery_routes, settings_routes, sightseeing_routes, menu_routes, order_routes, customer_auth_routes
+from routes import auth_routes, apartment_routes, upload_routes, gallery_routes, settings_routes, sightseeing_routes, menu_routes, order_routes, customer_auth_routes, analytics_routes
 
 
 ROOT_DIR = Path(__file__).parent
