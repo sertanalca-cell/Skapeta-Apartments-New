@@ -156,4 +156,65 @@ export const sightseeingAPI = {
   },
 };
 
+// Menu Items API
+export const menuAPI = {
+  getAll: async (availableOnly = false) => {
+    const params = availableOnly ? { available_only: true } : {};
+    const response = await api.get('/menu-items', { params });
+    return response.data;
+  },
+  
+  getById: async (id) => {
+    const response = await api.get(`/menu-items/${id}`);
+    return response.data;
+  },
+  
+  create: async (menuData) => {
+    const response = await api.post('/menu-items', menuData);
+    return response.data;
+  },
+  
+  update: async (id, menuData) => {
+    const response = await api.put(`/menu-items/${id}`, menuData);
+    return response.data;
+  },
+  
+  delete: async (id) => {
+    await api.delete(`/menu-items/${id}`);
+  },
+};
+
+// Orders API
+export const ordersAPI = {
+  getAll: async (status = null) => {
+    const params = status ? { status } : {};
+    const response = await api.get('/orders', { params });
+    return response.data;
+  },
+  
+  getById: async (id) => {
+    const response = await api.get(`/orders/${id}`);
+    return response.data;
+  },
+  
+  getByApartment: async (apartmentNumber) => {
+    const response = await api.get(`/orders/customer/${apartmentNumber}`);
+    return response.data;
+  },
+  
+  create: async (orderData) => {
+    const response = await api.post('/orders', orderData);
+    return response.data;
+  },
+  
+  updateStatus: async (id, statusData) => {
+    const response = await api.put(`/orders/${id}`, statusData);
+    return response.data;
+  },
+  
+  delete: async (id) => {
+    await api.delete(`/orders/${id}`);
+  },
+};
+
 export default api;
