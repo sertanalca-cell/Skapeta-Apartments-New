@@ -149,6 +149,23 @@ class SettingsUpdate(BaseModel):
     custom_contact_links: Optional[List[dict]] = None
 
 
+# Customer Authentication
+class CustomerRegister(BaseModel):
+    first_name: str
+    last_name: str
+    phone: Optional[str] = None
+
+class Customer(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    first_name: str
+    last_name: str
+    phone: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class CustomerLogin(BaseModel):
+    first_name: str
+    last_name: str
+
 # Food Ordering Models
 class MenuItemBase(BaseModel):
     name: str
