@@ -224,7 +224,30 @@ export const FoodService = () => {
         {/* Header with User Info */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-2\">\n              Food Service Menu\n            </h1>\n            <p className=\"text-lg text-slate-600 dark:text-slate-300\">\n              Order delicious meals delivered to your apartment\n            </p>\n          </div>\n          <div className=\"flex items-center gap-4\">\n            <div className=\"text-right\">\n              <p className=\"text-sm text-slate-500 dark:text-slate-400\">Logged in as</p>\n              <p className=\"font-semibold text-slate-900 dark:text-white\">\n                {customer.first_name} {customer.last_name}\n              </p>\n            </div>\n            <Button\n              variant=\"outline\"\n              onClick={logout}\n              className=\"border-red-500 text-red-500 hover:bg-red-50\"\n            >\n              <LogOut className=\"w-4 h-4 mr-2\" />\n              Logout\n            </Button>\n          </div>\n        </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-2">
+              Food Service Menu
+            </h1>
+            <p className="text-lg text-slate-600 dark:text-slate-300">
+              Order delicious meals delivered to your apartment
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-sm text-slate-500 dark:text-slate-400">Logged in as</p>
+              <p className="font-semibold text-slate-900 dark:text-white">
+                {customer.first_name} {customer.last_name}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={logout}
+              className="border-red-500 text-red-500 hover:bg-red-50"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
 
         {/* Cart Button (Mobile) */}
         <button
