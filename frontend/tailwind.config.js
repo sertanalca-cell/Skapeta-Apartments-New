@@ -70,7 +70,7 @@ module.exports = {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
 			'scale': {
 				'0%, 100%': {
 					transform: 'scale(1)'
