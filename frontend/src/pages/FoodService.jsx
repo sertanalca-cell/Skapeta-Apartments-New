@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { ShoppingCart, Search, Clock, CheckCircle2, Truck, Package } from 'lucide-react';
+import { ShoppingCart, Search, Clock, CheckCircle2, Truck, Package, LogOut, User } from 'lucide-react';
 import { menuAPI, ordersAPI } from '../services/api';
 import { Cart } from '../components/Cart';
+import { CustomerLoginModal } from '../components/CustomerLoginModal';
+import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { toast } from 'sonner';
 
 export const FoodService = () => {
+  const { customer, logout, loading: authLoading } = useCustomerAuth();
   const [menuItems, setMenuItems] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [showCart, setShowCart] = useState(false);
@@ -15,11 +18,11 @@ export const FoodService = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showCheckout, setShowCheckout] = useState(false);
-  const [customerName, setCustomerName] = useState('');
   const [apartmentNumber, setApartmentNumber] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
   const [recentOrders, setRecentOrders] = useState([]);
   const [showOrders, setShowOrders] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     loadMenu();
