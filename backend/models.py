@@ -149,6 +149,59 @@ class SettingsUpdate(BaseModel):
     custom_contact_links: Optional[List[dict]] = None
 
 
+# Food Ordering Models
+class MenuItemBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    price: float
+    category: str = "General"
+    image: Optional[str] = None
+    available: bool = True
+
+class MenuItemCreate(MenuItemBase):
+    pass
+
+class MenuItem(MenuItemBase):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class MenuItemUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    category: Optional[str] = None
+    image: Optional[str] = None
+    available: Optional[bool] = None
+
+
+class OrderItem(BaseModel):
+    menu_item_id: str
+    menu_item_name: str
+    quantity: int
+    price: float
+
+class OrderBase(BaseModel):
+    customer_name: str
+    apartment_number: str
+    items: List[OrderItem]
+    notes: Optional[str] = None
+
+class OrderCreate(OrderBase):
+    pass
+
+class Order(OrderBase):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    status: str = "pending"  # pending, accepted, preparing, on_the_way, delivered, cancelled
+    estimated_time: Optional[int] = None  # in minutes
+    total_price: float
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class OrderUpdate(BaseModel):
+    status: Optional[str] = None
+    estimated_time: Optional[int] = None
+
+
 # Authentication Models
 class Token(BaseModel):
     access_token: str
