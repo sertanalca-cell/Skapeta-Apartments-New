@@ -236,6 +236,14 @@ export const FoodService = () => {
             </p>
           </div>
           <div className="flex items-center gap-4">
+            <Button
+              onClick={() => setShowOrderHistory(true)}
+              variant="outline"
+              className="border-sky-500 text-sky-600 hover:bg-sky-50 dark:border-sky-400 dark:text-sky-400 dark:hover:bg-sky-900"
+            >
+              <Receipt className="w-4 h-4 mr-2\" />
+              Your Orders ({allOrders.length})
+            </Button>
             <div className="text-right">
               <p className="text-sm text-slate-500 dark:text-slate-400">Logged in as</p>
               <p className="font-semibold text-slate-900 dark:text-white">
