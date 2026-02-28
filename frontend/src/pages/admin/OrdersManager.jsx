@@ -319,6 +319,16 @@ export const OrdersManager = () => {
 
                     {/* Action Buttons */}
                     <div className="flex flex-col gap-2 min-w-[200px]">
+                      {/* Invoice Button - Always visible */}
+                      <Button
+                        size="sm"
+                        onClick={() => setSelectedOrderForInvoice(order)}
+                        className="bg-green-500 hover:bg-green-600 text-white"
+                      >
+                        <FileText className="w-4 h-4 mr-2" />
+                        Generate Invoice
+                      </Button>
+
                       {order.status === 'pending' && (
                         <>
                           <p className="text-sm font-semibold text-slate-700 mb-1">Accept & Set Time:</p>
