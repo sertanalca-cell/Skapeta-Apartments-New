@@ -197,8 +197,8 @@ export const ordersAPI = {
     return response.data;
   },
   
-  getByApartment: async (apartmentNumber) => {
-    const response = await api.get(`/orders/customer/${apartmentNumber}`);
+  getByUserId: async (userId) => {
+    const response = await api.get(`/orders/user/${userId}`);
     return response.data;
   },
   
@@ -214,6 +214,26 @@ export const ordersAPI = {
   
   delete: async (id) => {
     await api.delete(`/orders/${id}`);
+  },
+};
+
+// Customer Auth API
+export const customerAuthAPI = {
+  login: async (firstName, lastName) => {
+    const response = await api.post('/customer/login', {
+      first_name: firstName,
+      last_name: lastName,
+    });
+    return response.data;
+  },
+  
+  register: async (firstName, lastName, phone = null) => {
+    const response = await api.post('/customer/register', {
+      first_name: firstName,
+      last_name: lastName,
+      phone,
+    });
+    return response.data;
   },
 };
 
