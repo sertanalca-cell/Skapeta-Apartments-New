@@ -88,7 +88,48 @@ async def update_order(
     await db.orders.update_one({"id": order_id}, {"$set": update_data})
     
     updated_order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    
+    # Send phone notification when order is accepted with estimated time
+    if order_update.status == "accepted" and order_update.estimated_time:
+        await send_order_notification(updated_order, db)
+    
     return updated_order
+
+
+async def send_order_notification(order: dict, db: AsyncIOMotorDatabase):
+    """Send notification to customer when order is accepted"""
+    # Get customer phone number
+    phone = order.get("phone")
+    estimated_time = order.get("estimated_time")
+    order_number = order.get("order_number")
+    customer_name = order.get("first_name")
+    
+    if not phone:
+        return  # No phone number, skip notification
+    
+    # TODO: Implement SMS notification here
+    # Example using Twilio (you'll need to install twilio package and configure)
+    # from twilio.rest import Client
+    # client = Client(account_sid, auth_token)
+    # message = client.messages.create(
+    #     body=f"Hi {customer_name}! Your order #{order_number} has been accepted. It will be ready in approximately {estimated_time} minutes.",
+    #     from_='+1234567890',  # Your Twilio number
+    #     to=phone
+    # )
+    
+    # For now, just log it
+    print(f"📱 SMS Notification: Order #{order_number} accepted - Ready in {estimated_time} min - Sent to {phone}")
+    
+    # Store notification in database for tracking
+    notification = {
+        "order_id": order["id"],
+        "order_number": order_number,
+        "phone": phone,
+        "message": f"Hi {customer_name}! Your order #{order_number} has been accepted. It will be ready in approximately {estimated_time} minutes.",
+        "sent_at": datetime.now(timezone.utc),
+        "type": "order_accepted"
+    }
+    await db.notifications.insert_one(notification)
 
 
 @router.delete("/orders/{order_id}")
