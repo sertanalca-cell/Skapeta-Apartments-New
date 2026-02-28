@@ -79,6 +79,13 @@ _VAT: M34631808J_
         <div className="p-4 border-b border-slate-200 flex items-center justify-between print:hidden">
           <h2 className="text-xl font-bold text-slate-900">Invoice #{order.order_number}</h2>
           <div className="flex gap-2">
+            <Button 
+              onClick={handleSendWhatsApp} 
+              className="bg-green-500 hover:bg-green-600 text-white"
+            >
+              <span className="mr-2">💬</span>
+              Send via WhatsApp
+            </Button>
             <Button onClick={handlePrint} className="bg-sky-500 hover:bg-sky-600 text-white">
               Print Invoice
             </Button>
