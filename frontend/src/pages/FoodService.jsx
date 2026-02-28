@@ -50,6 +50,7 @@ export const FoodService = () => {
     if (!customer) return;
     try {
       const orders = await ordersAPI.getByUserId(customer.id);
+      setAllOrders(orders);
       setRecentOrders(orders.slice(0, 3));
     } catch (error) {
       console.error('Failed to load orders:', error);
