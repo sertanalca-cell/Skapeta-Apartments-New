@@ -386,20 +386,15 @@ export const FoodService = () => {
                 Complete Your Order
               </h2>
               
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Your Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="John Doe"
-                    className="w-full px-4 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 outline-none"
-                  />
-                </div>
-
+              <div className="bg-sky-50 dark:bg-sky-900/20 rounded-lg p-4 mb-6">
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Ordering as: <span className="font-bold text-sky-600 dark:text-sky-400\">
+                    {customer.first_name} {customer.last_name}
+                  </span>
+                </p>
+              </div>
+              
+              <div className="space-y-4 mb-6\">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Apartment/Room Number *
