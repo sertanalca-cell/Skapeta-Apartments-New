@@ -475,6 +475,14 @@ export const FoodService = () => {
             </div>
           </div>
         )}
+
+        {/* Order History Modal */}
+        {showOrderHistory && (
+          <OrderHistoryModal
+            orders={allOrders}
+            onClose={() => setShowOrderHistory(false)}
+          />
+        )}
       </div>
     </div>
   );
