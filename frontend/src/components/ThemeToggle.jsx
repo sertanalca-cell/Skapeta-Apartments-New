@@ -36,7 +36,7 @@ export const ThemeToggle = () => {
       onClick={toggleTheme}
       variant="outline"
       size="icon"
-      className="fixed top-4 right-4 z-40 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-2 border-sky-500 dark:border-sky-400 hover:bg-sky-50 dark:hover:bg-slate-700 shadow-lg"
+      className="fixed top-4 right-4 z-[60] bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-2 border-sky-500 dark:border-sky-400 hover:bg-sky-50 dark:hover:bg-slate-700 shadow-lg"
       aria-label="Toggle theme"
     >
       {isDark ? (
