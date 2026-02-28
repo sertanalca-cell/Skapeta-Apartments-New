@@ -36,6 +36,8 @@ export const AdminLayout = ({ children }) => {
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/admin/apartments', icon: Building2, label: 'Apartments' },
     { path: '/admin/gallery', icon: Image, label: 'Gallery' },
+    { path: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
+    { path: '/admin/menu', icon: UtensilsCrossed, label: 'Menu' },
     { path: '/admin/sightseeing', icon: MapIcon, label: 'Sightseeing' },
     { path: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
