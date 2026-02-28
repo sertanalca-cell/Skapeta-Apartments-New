@@ -236,6 +236,15 @@ export const LandingPage = () => {
               
               <Button 
                 size="lg" 
+                className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                onClick={() => navigate('/food-service')}
+              >
+                <span className="text-xl mr-2">📦</span>
+                My Orders
+              </Button>
+              
+              <Button 
+                size="lg" 
                 variant="outline"
                 className="border-2 border-green-500 text-green-600 hover:bg-green-50 px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                 onClick={() => window.open(`https://wa.me/${settings?.whatsapp_number?.replace(/[^0-9]/g, '') || '355693227207'}`, '_blank')}
