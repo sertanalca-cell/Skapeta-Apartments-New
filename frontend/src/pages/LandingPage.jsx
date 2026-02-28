@@ -11,6 +11,8 @@ import { apartmentsAPI, galleryAPI, sightseeingAPI, settingsAPI } from '../servi
 import { translations } from '../mockData';
 import QRCode from 'qrcode';
 import { Star } from 'lucide-react';
+import { SplashScreen } from '../components/SplashScreen';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export const LandingPage = () => {
   const [language, setLanguage] = useState('en');
@@ -21,6 +23,7 @@ export const LandingPage = () => {
   const [sightseeing, setSightseeing] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
   
   const t = translations[language];
 
