@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -15,6 +16,7 @@ import { SplashScreen } from '../components/SplashScreen';
 import { ThemeToggle } from '../components/ThemeToggle';
 
 export const LandingPage = () => {
+  const navigate = useNavigate();
   const [language, setLanguage] = useState('en');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState({});
