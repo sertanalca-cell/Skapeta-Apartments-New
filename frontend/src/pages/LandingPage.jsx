@@ -109,9 +109,12 @@ export const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 transition-colors">
+      {/* Theme Toggle */}
+      <ThemeToggle />
+      
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 border-b border-slate-200 shadow-sm">
+      <nav className="fixed top-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md z-50 border-b border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -122,28 +125,28 @@ export const LandingPage = () => {
                   <span className="text-white font-bold text-xl">S</span>
                 </div>
               )}
-              <span className="font-semibold text-xl text-slate-800">Skapeta</span>
+              <span className="font-semibold text-xl text-slate-800 dark:text-white">Skapeta</span>
             </div>
             
             <div className="hidden md:flex items-center gap-6">
-              <button onClick={() => scrollToSection('home')} className="text-slate-600 hover:text-sky-600 transition-colors">{t.nav.home}</button>
-              <button onClick={() => scrollToSection('about')} className="text-slate-600 hover:text-sky-600 transition-colors">{t.nav.about}</button>
-              <button onClick={() => scrollToSection('apartments')} className="text-slate-600 hover:text-sky-600 transition-colors">{t.nav.apartments}</button>
-              <button onClick={() => scrollToSection('food')} className="text-slate-600 hover:text-sky-600 transition-colors">{t.nav.food}</button>
-              <button onClick={() => scrollToSection('location')} className="text-slate-600 hover:text-sky-600 transition-colors">{t.nav.location}</button>
-              <button onClick={() => scrollToSection('contact')} className="text-slate-600 hover:text-sky-600 transition-colors">{t.nav.contact}</button>
+              <button onClick={() => scrollToSection('home')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.home}</button>
+              <button onClick={() => scrollToSection('about')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.about}</button>
+              <button onClick={() => scrollToSection('apartments')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.apartments}</button>
+              <button onClick={() => scrollToSection('food')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.food}</button>
+              <button onClick={() => scrollToSection('location')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.location}</button>
+              <button onClick={() => scrollToSection('contact')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.contact}</button>
             </div>
 
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => setLanguage('en')}
-                className={`px-3 py-1 rounded-md transition-all ${language === 'en' ? 'bg-sky-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
+                className={`px-3 py-1 rounded-md transition-all ${language === 'en' ? 'bg-sky-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
               >
                 EN
               </button>
               <button 
                 onClick={() => setLanguage('al')}
-                className={`px-3 py-1 rounded-md transition-all ${language === 'al' ? 'bg-sky-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
+                className={`px-3 py-1 rounded-md transition-all ${language === 'al' ? 'bg-sky-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
               >
                 AL
               </button>
