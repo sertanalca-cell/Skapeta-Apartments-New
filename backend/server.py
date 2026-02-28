@@ -44,6 +44,7 @@ api_router.include_router(settings_routes.router)
 api_router.include_router(sightseeing_routes.router)
 api_router.include_router(menu_routes.router)
 api_router.include_router(order_routes.router)
+api_router.include_router(customer_auth_routes.router)
 
 # Health check endpoint
 @api_router.get("/")
