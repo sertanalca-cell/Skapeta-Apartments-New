@@ -92,10 +92,10 @@ export const LandingPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 dark:bg-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-300 dark:text-slate-400">Loading...</p>
+          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
         </div>
       </div>
     );
@@ -114,7 +114,7 @@ export const LandingPage = () => {
       <ThemeToggle />
       
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md z-50 border-b border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm">
+      <nav className="fixed top-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md z-50 border-b border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -125,28 +125,28 @@ export const LandingPage = () => {
                   <span className="text-white font-bold text-xl">S</span>
                 </div>
               )}
-              <span className="font-semibold text-xl text-slate-800 dark:text-slate-100 dark:text-white">Skapeta</span>
+              <span className="font-semibold text-xl text-slate-800 dark:text-white">Skapeta</span>
             </div>
             
             <div className="hidden md:flex items-center gap-6">
-              <button onClick={() => scrollToSection('home')} className="text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.home}</button>
-              <button onClick={() => scrollToSection('about')} className="text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.about}</button>
-              <button onClick={() => scrollToSection('apartments')} className="text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.apartments}</button>
-              <button onClick={() => scrollToSection('food')} className="text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.food}</button>
-              <button onClick={() => scrollToSection('location')} className="text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.location}</button>
-              <button onClick={() => scrollToSection('contact')} className="text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.contact}</button>
+              <button onClick={() => scrollToSection('home')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.home}</button>
+              <button onClick={() => scrollToSection('about')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.about}</button>
+              <button onClick={() => scrollToSection('apartments')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.apartments}</button>
+              <button onClick={() => scrollToSection('food')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.food}</button>
+              <button onClick={() => scrollToSection('location')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.location}</button>
+              <button onClick={() => scrollToSection('contact')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.contact}</button>
             </div>
 
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => setLanguage('en')}
-                className={`px-3 py-1 rounded-md transition-all ${language === 'en' ? 'bg-sky-600 text-white' : 'text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-700'}`}
+                className={`px-3 py-1 rounded-md transition-all ${language === 'en' ? 'bg-sky-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
               >
                 EN
               </button>
               <button 
                 onClick={() => setLanguage('al')}
-                className={`px-3 py-1 rounded-md transition-all ${language === 'al' ? 'bg-sky-600 text-white' : 'text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-700'}`}
+                className={`px-3 py-1 rounded-md transition-all ${language === 'al' ? 'bg-sky-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
               >
                 AL
               </button>
@@ -195,7 +195,7 @@ export const LandingPage = () => {
               )}
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-bold mb-4 text-slate-900 dark:text-white animate-fade-in">
+            <h1 className="text-5xl md:text-7xl font-bold mb-4 text-slate-900 animate-fade-in">
               {settings?.hero_title || t.hero.title}
             </h1>
             
@@ -208,7 +208,7 @@ export const LandingPage = () => {
               </div>
             )}
             
-            <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-10 leading-relaxed whitespace-pre-line">
+            <p className="text-xl md:text-2xl text-slate-600 mb-10 leading-relaxed whitespace-pre-line">
               {settings?.hero_subtitle || t.hero.subtitle}
             </p>
             
@@ -237,16 +237,16 @@ export const LandingPage = () => {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20 px-4 bg-white dark:bg-slate-800">
+      <section id="about" className="py-20 px-4 bg-white">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">{settings?.about_title || t.about.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{settings?.about_title || t.about.title}</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full"></div>
           </div>
           
           <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
             <div>
-              <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+              <p className="text-lg text-slate-600 leading-relaxed">
                 {settings?.about_description || t.about.description}
               </p>
               <div className="mt-6 grid grid-cols-2 gap-4">
@@ -276,8 +276,8 @@ export const LandingPage = () => {
 
           {/* Saranda Info */}
           <div className="bg-gradient-to-br from-slate-50 to-sky-50 rounded-2xl p-8 md:p-12">
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">{t.about.sarandaTitle}</h3>
-            <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+            <h3 className="text-3xl font-bold text-slate-900 mb-4">{t.about.sarandaTitle}</h3>
+            <p className="text-lg text-slate-600 leading-relaxed">
               {t.about.sarandaDescription}
             </p>
           </div>
@@ -288,7 +288,7 @@ export const LandingPage = () => {
       <section id="apartments" className="py-20 px-4 bg-gradient-to-b from-white to-slate-50">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">{t.apartments.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{t.apartments.title}</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full"></div>
           </div>
 
@@ -308,13 +308,13 @@ export const LandingPage = () => {
                     {/* Image Navigation */}
                     <button 
                       onClick={() => handleImageNavigation(apartment.id, 'prev')}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white dark:bg-slate-800 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button 
                       onClick={() => handleImageNavigation(apartment.id, 'next')}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white dark:bg-slate-800 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>
@@ -327,15 +327,15 @@ export const LandingPage = () => {
                   </div>
 
                   <CardContent className="p-6">
-                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{apartment.name}</h3>
-                    <p className="text-slate-600 dark:text-slate-300 mb-4 line-clamp-3">{apartment.description}</p>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-2">{apartment.name}</h3>
+                    <p className="text-slate-600 mb-4 line-clamp-3">{apartment.description}</p>
                     
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <span className="text-3xl font-bold text-sky-600">{apartment.price}</span>
-                        <span className="text-slate-500 dark:text-slate-400 ml-2">{t.apartments.perNight}</span>
+                        <span className="text-slate-500 ml-2">{t.apartments.perNight}</span>
                       </div>
-                      <span className="text-slate-500 dark:text-slate-400">{apartment.capacity}</span>
+                      <span className="text-slate-500">{apartment.capacity}</span>
                     </div>
 
                     <Button 
@@ -354,16 +354,16 @@ export const LandingPage = () => {
       </section>
 
       {/* Gallery Section */}
-      <section id="media" className="py-20 px-4 bg-white dark:bg-slate-800">
+      <section id="media" className="py-20 px-4 bg-white">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">{t.media.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{t.media.title}</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full"></div>
           </div>
 
           {gallery.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-slate-600 dark:text-slate-300">Gallery coming soon...</p>
+              <p className="text-slate-600">Gallery coming soon...</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -410,13 +410,13 @@ export const LandingPage = () => {
       <section id="food" className="py-20 px-4 bg-gradient-to-b from-slate-50 to-white">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">{settings?.food_service_title || t.food.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{settings?.food_service_title || t.food.title}</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full"></div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-xl mb-12">
+          <div className="bg-white rounded-2xl p-8 shadow-xl mb-12">
             <p className="text-xl text-center text-slate-700 mb-6">{settings?.food_service_description || t.food.description}</p>
-            <p className="text-lg text-center text-slate-600 dark:text-slate-300 italic">{settings?.food_service_subtitle || t.food.quality}</p>
+            <p className="text-lg text-center text-slate-600 italic">{settings?.food_service_subtitle || t.food.quality}</p>
           </div>
 
           {gallery.filter(img => img.category === 'food').length > 0 ? (
@@ -433,21 +433,21 @@ export const LandingPage = () => {
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-slate-500 dark:text-slate-400">Food gallery coming soon...</p>
+              <p className="text-slate-500">Food gallery coming soon...</p>
             </div>
           )}
         </div>
       </section>
 
       {/* Location Section */}
-      <section id="location" className="py-20 px-4 bg-white dark:bg-slate-800">
+      <section id="location" className="py-20 px-4 bg-white">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">{t.location.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{t.location.title}</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full"></div>
           </div>
 
-          <p className="text-lg text-center text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
+          <p className="text-lg text-center text-slate-600 mb-8 max-w-3xl mx-auto">
             {t.location.description}
           </p>
 
@@ -480,13 +480,13 @@ export const LandingPage = () => {
       <section id="sightseeing" className="py-20 px-4 bg-gradient-to-b from-slate-50 to-white">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">{t.sightseeing.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{t.sightseeing.title}</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full"></div>
           </div>
 
           {sightseeing.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-slate-600 dark:text-slate-300">Coming soon...</p>
+              <p className="text-slate-600">Coming soon...</p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-8">
@@ -502,7 +502,7 @@ export const LandingPage = () => {
                     <h3 className="absolute bottom-4 left-4 text-2xl font-bold text-white">{place.name}</h3>
                   </div>
                   <CardContent className="p-6">
-                    <p className="text-slate-600 dark:text-slate-300">{place.description}</p>
+                    <p className="text-slate-600">{place.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -512,10 +512,10 @@ export const LandingPage = () => {
       </section>
 
       {/* Contact & QR Section */}
-      <section id="contact" className="py-20 px-4 bg-white dark:bg-slate-800">
+      <section id="contact" className="py-20 px-4 bg-white">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">{t.contact.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">{t.contact.title}</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-sky-500 to-blue-600 mx-auto rounded-full"></div>
           </div>
 
@@ -583,10 +583,10 @@ export const LandingPage = () => {
 
             {/* QR Code */}
             <div className="flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-sky-50 rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t.qrcode.title}</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">{t.qrcode.title}</h3>
               {qrCodeUrl && (
                 <>
-                  <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg mb-4">
+                  <div className="bg-white p-6 rounded-xl shadow-lg mb-4">
                     <img src={qrCodeUrl} alt="QR Code" className="w-48 h-48" />
                   </div>
                   <Button 
