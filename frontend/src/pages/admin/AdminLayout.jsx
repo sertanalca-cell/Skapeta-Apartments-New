@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
 import { 
   LogOut, Home, Building2, Image, Settings, 
-  LayoutDashboard, MapIcon 
+  LayoutDashboard, MapIcon, UtensilsCrossed, ShoppingCart
 } from 'lucide-react';
 
 export const AdminLayout = ({ children }) => {
