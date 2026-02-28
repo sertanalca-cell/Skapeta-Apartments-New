@@ -183,7 +183,7 @@ export const OrdersManager = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-5 gap-4">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-slate-600">Total Orders</CardTitle>
@@ -219,6 +219,16 @@ export const OrdersManager = () => {
             <CardContent>
               <p className="text-3xl font-bold text-green-500">
                 {orders.filter(o => o.status === 'delivered').length}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="bg-gradient-to-br from-sky-500 to-blue-600">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-white">Total Revenue</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-white">
+                €{orders.reduce((sum, o) => sum + o.total_price, 0).toFixed(2)}
               </p>
             </CardContent>
           </Card>
