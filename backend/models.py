@@ -198,7 +198,10 @@ class OrderItem(BaseModel):
     price: float
 
 class OrderBase(BaseModel):
-    customer_name: str
+    user_id: str
+    first_name: str
+    last_name: str
+    phone: Optional[str] = None
     apartment_number: str
     items: List[OrderItem]
     notes: Optional[str] = None
