@@ -208,7 +208,10 @@ export const OrdersManager = () => {
 
                       <div className="flex items-center gap-2 text-slate-700">
                         <User className="w-4 h-4" />
-                        <span className="font-semibold">{order.customer_name}</span>
+                        <span className="font-semibold">{order.first_name} {order.last_name}</span>
+                        {order.phone && (
+                          <span className="text-sm text-slate-500">• {order.phone}</span>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-2 text-slate-700">
