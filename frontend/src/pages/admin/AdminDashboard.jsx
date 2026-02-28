@@ -58,6 +58,34 @@ export const AdminDashboard = () => {
 
   const statCards = [
     {
+      title: 'Total Revenue',
+      value: `€${stats.totalRevenue.toFixed(2)}`,
+      icon: DollarSign,
+      color: 'from-green-500 to-emerald-600',
+      path: '/admin/orders',
+    },
+    {
+      title: "Today's Revenue",
+      value: `€${stats.todayRevenue.toFixed(2)}`,
+      icon: TrendingUp,
+      color: 'from-sky-500 to-blue-600',
+      path: '/admin/orders',
+    },
+    {
+      title: 'Total Orders',
+      value: stats.totalOrders,
+      icon: ShoppingCart,
+      color: 'from-purple-500 to-pink-600',
+      path: '/admin/orders',
+    },
+    {
+      title: 'Pending Orders',
+      value: stats.pendingOrders,
+      icon: Package,
+      color: 'from-orange-500 to-red-600',
+      path: '/admin/orders',
+    },
+    {
       title: 'Apartments',
       value: stats.apartments,
       icon: Building2,
@@ -65,17 +93,17 @@ export const AdminDashboard = () => {
       path: '/admin/apartments',
     },
     {
+      title: 'Menu Items',
+      value: stats.menuItems,
+      icon: UtensilsCrossed,
+      color: 'from-yellow-400 to-orange-600',
+      path: '/admin/menu',
+    },
+    {
       title: 'Gallery Images',
       value: stats.galleryImages,
       icon: Image,
       color: 'from-purple-400 to-pink-600',
-      path: '/admin/gallery',
-    },
-    {
-      title: 'Food Service',
-      value: stats.foodImages,
-      icon: Utensils,
-      color: 'from-orange-400 to-red-600',
       path: '/admin/gallery',
     },
     {
