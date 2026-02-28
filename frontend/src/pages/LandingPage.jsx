@@ -565,17 +565,19 @@ export const LandingPage = () => {
                 </Button>
               )}
 
-              {/* Custom Contact Links */}
+              {/* Custom Contact Links - Added spacing */}
               {settings?.custom_contact_links && settings.custom_contact_links.length > 0 && (
-                settings.custom_contact_links.map((link, index) => (
-                  <Button
-                    key={index}
-                    className="w-full bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white py-6 text-lg"
-                    onClick={() => window.open(link.url, '_blank')}
-                  >
-                    {link.name}
-                  </Button>
-                ))
+                <div className="space-y-3 mt-6">
+                  {settings.custom_contact_links.map((link, index) => (
+                    <Button
+                      key={index}
+                      className="w-full bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white py-6 text-lg"
+                      onClick={() => window.open(link.url, '_blank')}
+                    >
+                      {link.name}
+                    </Button>
+                  ))}
+                </div>
               )}
             </div>
 
