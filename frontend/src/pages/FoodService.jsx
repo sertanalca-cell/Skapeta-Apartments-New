@@ -171,13 +171,49 @@ export const FoodService = () => {
     return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading menu...</p>
+          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Show login modal if not logged in
+  if (!customer) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 pt-20 pb-20">
+        <div className="container mx-auto px-4 max-w-2xl text-center py-20">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 shadow-xl">
+            <div className="w-20 h-20 bg-sky-100 dark:bg-sky-900 rounded-full flex items-center justify-center mx-auto mb-6">
+              <User className="w-10 h-10 text-sky-600 dark:text-sky-400" />
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+              Login Required
+            </h2>
+            <p className="text-lg text-slate-600 dark:text-slate-300 mb-8">
+              Please login or create an account to access our food service menu and place orders.
+            </p>
+            <Button
+              onClick={() => setShowLoginModal(true)}
+              className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white px-8 py-6 text-lg"
+            >
+              Login / Register
+            </Button>
+          </div>
+        </div>
+        {showLoginModal && (
+          <CustomerLoginModal
+            onClose={() => setShowLoginModal(false)}
+            onSuccess={() => {
+              setShowLoginModal(false);
+              toast.success('Login successful! You can now browse and order.');
+            }}
+          />
+        )}
       </div>
     );
   }
@@ -185,15 +221,10 @@ export const FoodService = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 pt-20 pb-20">
       <div className="container mx-auto px-4 max-w-7xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-            Food Service Menu
-          </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300">
-            Order delicious meals delivered to your apartment
-          </p>
-        </div>
+        {/* Header with User Info */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-2\">\n              Food Service Menu\n            </h1>\n            <p className=\"text-lg text-slate-600 dark:text-slate-300\">\n              Order delicious meals delivered to your apartment\n            </p>\n          </div>\n          <div className=\"flex items-center gap-4\">\n            <div className=\"text-right\">\n              <p className=\"text-sm text-slate-500 dark:text-slate-400\">Logged in as</p>\n              <p className=\"font-semibold text-slate-900 dark:text-white\">\n                {customer.first_name} {customer.last_name}\n              </p>\n            </div>\n            <Button\n              variant=\"outline\"\n              onClick={logout}\n              className=\"border-red-500 text-red-500 hover:bg-red-50\"\n            >\n              <LogOut className=\"w-4 h-4 mr-2\" />\n              Logout\n            </Button>\n          </div>\n        </div>
 
         {/* Cart Button (Mobile) */}
         <button
