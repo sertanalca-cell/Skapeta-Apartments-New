@@ -8,6 +8,7 @@ import { Cart } from '../components/Cart';
 import { CustomerLoginModal } from '../components/CustomerLoginModal';
 import { OrderHistoryModal } from '../components/OrderHistoryModal';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
+import { useOrderWebSocket } from '../hooks/useOrderWebSocket';
 import { toast } from 'sonner';
 
 export const FoodService = () => {
@@ -26,6 +27,14 @@ export const FoodService = () => {
   const [showOrders, setShowOrders] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showOrderHistory, setShowOrderHistory] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState(null);
+
+  // WebSocket for live order updates
+  useOrderWebSocket(customer?.id, (updatedOrder) => {
+    setCurrentOrder(updatedOrder);
+    setAllOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
+    toast.success(`Order #${updatedOrder.order_number} status updated: ${updatedOrder.status}`);
+  });
 
   useEffect(() => {
     loadMenu();
@@ -52,6 +61,10 @@ export const FoodService = () => {
       const orders = await ordersAPI.getByUserId(customer.id);
       setAllOrders(orders);
       setRecentOrders(orders.slice(0, 3));
+      
+      // Set current active order (pending or accepted)
+      const activeOrder = orders.find(o => o.status === 'pending' || o.status === 'accepted' || o.status === 'preparing' || o.status === 'delivering');
+      setCurrentOrder(activeOrder || null);
     } catch (error) {
       console.error('Failed to load orders:', error);
     }
@@ -342,9 +355,9 @@ export const FoodService = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowOrders(!showOrders)}
+                  onClick={() => setShowOrderHistory(true)}
                 >
-                  {showOrders ? 'Hide' : 'View All'}
+                  View All
                 </Button>
               </div>
               {showOrders && (
@@ -373,6 +386,59 @@ export const FoodService = () => {
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Live Order Tracking */}
+        {currentOrder && (
+          <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-300 dark:border-green-800">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                <Package className="w-5 h-5 text-green-600" />
+                Live Order Status
+              </h3>
+              <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white">Order #{currentOrder.order_number}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {new Date(currentOrder.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                  <Badge className={`${getStatusColor(currentOrder.status)} text-lg px-4 py-2`}>
+                    {getStatusIcon(currentOrder.status)}
+                    {getStatusText(currentOrder.status)}
+                  </Badge>
+                </div>
+                
+                <div className="space-y-2 mb-4">
+                  {currentOrder.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between text-sm">
+                      <span className="text-slate-700 dark:text-slate-300">
+                        {item.quantity}x {item.menu_item_name}
+                      </span>
+                      <span className="font-medium text-slate-900 dark:text-white">
+                        €{(item.price * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="border-t pt-3 flex justify-between items-center">
+                  <span className="font-semibold text-slate-900 dark:text-white">Total:</span>
+                  <span className="text-2xl font-bold text-green-600">€{currentOrder.total_price.toFixed(2)}</span>
+                </div>
+                
+                {currentOrder.estimated_time && (
+                  <div className="mt-4 bg-sky-100 dark:bg-sky-900/30 p-3 rounded-lg flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-sky-600" />
+                    <span className="text-sm font-medium text-slate-900 dark:text-white">
+                      Estimated time: {currentOrder.estimated_time} minutes
+                    </span>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         )}

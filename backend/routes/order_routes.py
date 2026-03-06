@@ -9,10 +9,15 @@ router = APIRouter()
 
 # Database dependency
 _db = None
+_websocket_manager = None
 
 def set_db(db):
     global _db
     _db = db
+
+def set_websocket_manager(manager):
+    global _websocket_manager
+    _websocket_manager = manager
 
 def get_database():
     return _db
@@ -145,6 +150,16 @@ async def update_order(
     await db.orders.update_one({"id": order_id}, {"$set": update_data})
     
     updated_order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+    
+    # Send WebSocket notification to customer
+    if _websocket_manager and existing_order.get("customer_id"):
+        try:
+            await _websocket_manager.broadcast_to_customer(
+                existing_order["customer_id"],
+                updated_order
+            )
+        except Exception as e:
+            print(f"Failed to send WebSocket notification: {e}")
     
     # Send phone notification when order is accepted with estimated time
     if order_update.status == "accepted" and order_update.estimated_time:

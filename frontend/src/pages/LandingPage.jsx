@@ -8,7 +8,7 @@ import {
   MapIcon, Check, ChevronLeft, ChevronRight,
   Upload, Calendar
 } from 'lucide-react';
-import { apartmentsAPI, galleryAPI, sightseeingAPI, settingsAPI } from '../services/api';
+import { apartmentsAPI, galleryAPI, sightseeingAPI, settingsAPI, analyticsAPI } from '../services/api';
 import { translations } from '../mockData';
 import QRCode from 'qrcode';
 import { Star } from 'lucide-react';
@@ -66,6 +66,13 @@ export const LandingPage = () => {
       }
     };
     generateQR();
+  }, []);
+
+  // Track page visit
+  useEffect(() => {
+    analyticsAPI.trackVisit('/').catch(err => 
+      console.error('Failed to track visit:', err)
+    );
   }, []);
 
   const scrollToSection = (id) => {

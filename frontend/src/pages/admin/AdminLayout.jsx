@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
 import { 
   LogOut, Home, Building2, Image, Settings, 
-  LayoutDashboard, MapIcon, UtensilsCrossed, ShoppingCart
+  LayoutDashboard, MapIcon, UtensilsCrossed, ShoppingCart, Calendar, FileText
 } from 'lucide-react';
 
 export const AdminLayout = ({ children }) => {
@@ -38,6 +38,8 @@ export const AdminLayout = ({ children }) => {
     { path: '/admin/gallery', icon: Image, label: 'Gallery' },
     { path: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
     { path: '/admin/menu', icon: UtensilsCrossed, label: 'Menu' },
+    { path: '/admin/reservations', icon: Calendar, label: 'Reservations' },
+    { path: '/admin/documents', icon: FileText, label: 'Documents' },
     { path: '/admin/sightseeing', icon: MapIcon, label: 'Sightseeing' },
     { path: '/admin/settings', icon: Settings, label: 'Settings' },
   ];

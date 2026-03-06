@@ -237,4 +237,17 @@ export const customerAuthAPI = {
   },
 };
 
+// Analytics API
+export const analyticsAPI = {
+  trackVisit: async (page = '/') => {
+    const response = await api.post('/analytics/visit', { page });
+    return response.data;
+  },
+  
+  getStats: async () => {
+    const response = await api.get('/analytics/stats');
+    return response.data;
+  },
+};
+
 export default api;

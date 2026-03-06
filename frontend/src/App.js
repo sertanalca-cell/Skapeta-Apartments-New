@@ -10,6 +10,8 @@ import { SettingsEditor } from "./pages/admin/SettingsEditor";
 import { SightseeingManager } from "./pages/admin/SightseeingManager";
 import { OrdersManager } from "./pages/admin/OrdersManager";
 import { MenuManager } from "./pages/admin/MenuManager";
+import { ReservationsManager } from "./pages/admin/ReservationsManager";
+import { DocumentsManager } from "./pages/admin/DocumentsManager";
 import { AuthProvider } from "./context/AuthContext";
 import { CustomerAuthProvider } from "./context/CustomerAuthContext";
 import { Toaster } from "./components/ui/sonner";
@@ -31,6 +33,8 @@ function App() {
               <Route path="/admin/settings" element={<SettingsEditor />} />
               <Route path="/admin/orders" element={<OrdersManager />} />
               <Route path="/admin/menu" element={<MenuManager />} />
+              <Route path="/admin/reservations" element={<ReservationsManager />} />
+              <Route path="/admin/documents" element={<DocumentsManager />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-right" />

@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 
 # Import route modules
-from routes import auth_routes, apartment_routes, upload_routes, gallery_routes, settings_routes, sightseeing_routes, menu_routes, order_routes, customer_auth_routes, analytics_routes
+from routes import auth_routes, apartment_routes, upload_routes, gallery_routes, settings_routes, sightseeing_routes, menu_routes, order_routes, customer_auth_routes, analytics_routes, websocket_routes, reservation_routes, document_routes
 
 
 ROOT_DIR = Path(__file__).parent
@@ -29,6 +29,12 @@ menu_routes.set_db(db_instance)
 order_routes.set_db(db_instance)
 customer_auth_routes.set_db(db_instance)
 analytics_routes.set_db(db_instance)
+websocket_routes.set_db(db_instance)
+reservation_routes.set_db(db_instance)
+document_routes.set_db(db_instance)
+
+# Connect WebSocket manager to order routes
+order_routes.set_websocket_manager(websocket_routes.manager)
 
 # Create the main app
 app = FastAPI(title="Skapeta Apartments API")
@@ -46,6 +52,10 @@ api_router.include_router(sightseeing_routes.router)
 api_router.include_router(menu_routes.router)
 api_router.include_router(order_routes.router)
 api_router.include_router(customer_auth_routes.router)
+api_router.include_router(analytics_routes.router)
+api_router.include_router(websocket_routes.router)
+api_router.include_router(reservation_routes.router)
+api_router.include_router(document_routes.router)
 
 # Health check endpoint
 @api_router.get("/")

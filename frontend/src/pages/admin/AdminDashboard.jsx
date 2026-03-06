@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit, ShoppingCart, UtensilsCrossed, DollarSign, Package } from 'lucide-react';
-import { apartmentsAPI, galleryAPI, settingsAPI, ordersAPI, menuAPI } from '../../services/api';
+import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit, ShoppingCart, UtensilsCrossed, DollarSign, Package, Users } from 'lucide-react';
+import { apartmentsAPI, galleryAPI, settingsAPI, ordersAPI, menuAPI, analyticsAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
 export const AdminDashboard = () => {
@@ -15,6 +15,8 @@ export const AdminDashboard = () => {
     totalRevenue: 0,
     todayRevenue: 0,
     menuItems: 0,
+    totalVisits: 0,
+    todayVisits: 0,
     loading: true,
   });
   const navigate = useNavigate();
@@ -25,11 +27,12 @@ export const AdminDashboard = () => {
 
   const loadStats = async () => {
     try {
-      const [apartments, gallery, orders, menuItems] = await Promise.all([
+      const [apartments, gallery, orders, menuItems, analyticsData] = await Promise.all([
         apartmentsAPI.getAll(),
         galleryAPI.getAll(),
         ordersAPI.getAll(),
         menuAPI.getAll(),
+        analyticsAPI.getStats(),
       ]);
 
       // Calculate today's revenue
@@ -48,6 +51,8 @@ export const AdminDashboard = () => {
         totalRevenue: orders.reduce((sum, o) => sum + o.total_price, 0),
         todayRevenue: todayRevenue,
         menuItems: menuItems.length,
+        totalVisits: analyticsData.total_visits || 0,
+        todayVisits: analyticsData.today_visits || 0,
         loading: false,
       });
     } catch (error) {
@@ -70,6 +75,14 @@ export const AdminDashboard = () => {
       icon: TrendingUp,
       color: 'from-sky-500 to-blue-600',
       path: '/admin/orders',
+    },
+    {
+      title: 'Website Visitors',
+      value: stats.totalVisits,
+      subtitle: `${stats.todayVisits} today`,
+      icon: Users,
+      color: 'from-violet-500 to-purple-600',
+      path: '/admin',
     },
     {
       title: 'Total Orders',
@@ -147,6 +160,9 @@ export const AdminDashboard = () => {
                   <p className="text-3xl font-bold text-slate-900">
                     {stats.loading ? '...' : stat.value}
                   </p>
+                  {stat.subtitle && (
+                    <p className="text-sm text-slate-500 mt-1">{stat.subtitle}</p>
+                  )}
                 </CardContent>
               </Card>
             );
