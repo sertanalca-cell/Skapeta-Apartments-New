@@ -28,6 +28,7 @@ sightseeing_routes.set_db(db_instance)
 menu_routes.set_db(db_instance)
 order_routes.set_db(db_instance)
 customer_auth_routes.set_db(db_instance)
+analytics_routes.set_db(db_instance)
 
 # Create the main app
 app = FastAPI(title="Skapeta Apartments API")
