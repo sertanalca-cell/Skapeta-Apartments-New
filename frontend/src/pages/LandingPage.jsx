@@ -6,17 +6,20 @@ import { Badge } from '../components/ui/badge';
 import { 
   MapPin, Phone, Instagram, MessageCircle, 
   MapIcon, Check, ChevronLeft, ChevronRight,
-  Upload, Calendar
+  Upload, Calendar, Package, Clock, Truck, CheckCircle2
 } from 'lucide-react';
-import { apartmentsAPI, galleryAPI, sightseeingAPI, settingsAPI, analyticsAPI } from '../services/api';
+import { apartmentsAPI, galleryAPI, sightseeingAPI, settingsAPI, analyticsAPI, ordersAPI } from '../services/api';
 import { translations } from '../mockData';
 import QRCode from 'qrcode';
 import { Star } from 'lucide-react';
 import { SplashScreen } from '../components/SplashScreen';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { useCustomerAuth } from '../context/CustomerAuthContext';
+import { useOrderWebSocket } from '../hooks/useOrderWebSocket';
 
 export const LandingPage = () => {
   const navigate = useNavigate();
+  const { customer } = useCustomerAuth();
   const [language, setLanguage] = useState('en');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState({});
@@ -26,8 +29,15 @@ export const LandingPage = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
+  const [currentOrder, setCurrentOrder] = useState(null);
   
   const t = translations[language];
+
+  // WebSocket for live order updates
+  useOrderWebSocket(customer?.id, (updatedOrder) => {
+    console.log('📡 Live order update received:', updatedOrder);
+    setCurrentOrder(updatedOrder);
+  });
 
   // Fetch data from backend
   useEffect(() => {
@@ -53,6 +63,29 @@ export const LandingPage = () => {
     
     fetchData();
   }, []);
+
+  // Fetch current order for logged-in customer
+  useEffect(() => {
+    const fetchCurrentOrder = async () => {
+      if (!customer) return;
+      
+      try {
+        const orders = await ordersAPI.getByUserId(customer.id);
+        // Get the most recent active order
+        const activeOrder = orders.find(o => 
+          o.status === 'pending' || 
+          o.status === 'accepted' || 
+          o.status === 'preparing' || 
+          o.status === 'delivering'
+        );
+        setCurrentOrder(activeOrder || null);
+      } catch (error) {
+        console.error('Failed to fetch current order:', error);
+      }
+    };
+    
+    fetchCurrentOrder();
+  }, [customer]);
 
   useEffect(() => {
     // Generate QR code for the website
@@ -93,6 +126,34 @@ export const LandingPage = () => {
         return { ...prev, [apartmentId]: currentIndex === 0 ? maxIndex : currentIndex - 1 };
       }
     });
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      pending: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+      accepted: 'bg-blue-100 text-blue-700 border-blue-300',
+      preparing: 'bg-purple-100 text-purple-700 border-purple-300',
+      delivering: 'bg-orange-100 text-orange-700 border-orange-300',
+      delivered: 'bg-green-100 text-green-700 border-green-300',
+      cancelled: 'bg-red-100 text-red-700 border-red-300',
+    };
+    return colors[status] || colors.pending;
+  };
+
+  const getStatusIcon = (status) => {
+    const icons = {
+      pending: <Clock className="w-4 h-4" />,
+      accepted: <CheckCircle2 className="w-4 h-4" />,
+      preparing: <Package className="w-4 h-4" />,
+      delivering: <Truck className="w-4 h-4" />,
+      delivered: <CheckCircle2 className="w-4 h-4" />,
+      cancelled: <span>❌</span>,
+    };
+    return icons[status] || icons.pending;
+  };
+
+  const getStatusText = (status) => {
+    return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
   if (showSplash) {
