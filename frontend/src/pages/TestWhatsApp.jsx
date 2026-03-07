@@ -47,28 +47,36 @@ export const TestWhatsApp = () => {
 
     const whatsappNumber = '00355693227207';
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+    
+    // Detect device
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
     setTestResult(`
-WhatsApp URL Created:
-Length: ${whatsappUrl.length} characters
+Device: ${isMobile ? '📱 Mobile (iOS/Android)' : '💻 Desktop'}
+WhatsApp URL Created: ${whatsappUrl.length} characters
 
 Decoded Message Preview:
 ${decodeURIComponent(message)}
 
-Full URL (click button below to open):
+${isMobile ? '📲 Redirecting via window.location.href (mobile)...' : '💻 Opening in new tab (desktop)...'}
     `);
 
+    console.log('Device:', isMobile ? 'Mobile' : 'Desktop');
     console.log('WhatsApp URL:', whatsappUrl);
     console.log('Message:', decodeURIComponent(message));
 
-    // Open WhatsApp
-    const link = document.createElement('a');
-    link.href = whatsappUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => document.body.removeChild(link), 1000);
+    // Open WhatsApp with device-specific method
+    if (isMobile) {
+      // Mobile: Direct navigation (most reliable)
+      window.location.href = whatsappUrl;
+    } else {
+      // Desktop: New tab
+      const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      if (!newWindow) {
+        // Fallback if popup blocked
+        window.location.href = whatsappUrl;
+      }
+    }
   };
 
   return (

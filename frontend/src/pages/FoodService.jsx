@@ -230,36 +230,48 @@ export const FoodService = () => {
     
     // Construct WhatsApp URL (ensure number starts without +)
     const cleanNumber = ownerWhatsApp.replace(/[\s\-+]/g, '');
-    const whatsappUrl = `https://wa.me/${cleanNumber}?text=${message}`;
+    
+    // Detect if mobile device
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     
     console.log('✅ Opening WhatsApp...');
     console.log('📱 Number:', cleanNumber);
+    console.log('📱 Device: ' + (isMobile ? 'Mobile' : 'Desktop'));
     console.log('📝 Message preview (first 200 chars):', decodeURIComponent(message).substring(0, 200));
-    console.log('🔗 Full URL length:', whatsappUrl.length);
     
-    // Multiple fallback methods for maximum compatibility
-    try {
-      // Method 1: Create invisible link and click (best for iOS)
-      const link = document.createElement('a');
-      link.href = whatsappUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
+    if (isMobile) {
+      // Mobile: Use direct navigation (works on iOS and Android)
+      const whatsappUrl = `https://wa.me/${cleanNumber}?text=${message}`;
+      console.log('🔗 Mobile URL length:', whatsappUrl.length);
+      console.log('📲 Redirecting via window.location.href (mobile method)');
       
-      // Clean up after a delay
-      setTimeout(() => {
-        if (document.body.contains(link)) {
-          document.body.removeChild(link);
+      // Direct page redirect - most reliable for mobile
+      window.location.href = whatsappUrl;
+    } else {
+      // Desktop: Open in new tab
+      const whatsappUrl = `https://wa.me/${cleanNumber}?text=${message}`;
+      console.log('🔗 Desktop URL length:', whatsappUrl.length);
+      console.log('💻 Opening in new tab (desktop method)');
+      
+      try {
+        // Try window.open first
+        const newWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        if (!newWindow) {
+          // If blocked, try link click
+          const link = document.createElement('a');
+          link.href = whatsappUrl;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          document.body.appendChild(link);
+          link.click();
+          setTimeout(() => document.body.removeChild(link), 100);
         }
-      }, 1000);
-      
-      console.log('✅ WhatsApp link clicked successfully');
-    } catch (error) {
-      console.error('❌ Error opening WhatsApp:', error);
-      // Fallback: direct window.open
-      window.open(whatsappUrl, '_blank');
+        console.log('✅ WhatsApp opened successfully');
+      } catch (error) {
+        console.error('❌ Error opening WhatsApp:', error);
+        // Last resort: direct navigation
+        window.location.href = whatsappUrl;
+      }
     }
   };
 
