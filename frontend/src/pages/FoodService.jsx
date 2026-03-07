@@ -403,11 +403,11 @@ export const FoodService = () => {
           </div>
         )}
 
-        {/* COMPACT Checkout Modal */}
+        {/* ULTRA COMPACT Checkout Modal - No Items List */}
         {showCheckout && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl">
-              <div className="p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl">
+              <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                     Complete Your Order
@@ -420,11 +420,24 @@ export const FoodService = () => {
                   </button>
                 </div>
 
-                {/* Checkout Form - NOW AT TOP */}
-                <form onSubmit={handleSubmitOrder} className="space-y-3">
+                {/* Total Display */}
+                <div className="mb-4 p-4 bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-xl border-2 border-sky-200 dark:border-sky-800">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">{cartCount} items in cart</p>
+                      <p className="text-2xl font-bold text-sky-600 dark:text-sky-400">
+                        €{cartTotal.toFixed(2)}
+                      </p>
+                    </div>
+                    <ShoppingCart className="w-8 h-8 text-sky-500" />
+                  </div>
+                </div>
+
+                {/* Checkout Form */}
+                <form onSubmit={handleSubmitOrder} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                      Room Number *
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Room / Apartment Number *
                     </label>
                     <input
                       type="text"
@@ -432,89 +445,47 @@ export const FoodService = () => {
                       value={apartmentNumber}
                       onChange={(e) => setApartmentNumber(e.target.value)}
                       placeholder="e.g., A-101, Room 205"
-                      className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 focus:outline-none"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 focus:outline-none text-lg"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Special Instructions (Optional)
                     </label>
                     <textarea
                       value={orderNotes}
                       onChange={(e) => setOrderNotes(e.target.value)}
                       placeholder="Any special requests..."
-                      rows={2}
-                      className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 focus:outline-none resize-none"
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 focus:outline-none resize-none"
                     />
                   </div>
 
-                  {/* BUTTONS NOW HERE - ABOVE ITEMS */}
-                  <div className="flex gap-3 pt-2 pb-4 border-b-2 border-slate-200 dark:border-slate-700">
+                  {/* BUTTONS - BIG AND VISIBLE */}
+                  <div className="flex gap-3 pt-4">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setShowCheckout(false)}
-                      className="flex-1"
+                      className="flex-1 py-6 text-base"
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
-                      className="flex-1 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold"
+                      className="flex-1 py-6 text-base bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-lg"
                     >
-                      Place Order
+                      Place Order →
                     </Button>
                   </div>
                 </form>
 
-                {/* Order Summary - NOW AT BOTTOM */}
-                <div className="mt-4 space-y-2">
-                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Order Summary:</h3>
-                  {cartItems.map(item => (
-                    <div key={item.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-700 rounded-lg text-sm">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-slate-900 dark:text-white truncate">{item.name}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded px-1">
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(item.id, -1)}
-                            className="p-0.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <span className="w-6 text-center text-xs font-semibold">{item.quantity}</span>
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="p-0.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
-                        </div>
-                        <p className="font-bold text-sky-600 w-14 text-right text-sm">
-                          €{(item.price * item.quantity).toFixed(2)}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => removeFromCart(item.id)}
-                          className="text-red-500 hover:text-red-700 p-0.5"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="flex items-center justify-between p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
-                    <span className="font-semibold text-slate-900 dark:text-white">Total:</span>
-                    <span className="text-xl font-bold text-sky-600 dark:text-sky-400">
-                      €{cartTotal.toFixed(2)}
-                    </span>
-                  </div>
+                {/* View Cart Items Link */}
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {cartItems.length} item(s) • See cart bar below
+                  </p>
                 </div>
               </div>
             </div>
