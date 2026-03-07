@@ -48,12 +48,27 @@ _Saranda, Albania_
 _VAT: M34631808J_
     `.trim();
 
-    // Get customer phone number
-    const customerPhone = order.phone ? order.phone.replace(/[^0-9]/g, '') : null;
+    // Get customer phone number and clean it
+    let customerPhone = order.phone;
     
     if (!customerPhone) {
       alert('Customer phone number not available. Please add phone number to send invoice via WhatsApp.');
       return;
+    }
+
+    // Clean phone number - remove all non-digit characters except +
+    customerPhone = customerPhone.replace(/[^0-9+]/g, '');
+    
+    // Handle different phone number formats
+    if (!customerPhone.startsWith('+') && !customerPhone.startsWith('00')) {
+      // If no country code, assume Albanian number (+355)
+      customerPhone = '355' + customerPhone.replace(/^0+/, '');
+    } else if (customerPhone.startsWith('+')) {
+      // Remove + sign (WhatsApp API doesn't need it)
+      customerPhone = customerPhone.substring(1);
+    } else if (customerPhone.startsWith('00')) {
+      // Convert 00 format to just digits
+      customerPhone = customerPhone.substring(2);
     }
 
     // Open WhatsApp with invoice

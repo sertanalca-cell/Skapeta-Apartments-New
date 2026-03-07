@@ -3,7 +3,8 @@ import { AdminLayout } from './AdminLayout';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { Calendar, Plus, Trash2, User, Phone, Mail, DollarSign } from 'lucide-react';
+import { Calendar, Plus, Trash2, User, Phone, Mail, DollarSign, FileText } from 'lucide-react';
+import { ReservationInvoiceModal } from '../../components/ReservationInvoiceModal';
 import { toast } from 'sonner';
 import axios from 'axios';
 
@@ -24,6 +25,9 @@ export const ReservationsManager = () => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [selectedReservation, setSelectedReservation] = useState(null);
+  const [settings, setSettings] = useState(null);
   const [formData, setFormData] = useState({
     guest_name: '',
     guest_email: '',
@@ -39,7 +43,17 @@ export const ReservationsManager = () => {
 
   useEffect(() => {
     loadReservations();
+    loadSettings();
   }, []);
+
+  const loadSettings = async () => {
+    try {
+      const response = await api.get('/settings');
+      setSettings(response.data);
+    } catch (error) {
+      console.error('Failed to load settings:', error);
+    }
+  };
 
   const loadReservations = async () => {
     try {
@@ -270,14 +284,28 @@ export const ReservationsManager = () => {
                       </p>
                     )}
                   </div>
-                  <Button
-                    onClick={() => handleDelete(reservation.id)}
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-500 hover:bg-red-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => {
+                        setSelectedReservation(reservation);
+                        setShowInvoice(true);
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="text-green-600 border-green-300 hover:bg-green-50"
+                    >
+                      <FileText className="w-4 h-4 mr-1" />
+                      Invoice
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(reservation.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -291,6 +319,18 @@ export const ReservationsManager = () => {
               <p className="text-slate-500">No reservations yet. Create your first one!</p>
             </CardContent>
           </Card>
+        )}
+
+        {/* Invoice Modal */}
+        {showInvoice && selectedReservation && (
+          <ReservationInvoiceModal
+            reservation={selectedReservation}
+            settings={settings}
+            onClose={() => {
+              setShowInvoice(false);
+              setSelectedReservation(null);
+            }}
+          />
         )}
       </div>
     </AdminLayout>
