@@ -77,12 +77,8 @@ async def create_order(
     
     await db.orders.insert_one(new_order.dict())
     
-    # Get settings for owner WhatsApp number
-    settings = await db.settings.find_one({}, {"_id": 0})
-    owner_phone = settings.get("owner_phone") if settings else OWNER_WHATSAPP
-    
-    # Send WhatsApp notification to owner
-    await send_whatsapp_notification(new_order.dict(), owner_phone, db)
+    # Note: WhatsApp notification is handled on frontend automatically
+    # when order is successfully placed
     
     return new_order
 

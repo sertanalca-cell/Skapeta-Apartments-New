@@ -192,8 +192,8 @@ export const FoodService = () => {
       `📝 Notlar / Notes: ${order.notes || 'Yok / None'}\n\n` +
       `⏰ Saat / Time: ${new Date().toLocaleTimeString('tr-TR')}`;
     
-    // Owner's WhatsApp number (update this!)
-    const whatsappNumber = '355693227207'; // Change to your number
+    // Use WhatsApp number from settings
+    const whatsappNumber = ownerWhatsApp; // From state
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
     
