@@ -250,4 +250,39 @@ export const analyticsAPI = {
   },
 };
 
+// Booking Reservations API
+export const bookingReservationsAPI = {
+  getAll: async () => {
+    const response = await api.get('/booking-reservations');
+    return response.data;
+  },
+  
+  getById: async (id) => {
+    const response = await api.get(`/booking-reservations/${id}`);
+    return response.data;
+  },
+  
+  create: async (data) => {
+    const response = await api.post('/booking-reservations', data);
+    return response.data;
+  },
+  
+  update: async (id, data) => {
+    const response = await api.put(`/booking-reservations/${id}`, data);
+    return response.data;
+  },
+  
+  delete: async (id) => {
+    await api.delete(`/booking-reservations/${id}`);
+  },
+};
+
+// Reports API
+export const reportsAPI = {
+  getMonthlyRevenue: async (month) => {
+    const response = await api.get(`/reports/monthly-revenue?month=${month}`);
+    return response.data;
+  },
+};
+
 export default api;

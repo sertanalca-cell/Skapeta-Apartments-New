@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit, ShoppingCart, UtensilsCrossed, DollarSign, Package, Users } from 'lucide-react';
+import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit, ShoppingCart, UtensilsCrossed, DollarSign, Package, Users, FileText } from 'lucide-react';
 import { apartmentsAPI, galleryAPI, settingsAPI, ordersAPI, menuAPI, analyticsAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -237,6 +237,15 @@ export const AdminDashboard = () => {
                 <SettingsIcon className="w-8 h-8 text-green-600 mb-2" />
                 <h3 className="font-semibold text-slate-900">Website Settings</h3>
                 <p className="text-sm text-slate-600">Edit site content and links</p>
+              </button>
+
+              <button
+                onClick={() => navigate('/admin/revenue-report')}
+                className="p-4 border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg hover:border-amber-500 hover:shadow-lg transition-all text-left"
+              >
+                <FileText className="w-8 h-8 text-amber-600 mb-2" />
+                <h3 className="font-semibold text-slate-900">Monthly Revenue Report</h3>
+                <p className="text-sm text-slate-600">View and download financial reports</p>
               </button>
 
               <button

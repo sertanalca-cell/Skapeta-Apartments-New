@@ -234,3 +234,42 @@ class TokenData(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+
+# Booking.com Reservation Models
+class BookingReservationBase(BaseModel):
+    guest_name: str
+    check_in: str  # YYYY-MM-DD format
+    check_out: str  # YYYY-MM-DD format
+    nights: int
+    price: float
+    booking_reference: Optional[str] = None
+    notes: Optional[str] = None
+
+class BookingReservationCreate(BookingReservationBase):
+    pass
+
+class BookingReservation(BookingReservationBase):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class BookingReservationUpdate(BaseModel):
+    guest_name: Optional[str] = None
+    check_in: Optional[str] = None
+    check_out: Optional[str] = None
+    nights: Optional[int] = None
+    price: Optional[float] = None
+    booking_reference: Optional[str] = None
+    notes: Optional[str] = None
+
+
+# Monthly Revenue Report Model
+class MonthlyRevenue(BaseModel):
+    month: str  # YYYY-MM format
+    food_orders_count: int
+    food_orders_total: float
+    manual_reservations_count: int
+    manual_reservations_total: float
+    booking_reservations_count: int
+    booking_reservations_total: float
+    total_revenue: float

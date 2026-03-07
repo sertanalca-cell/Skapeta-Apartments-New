@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from './AdminLayout';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { Calendar, Plus, Trash2, User, Phone, Mail, DollarSign, FileText } from 'lucide-react';
+import { Calendar, Plus, Trash2, User, Phone, Mail, DollarSign, FileText, ExternalLink } from 'lucide-react';
 import { ReservationInvoiceModal } from '../../components/ReservationInvoiceModal';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -22,6 +23,7 @@ api.interceptors.request.use((config) => {
 });
 
 export const ReservationsManager = () => {
+  const navigate = useNavigate();
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -122,13 +124,23 @@ export const ReservationsManager = () => {
             <h2 className="text-3xl font-bold text-slate-900">Reservations</h2>
             <p className="text-slate-600">Manage manual apartment reservations</p>
           </div>
-          <Button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-sky-500 hover:bg-sky-600"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            {showForm ? 'Cancel' : 'New Reservation'}
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => navigate('/admin/booking-reservations')}
+              variant="outline"
+              className="border-green-500 text-green-600 hover:bg-green-50"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Booking.com Reservations
+            </Button>
+            <Button
+              onClick={() => setShowForm(!showForm)}
+              className="bg-sky-500 hover:bg-sky-600"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {showForm ? 'Cancel' : 'New Reservation'}
+            </Button>
+          </div>
         </div>
 
         {showForm && (

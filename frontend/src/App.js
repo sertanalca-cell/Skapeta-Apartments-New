@@ -12,6 +12,8 @@ import { SightseeingManager } from "./pages/admin/SightseeingManager";
 import { OrdersManager } from "./pages/admin/OrdersManager";
 import { MenuManager } from "./pages/admin/MenuManager";
 import { ReservationsManager } from "./pages/admin/ReservationsManager";
+import { BookingReservationsManager } from "./pages/admin/BookingReservationsManager";
+import { MonthlyRevenueReport } from "./pages/admin/MonthlyRevenueReport";
 import { DocumentsManager } from "./pages/admin/DocumentsManager";
 import { ExpensesManager } from "./pages/admin/ExpensesManager";
 import { AuthProvider } from "./context/AuthContext";
@@ -37,6 +39,8 @@ function App() {
               <Route path="/admin/orders" element={<OrdersManager />} />
               <Route path="/admin/menu" element={<MenuManager />} />
               <Route path="/admin/reservations" element={<ReservationsManager />} />
+              <Route path="/admin/booking-reservations" element={<BookingReservationsManager />} />
+              <Route path="/admin/revenue-report" element={<MonthlyRevenueReport />} />
               <Route path="/admin/expenses" element={<ExpensesManager />} />
               <Route path="/admin/documents" element={<DocumentsManager />} />
             </Routes>
