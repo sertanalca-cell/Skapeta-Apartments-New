@@ -12,6 +12,7 @@ import { OrdersManager } from "./pages/admin/OrdersManager";
 import { MenuManager } from "./pages/admin/MenuManager";
 import { ReservationsManager } from "./pages/admin/ReservationsManager";
 import { DocumentsManager } from "./pages/admin/DocumentsManager";
+import { ExpensesManager } from "./pages/admin/ExpensesManager";
 import { AuthProvider } from "./context/AuthContext";
 import { CustomerAuthProvider } from "./context/CustomerAuthContext";
 import { Toaster } from "./components/ui/sonner";
@@ -34,6 +35,7 @@ function App() {
               <Route path="/admin/orders" element={<OrdersManager />} />
               <Route path="/admin/menu" element={<MenuManager />} />
               <Route path="/admin/reservations" element={<ReservationsManager />} />
+              <Route path="/admin/expenses" element={<ExpensesManager />} />
               <Route path="/admin/documents" element={<DocumentsManager />} />
             </Routes>
           </BrowserRouter>
