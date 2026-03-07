@@ -33,8 +33,10 @@ async def get_orders(
     db: AsyncIOMotorDatabase = Depends(get_database),
     current_user: dict = Depends(get_current_user)
 ):
-    """Get all orders (admin only)"""
-    query = {"status": status} if status else {}
+    """Get all orders (admin only) - excludes closed orders"""
+    query = {"closed_at": {"$exists": False}}  # Only show orders that haven't been closed
+    if status:
+        query["status"] = status
     orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return orders
 
@@ -243,20 +245,21 @@ async def close_day(
     Close all today's orders (mark them as closed for the day)
     This is for daily reporting and archiving purposes
     """
-    # Get today's date range
-    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-    today_end = datetime.now(timezone.utc).replace(hour=23, minute=59, second=59, microsecond=999999)
+    # Get today's date range (UTC)
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
     
-    # Find all orders from today that haven't been closed yet
+    # Find all orders from today that haven't been closed yet and are not cancelled
     result = await db.orders.update_many(
         {
             "created_at": {"$gte": today_start, "$lte": today_end},
-            "closed_at": None,
+            "closed_at": {"$exists": False},  # Not closed yet
             "status": {"$ne": "cancelled"}
         },
         {
             "$set": {
-                "closed_at": datetime.now(timezone.utc)
+                "closed_at": now
             }
         }
     )
@@ -264,7 +267,7 @@ async def close_day(
     return {
         "message": "Day closed successfully",
         "orders_closed": result.modified_count,
-        "closed_at": datetime.now(timezone.utc).isoformat()
+        "closed_at": now.isoformat()
     }
 
 
