@@ -71,10 +71,22 @@ _VAT: M34631808J_
       customerPhone = customerPhone.substring(2);
     }
 
-    // Open WhatsApp with invoice
+    // Encode message for URL
     const encodedMessage = encodeURIComponent(invoiceText);
-    const whatsappUrl = `https://wa.me/${customerPhone}?text=${encodedMessage}`;
-    window.open(whatsappUrl, '_blank');
+    
+    // Try native WhatsApp app first (better for iPhone), fallback to web
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${customerPhone}&text=${encodedMessage}`;
+    
+    // For iPhone/iOS, use location.href instead of window.open
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    if (isIOS) {
+      // iOS: Direct navigation works better
+      window.location.href = whatsappUrl;
+    } else {
+      // Desktop/Android: Open in new tab
+      window.open(whatsappUrl, '_blank');
+    }
   };
 
   const formatDate = (dateString) => {
