@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 
 # Import route modules
-from routes import auth_routes, apartment_routes, upload_routes, gallery_routes, settings_routes, sightseeing_routes, menu_routes, order_routes, customer_auth_routes, analytics_routes, websocket_routes, reservation_routes, document_routes, expense_routes
+from routes import auth_routes, apartment_routes, upload_routes, gallery_routes, settings_routes, sightseeing_routes, menu_routes, order_routes, customer_auth_routes, analytics_routes, websocket_routes, reservation_routes, document_routes, expense_routes, notification_routes
 
 
 ROOT_DIR = Path(__file__).parent
@@ -33,6 +33,7 @@ websocket_routes.set_db(db_instance)
 reservation_routes.set_db(db_instance)
 document_routes.set_db(db_instance)
 expense_routes.set_db(db_instance)
+notification_routes.set_db(db_instance)
 
 # Connect WebSocket manager to order routes
 order_routes.set_websocket_manager(websocket_routes.manager)
@@ -58,6 +59,7 @@ api_router.include_router(websocket_routes.router)
 api_router.include_router(reservation_routes.router)
 api_router.include_router(document_routes.router)
 api_router.include_router(expense_routes.router)
+api_router.include_router(notification_routes.router)
 
 # Health check endpoint
 @api_router.get("/")

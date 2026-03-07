@@ -4,6 +4,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from datetime import datetime, timezone
 from models import Order, OrderCreate, OrderUpdate
 from auth import get_current_user
+import os
 
 router = APIRouter()
 
@@ -21,6 +22,9 @@ def set_websocket_manager(manager):
 
 def get_database():
     return _db
+
+# Owner's WhatsApp number (from environment or settings)
+OWNER_WHATSAPP = os.getenv("OWNER_WHATSAPP", "355691234567")  # Default Albanian number
 
 
 @router.get("/orders", response_model=List[Order])
@@ -73,8 +77,12 @@ async def create_order(
     
     await db.orders.insert_one(new_order.dict())
     
-    # Send WhatsApp notification
-    await send_whatsapp_notification(new_order.dict())
+    # Get settings for owner WhatsApp number
+    settings = await db.settings.find_one({}, {"_id": 0})
+    owner_phone = settings.get("owner_phone") if settings else OWNER_WHATSAPP
+    
+    # Send WhatsApp notification to owner
+    await send_whatsapp_notification(new_order.dict(), owner_phone, db)
     
     return new_order
 
