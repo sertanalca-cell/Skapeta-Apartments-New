@@ -145,7 +145,8 @@ export const FoodService = () => {
 
       const newOrder = await ordersAPI.create(orderData);
       
-      toast.success('✅ Sipariş alındı! WhatsApp açılıyor... / Order placed! Opening WhatsApp...', {
+      // Show success message
+      toast.success('✅ Sipariş alındı! WhatsApp açılıyor... / Order received! Opening WhatsApp...', {
         duration: 3000
       });
       
@@ -155,10 +156,10 @@ export const FoodService = () => {
       setOrderNotes('');
       setApartmentNumber('');
       
-      // Reload recent orders
+      // Reload customer orders
       fetchCustomerOrders();
       
-      // Send WhatsApp notification automatically (after a small delay to show toast)
+      // Automatically open WhatsApp with order details (1 second delay)
       setTimeout(() => {
         sendWhatsAppNotification(newOrder);
       }, 1000);
@@ -173,26 +174,42 @@ export const FoodService = () => {
 
   const sendWhatsAppNotification = (order) => {
     // Format order details for WhatsApp
-    const itemsText = order.items.map(item => 
-      `  • ${item.quantity}x ${item.menu_item_name} - €${(item.price * item.quantity).toFixed(2)}`
+    const items = order.items.map((item, idx) => 
+      `${idx + 1}. ${item.menu_item_name} x${item.quantity} - €${(item.price * item.quantity).toFixed(2)}`
     ).join('\n');
     
-    const message = `🔔 *NEW ORDER RECEIVED*\n\n` +
-      `📋 Order #*${order.order_number}*\n` +
-      `👤 Customer: *${order.first_name} ${order.last_name}*\n` +
-      `📞 Phone: ${order.phone || 'N/A'}\n` +
-      `🏠 Apartment: *${order.apartment_number}*\n\n` +
-      `🍽️ *Order Items:*\n${itemsText}\n\n` +
-      `💰 *Total: €${order.total_price.toFixed(2)}*\n\n` +
-      `📝 Notes: ${order.notes || 'None'}`;
+    const message = 
+      `🔔 *YENİ SİPARİŞ / NEW ORDER*\n\n` +
+      `📋 Sipariş No / Order #: *${order.order_number}*\n` +
+      `👤 Müşteri / Customer: *${order.first_name} ${order.last_name}*\n` +
+      `📞 Telefon / Phone: ${order.phone || 'N/A'}\n` +
+      `🏠 Oda No / Room: *${order.apartment_number}*\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `🍽️ *SİPARİŞ / ORDER:*\n\n` +
+      `${items}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `💰 *TOPLAM / TOTAL: €${order.total_price.toFixed(2)}*\n\n` +
+      `📝 Notlar / Notes: ${order.notes || 'Yok / None'}\n\n` +
+      `⏰ Saat / Time: ${new Date().toLocaleTimeString('tr-TR')}`;
     
-    // Open WhatsApp with pre-filled message
-    const whatsappNumber = '355693227207';
+    // Owner's WhatsApp number (update this!)
+    const whatsappNumber = '355693227207'; // Change to your number
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
     
-    // Open in new tab
-    window.open(whatsappUrl, '_blank');
+    // iOS Safari compatible method
+    const link = document.createElement('a');
+    link.href = whatsappUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    console.log('✅ WhatsApp açılıyor / Opening WhatsApp...');
+    console.log('📱 Numara / Number:', whatsappNumber);
+  };
   };
 
   const getStatusIcon = (status) => {
