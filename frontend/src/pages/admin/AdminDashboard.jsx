@@ -1,282 +1,312 @@
 import React, { useState, useEffect } from 'react';
-import { AdminLayout } from './AdminLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit, ShoppingCart, UtensilsCrossed, DollarSign, Package, Users, FileText } from 'lucide-react';
-import { apartmentsAPI, galleryAPI, settingsAPI, ordersAPI, menuAPI, analyticsAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
+import { AdminLayout } from './AdminLayout';
+import { Card, CardContent } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit, ShoppingCart, UtensilsCrossed, DollarSign, Package, Users, FileText, Calendar, Clock } from 'lucide-react';
+import { reportsAPI, ordersAPI } from '../../services/api';
+import { toast } from 'sonner';
 
 export const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    apartments: 0,
-    galleryImages: 0,
-    foodImages: 0,
-    totalOrders: 0,
-    pendingOrders: 0,
-    totalRevenue: 0,
-    todayRevenue: 0,
-    menuItems: 0,
-    totalVisits: 0,
-    todayVisits: 0,
-    loading: true,
-  });
   const navigate = useNavigate();
+  const [monthlyRevenue, setMonthlyRevenue] = useState(null);
+  const [lastOrders, setLastOrders] = useState([]);
+  const [loadingRevenue, setLoadingRevenue] = useState(true);
+  const [loadingOrders, setLoadingOrders] = useState(true);
 
   useEffect(() => {
-    loadStats();
+    fetchCurrentMonthRevenue();
+    fetchLastOrders();
   }, []);
 
-  const loadStats = async () => {
+  const fetchCurrentMonthRevenue = async () => {
     try {
-      const [apartments, gallery, orders, menuItems, analyticsData] = await Promise.all([
-        apartmentsAPI.getAll(),
-        galleryAPI.getAll(),
-        ordersAPI.getAll(),
-        menuAPI.getAll(),
-        analyticsAPI.getStats(),
-      ]);
-
-      // Calculate today's revenue
-      const today = new Date().toDateString();
-      const todayOrders = orders.filter(order => 
-        new Date(order.created_at).toDateString() === today
-      );
-      const todayRevenue = todayOrders.reduce((sum, order) => sum + order.total_price, 0);
-
-      setStats({
-        apartments: apartments.length,
-        galleryImages: gallery.length,
-        foodImages: gallery.filter(img => img.category === 'food').length,
-        totalOrders: orders.length,
-        pendingOrders: orders.filter(o => o.status === 'pending').length,
-        totalRevenue: orders.reduce((sum, o) => sum + o.total_price, 0),
-        todayRevenue: todayRevenue,
-        menuItems: menuItems.length,
-        totalVisits: analyticsData.total_visits || 0,
-        todayVisits: analyticsData.today_visits || 0,
-        loading: false,
-      });
+      const now = new Date();
+      const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const data = await reportsAPI.getMonthlyRevenue(month);
+      setMonthlyRevenue(data);
     } catch (error) {
-      console.error('Failed to load stats:', error);
-      setStats(prev => ({ ...prev, loading: false }));
+      console.error('Failed to load revenue:', error);
+    } finally {
+      setLoadingRevenue(false);
     }
   };
 
-  const statCards = [
-    {
-      title: 'Total Revenue',
-      value: `€${stats.totalRevenue.toFixed(2)}`,
-      icon: DollarSign,
-      color: 'from-green-500 to-emerald-600',
-      path: '/admin/orders',
-    },
-    {
-      title: "Today's Revenue",
-      value: `€${stats.todayRevenue.toFixed(2)}`,
-      icon: TrendingUp,
-      color: 'from-sky-500 to-blue-600',
-      path: '/admin/orders',
-    },
-    {
-      title: 'Website Visitors',
-      value: stats.totalVisits,
-      subtitle: `${stats.todayVisits} today`,
-      icon: Users,
-      color: 'from-violet-500 to-purple-600',
-      path: '/admin',
-    },
-    {
-      title: 'Total Orders',
-      value: stats.totalOrders,
-      icon: ShoppingCart,
-      color: 'from-purple-500 to-pink-600',
-      path: '/admin/orders',
-    },
-    {
-      title: 'Pending Orders',
-      value: stats.pendingOrders,
-      icon: Package,
-      color: 'from-orange-500 to-red-600',
-      path: '/admin/orders',
-    },
-    {
-      title: 'Apartments',
-      value: stats.apartments,
-      icon: Building2,
-      color: 'from-sky-400 to-blue-600',
-      path: '/admin/apartments',
-    },
-    {
-      title: 'Menu Items',
-      value: stats.menuItems,
-      icon: UtensilsCrossed,
-      color: 'from-yellow-400 to-orange-600',
-      path: '/admin/menu',
-    },
-    {
-      title: 'Gallery Images',
-      value: stats.galleryImages,
-      icon: Image,
-      color: 'from-purple-400 to-pink-600',
-      path: '/admin/gallery',
-    },
-    {
-      title: 'Settings',
-      value: 'Manage',
-      icon: SettingsIcon,
-      color: 'from-green-400 to-emerald-600',
-      path: '/admin/settings',
-    },
-  ];
+  const fetchLastOrders = async () => {
+    try {
+      const data = await ordersAPI.getClosedOrders(10);
+      setLastOrders(data);
+    } catch (error) {
+      console.error('Failed to load last orders:', error);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
+  const getCurrentMonthName = () => {
+    return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
+  const getStatusBadge = (status) => {
+    const statusColors = {
+      pending: 'bg-yellow-100 text-yellow-800',
+      accepted: 'bg-blue-100 text-blue-800',
+      preparing: 'bg-purple-100 text-purple-800',
+      on_the_way: 'bg-indigo-100 text-indigo-800',
+      delivered: 'bg-green-100 text-green-800',
+      cancelled: 'bg-red-100 text-red-800'
+    };
+    return statusColors[status] || 'bg-gray-100 text-gray-800';
+  };
 
   return (
     <AdminLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">Dashboard</h2>
-          <p className="text-slate-600">Welcome to Skapeta Apartments admin panel</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">Welcome to Skapeta Apartments Admin</p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {statCards.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <Card
-                key={stat.title}
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => navigate(stat.path)}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-slate-600">
-                      {stat.title}
-                    </CardTitle>
-                    <div className={`w-10 h-10 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center`}>
-                      <Icon className="w-5 h-5 text-white" />
+        {/* Monthly Revenue Card - TOP */}
+        <Card className="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-amber-900/20 dark:via-orange-900/20 dark:to-red-900/20 border-2 border-amber-300 dark:border-amber-700 shadow-xl">
+          <CardContent className="p-6">
+            {loadingRevenue ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+              </div>
+            ) : monthlyRevenue ? (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <DollarSign className="w-9 h-9 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-300">
+                        Monthly Revenue - {getCurrentMonthName()}
+                      </h2>
+                      <p className="text-4xl font-bold text-slate-900 dark:text-white mt-1">
+                        €{monthlyRevenue.total_revenue.toFixed(2)}
+                      </p>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold text-slate-900">
-                    {stats.loading ? '...' : stat.value}
-                  </p>
-                  {stat.subtitle && (
-                    <p className="text-sm text-slate-500 mt-1">{stat.subtitle}</p>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                  <Button
+                    onClick={() => navigate('/admin/revenue-report')}
+                    className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Full Report
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur rounded-xl p-4 border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2 mb-2">
+                      <UtensilsCrossed className="w-5 h-5 text-sky-600" />
+                      <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Food Orders</p>
+                    </div>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                      €{monthlyRevenue.food_orders_total.toFixed(2)}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      {monthlyRevenue.food_orders_count} orders
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur rounded-xl p-4 border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Building2 className="w-5 h-5 text-purple-600" />
+                      <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Manual Reservations</p>
+                    </div>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                      €{monthlyRevenue.manual_reservations_total.toFixed(2)}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      {monthlyRevenue.manual_reservations_count} reservations
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur rounded-xl p-4 border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Calendar className="w-5 h-5 text-green-600" />
+                      <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Booking.com</p>
+                    </div>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                      €{monthlyRevenue.booking_reservations_total.toFixed(2)}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      {monthlyRevenue.booking_reservations_count} reservations
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-slate-600 dark:text-slate-400">No revenue data available</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-        {/* Quick Actions */}
+        {/* Last Orders Card */}
         <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <button
-                onClick={() => navigate('/admin/apartments')}
-                className="p-4 border-2 border-slate-200 rounded-lg hover:border-sky-500 hover:bg-sky-50 transition-all text-left"
-              >
-                <Building2 className="w-8 h-8 text-sky-600 mb-2" />
-                <h3 className="font-semibold text-slate-900">Manage Apartments</h3>
-                <p className="text-sm text-slate-600">Add, edit or remove apartments</p>
-              </button>
-
-              <button
-                onClick={() => navigate('/admin/gallery')}
-                className="p-4 border-2 border-slate-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-all text-left"
-              >
-                <Image className="w-8 h-8 text-purple-600 mb-2" />
-                <h3 className="font-semibold text-slate-900">Manage Gallery</h3>
-                <p className="text-sm text-slate-600">Upload and organize photos & videos</p>
-              </button>
-
-              <button
-                onClick={() => navigate('/admin/gallery')}
-                className="p-4 border-2 border-slate-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all text-left"
-              >
-                <Utensils className="w-8 h-8 text-orange-600 mb-2" />
-                <h3 className="font-semibold text-slate-900">Food Service Gallery</h3>
-                <p className="text-sm text-slate-600">Manage menu and food images</p>
-              </button>
-
-              <button
-                onClick={() => navigate('/admin/sightseeing')}
-                className="p-4 border-2 border-slate-200 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all text-left"
-              >
-                <MapIcon className="w-8 h-8 text-teal-600 mb-2" />
-                <h3 className="font-semibold text-slate-900">Manage Sightseeing</h3>
-                <p className="text-sm text-slate-600">Add tourist attractions & spots</p>
-              </button>
-
-              <button
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Clock className="w-6 h-6 text-sky-600" />
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Last Orders (Closed)</h2>
+              </div>
+              <Button
                 onClick={() => navigate('/admin/orders')}
-                className="p-4 border-2 border-slate-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-all text-left"
+                variant="outline"
+                size="sm"
               >
-                <ShoppingCart className="w-8 h-8 text-red-600 mb-2" />
-                <h3 className="font-semibold text-slate-900">Food Orders</h3>
-                <p className="text-sm text-slate-600">Manage customer food orders</p>
-              </button>
-
-              <button
-                onClick={() => navigate('/admin/menu')}
-                className="p-4 border-2 border-slate-200 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition-all text-left"
-              >
-                <UtensilsCrossed className="w-8 h-8 text-yellow-600 mb-2" />
-                <h3 className="font-semibold text-slate-900">Menu Management</h3>
-                <p className="text-sm text-slate-600">Edit food menu items</p>
-              </button>
-
-              <button
-                onClick={() => navigate('/admin/settings')}
-                className="p-4 border-2 border-slate-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all text-left"
-              >
-                <SettingsIcon className="w-8 h-8 text-green-600 mb-2" />
-                <h3 className="font-semibold text-slate-900">Website Settings</h3>
-                <p className="text-sm text-slate-600">Edit site content and links</p>
-              </button>
-
-              <button
-                onClick={() => navigate('/admin/revenue-report')}
-                className="p-4 border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg hover:border-amber-500 hover:shadow-lg transition-all text-left"
-              >
-                <FileText className="w-8 h-8 text-amber-600 mb-2" />
-                <h3 className="font-semibold text-slate-900">Monthly Revenue Report</h3>
-                <p className="text-sm text-slate-600">View and download financial reports</p>
-              </button>
-
-              <button
-                onClick={() => navigate('/admin/settings')}
-                className="p-4 border-2 border-slate-200 rounded-lg hover:border-amber-500 hover:bg-amber-50 transition-all text-left"
-              >
-                <Edit className="w-8 h-8 text-amber-600 mb-2" />
-                <h3 className="font-semibold text-slate-900">Quick Edit</h3>
-                <p className="text-sm text-slate-600">Update hero, about & contact info</p>
-              </button>
+                View All Orders
+              </Button>
             </div>
+            
+            {loadingOrders ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500"></div>
+              </div>
+            ) : lastOrders.length > 0 ? (
+              <div className="space-y-3">
+                {lastOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="font-semibold text-slate-900 dark:text-white">
+                          Order #{order.order_number || order.id.slice(0, 6)}
+                        </span>
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadge(order.status)}`}>
+                          {order.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        {order.first_name} {order.last_name} • Room: {order.apartment_number}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                        Closed: {new Date(order.closed_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                        €{order.total_price.toFixed(2)}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-500">
+                        {order.items?.length || 0} items
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Clock className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+                <p className="text-slate-600 dark:text-slate-400">No closed orders yet</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Info Card */}
-        <Card className="bg-gradient-to-br from-sky-50 to-blue-50 border-sky-200">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-sky-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-1">Manage Your Property</h3>
-                <p className="text-slate-600">
-                  Use this admin panel to manage apartments, upload images, and update website settings. 
-                  All changes are saved to the database and reflected on the main website immediately.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Management Sections */}
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Content Management</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <button
+              onClick={() => navigate('/admin/apartments')}
+              className="p-4 border-2 border-slate-200 rounded-lg hover:border-sky-500 hover:bg-sky-50 transition-all text-left"
+            >
+              <Building2 className="w-8 h-8 text-sky-600 mb-2" />
+              <h3 className="font-semibold text-slate-900">Apartments</h3>
+              <p className="text-sm text-slate-600">Manage apartment listings</p>
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/gallery')}
+              className="p-4 border-2 border-slate-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-all text-left"
+            >
+              <Image className="w-8 h-8 text-purple-600 mb-2" />
+              <h3 className="font-semibold text-slate-900">Gallery</h3>
+              <p className="text-sm text-slate-600">Manage gallery images</p>
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/menu')}
+              className="p-4 border-2 border-slate-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all text-left"
+            >
+              <Utensils className="w-8 h-8 text-orange-600 mb-2" />
+              <h3 className="font-semibold text-slate-900">Food Menu</h3>
+              <p className="text-sm text-slate-600">Manage restaurant menu</p>
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/orders')}
+              className="p-4 border-2 border-slate-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+            >
+              <ShoppingCart className="w-8 h-8 text-blue-600 mb-2" />
+              <h3 className="font-semibold text-slate-900">Food Orders</h3>
+              <p className="text-sm text-slate-600">View and manage orders</p>
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/reservations')}
+              className="p-4 border-2 border-slate-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left"
+            >
+              <Calendar className="w-8 h-8 text-indigo-600 mb-2" />
+              <h3 className="font-semibold text-slate-900">Reservations</h3>
+              <p className="text-sm text-slate-600">Manage apartment bookings</p>
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/expenses')}
+              className="p-4 border-2 border-slate-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-all text-left"
+            >
+              <DollarSign className="w-8 h-8 text-red-600 mb-2" />
+              <h3 className="font-semibold text-slate-900">Expenses</h3>
+              <p className="text-sm text-slate-600">Track business expenses</p>
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/documents')}
+              className="p-4 border-2 border-slate-200 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all text-left"
+            >
+              <FileText className="w-8 h-8 text-teal-600 mb-2" />
+              <h3 className="font-semibold text-slate-900">Documents</h3>
+              <p className="text-sm text-slate-600">Manage business documents</p>
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/sightseeing')}
+              className="p-4 border-2 border-slate-200 rounded-lg hover:border-pink-500 hover:bg-pink-50 transition-all text-left"
+            >
+              <MapIcon className="w-8 h-8 text-pink-600 mb-2" />
+              <h3 className="font-semibold text-slate-900">Sightseeing</h3>
+              <p className="text-sm text-slate-600">Manage attractions</p>
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/settings')}
+              className="p-4 border-2 border-slate-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all text-left"
+            >
+              <SettingsIcon className="w-8 h-8 text-green-600 mb-2" />
+              <h3 className="font-semibold text-slate-900">Website Settings</h3>
+              <p className="text-sm text-slate-600">Edit site content and links</p>
+            </button>
+
+            <button
+              onClick={() => navigate('/admin/revenue-report')}
+              className="p-4 border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg hover:border-amber-500 hover:shadow-lg transition-all text-left"
+            >
+              <FileText className="w-8 h-8 text-amber-600 mb-2" />
+              <h3 className="font-semibold text-slate-900">Monthly Revenue Report</h3>
+              <p className="text-sm text-slate-600">View and download financial reports</p>
+            </button>
+          </div>
+        </div>
       </div>
     </AdminLayout>
   );

@@ -217,6 +217,7 @@ class Order(OrderBase):
     total_price: float
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    closed_at: Optional[datetime] = None  # When order was closed for the day
 
 class OrderUpdate(BaseModel):
     status: Optional[str] = None

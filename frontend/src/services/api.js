@@ -215,6 +215,16 @@ export const ordersAPI = {
   delete: async (id) => {
     await api.delete(`/orders/${id}`);
   },
+  
+  closeDay: async () => {
+    const response = await api.post('/orders/close-day');
+    return response.data;
+  },
+  
+  getClosedOrders: async (limit = 50) => {
+    const response = await api.get(`/orders/closed?limit=${limit}`);
+    return response.data;
+  },
 };
 
 // Customer Auth API

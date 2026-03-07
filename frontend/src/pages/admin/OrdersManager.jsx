@@ -3,7 +3,7 @@ import { AdminLayout } from './AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
-import { Clock, CheckCircle2, Truck, Package, X, User, Home, FileText } from 'lucide-react';
+import { Clock, CheckCircle2, Truck, Package, X, User, Home, FileText, DoorClosed } from 'lucide-react';
 import { ordersAPI, settingsAPI } from '../../services/api';
 import { InvoiceModal } from '../../components/InvoiceModal';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ export const OrdersManager = () => {
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState(null);
   const [settings, setSettings] = useState(null);
+  const [showCloseDayModal, setShowCloseDayModal] = useState(false);
 
   // Initialize notification sound
   const notificationSound = React.useRef(null);
@@ -120,6 +121,18 @@ export const OrdersManager = () => {
     }
   };
 
+  const handleCloseDay = async () => {
+    try {
+      const result = await ordersAPI.closeDay();
+      toast.success(`Day closed! ${result.orders_closed} orders archived.`);
+      setShowCloseDayModal(false);
+      loadOrders();
+    } catch (error) {
+      console.error('Failed to close day:', error);
+      toast.error('Failed to close day');
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending': return 'bg-yellow-500';
@@ -174,9 +187,18 @@ export const OrdersManager = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold text-slate-900">Orders Management</h2>
-          <p className="text-slate-600">Manage food service orders</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-slate-900">Orders Management</h2>
+            <p className="text-slate-600">Manage food service orders</p>
+          </div>
+          <Button
+            onClick={() => setShowCloseDayModal(true)}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg"
+          >
+            <DoorClosed className="w-4 h-4 mr-2" />
+            Close Day
+          </Button>
         </div>
 
         {/* Status Filter */}
@@ -427,6 +449,40 @@ export const OrdersManager = () => {
             settings={settings}
             onClose={() => setSelectedOrderForInvoice(null)}
           />
+        )}
+
+        {/* Close Day Modal */}
+        {showCloseDayModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-8 shadow-2xl">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <DoorClosed className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                  Close Day?
+                </h2>
+                <p className="text-slate-600 dark:text-slate-400">
+                  All today's orders (except cancelled) will be archived. You can view them in "Last Orders" on the dashboard.
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCloseDayModal(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCloseDay}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                >
+                  Close Day
+                </Button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </AdminLayout>

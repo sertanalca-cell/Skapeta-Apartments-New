@@ -29,32 +29,40 @@ export const MonthlyRevenueReport = () => {
     }
   };
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
     if (!report) return;
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     
-    // Title
-    doc.setFontSize(20);
+    // Logo (if available - placeholder for now)
+    // You can add actual logo here: doc.addImage(logoBase64, 'PNG', x, y, width, height);
+    
+    // Company Name
+    doc.setFontSize(24);
     doc.setFont(undefined, 'bold');
-    doc.text('Monthly Revenue Report', pageWidth / 2, 20, { align: 'center' });
+    doc.text('SKAPETA APARTMENTS', pageWidth / 2, 20, { align: 'center' });
+    
+    // Title
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text('Monthly Revenue Report', pageWidth / 2, 32, { align: 'center' });
     
     // Month
     doc.setFontSize(14);
     doc.setFont(undefined, 'normal');
     const monthName = new Date(selectedMonth + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    doc.text(monthName, pageWidth / 2, 30, { align: 'center' });
+    doc.text(monthName, pageWidth / 2, 42, { align: 'center' });
     
     // Date generated
     doc.setFontSize(10);
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 38, { align: 'center' });
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 50, { align: 'center' });
     
     // Line separator
     doc.setLineWidth(0.5);
-    doc.line(15, 42, pageWidth - 15, 42);
+    doc.line(15, 54, pageWidth - 15, 54);
     
-    let yPos = 55;
+    let yPos = 67;
     
     // Food Orders Section
     doc.setFontSize(14);

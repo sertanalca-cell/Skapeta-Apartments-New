@@ -61,11 +61,11 @@ async def get_monthly_revenue(
                 "$lt": end_date.strftime("%Y-%m-%d")
             }
         },
-        {"_id": 0, "price": 1}
+        {"_id": 0, "total_price": 1}
     ).to_list(10000)
     
     manual_reservations_count = len(manual_reservations)
-    manual_reservations_total = sum(res.get('price', 0) for res in manual_reservations)
+    manual_reservations_total = sum(res.get('total_price', 0) for res in manual_reservations)
     
     # Booking.com Reservations
     booking_reservations = await db.booking_reservations.find(
