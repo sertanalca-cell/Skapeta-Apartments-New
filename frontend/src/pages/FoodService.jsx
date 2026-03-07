@@ -3,7 +3,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { ShoppingCart, Search, Clock, CheckCircle2, Truck, Package, LogOut, User, Receipt } from 'lucide-react';
-import { menuAPI, ordersAPI } from '../services/api';
+import { menuAPI, ordersAPI, settingsAPI } from '../services/api';
 import { Cart } from '../components/Cart';
 import { CustomerLoginModal } from '../components/CustomerLoginModal';
 import { OrderHistoryModal } from '../components/OrderHistoryModal';
@@ -28,7 +28,7 @@ export const FoodService = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showOrderHistory, setShowOrderHistory] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
-  const [ownerWhatsApp, setOwnerWhatsApp] = useState('905363026685');
+  const [ownerWhatsApp, setOwnerWhatsApp] = useState('');
 
   // WebSocket for live order updates
   useOrderWebSocket(customer?.id, (updatedOrder) => {
@@ -39,6 +39,7 @@ export const FoodService = () => {
 
   useEffect(() => {
     loadMenu();
+    loadSettings();
     if (customer) {
       fetchCustomerOrders();
     }
@@ -53,6 +54,20 @@ export const FoodService = () => {
       toast.error('Failed to load menu');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSettings = async () => {
+    try {
+      const settings = await settingsAPI.get();
+      // Clean the WhatsApp number (remove spaces, dashes, plus signs)
+      const cleanNumber = settings.whatsapp_number.replace(/[\s\-+]/g, '');
+      setOwnerWhatsApp(cleanNumber);
+      console.log('✅ WhatsApp number loaded:', cleanNumber);
+    } catch (error) {
+      console.error('Failed to load settings:', error);
+      // Fallback to default number
+      setOwnerWhatsApp('00355693227207');
     }
   };
 
@@ -174,42 +189,41 @@ export const FoodService = () => {
   };
 
   const sendWhatsAppNotification = (order) => {
+    if (!ownerWhatsApp) {
+      console.error('❌ WhatsApp number not loaded');
+      toast.error('WhatsApp numarası yüklenemedi / WhatsApp number not loaded');
+      return;
+    }
+
     // Format order details for WhatsApp
     const items = order.items.map((item, idx) => 
       `${idx + 1}. ${item.menu_item_name} x${item.quantity} - €${(item.price * item.quantity).toFixed(2)}`
-    ).join('\n');
+    ).join('%0A');
     
     const message = 
-      `🔔 *YENİ SİPARİŞ / NEW ORDER*\n\n` +
-      `📋 Sipariş No / Order #: *${order.order_number}*\n` +
-      `👤 Müşteri / Customer: *${order.first_name} ${order.last_name}*\n` +
-      `📞 Telefon / Phone: ${order.phone || 'N/A'}\n` +
-      `🏠 Oda No / Room: *${order.apartment_number}*\n\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `🍽️ *SİPARİŞ / ORDER:*\n\n` +
-      `${items}\n\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-      `💰 *TOPLAM / TOTAL: €${order.total_price.toFixed(2)}*\n\n` +
-      `📝 Notlar / Notes: ${order.notes || 'Yok / None'}\n\n` +
+      `🔔 *YENİ SİPARİŞ / NEW ORDER*%0A%0A` +
+      `📋 Sipariş No / Order #: *${order.order_number}*%0A` +
+      `👤 Müşteri / Customer: *${order.first_name} ${order.last_name}*%0A` +
+      `📞 Telefon / Phone: ${order.phone || 'N/A'}%0A` +
+      `🏠 Oda No / Room: *${order.apartment_number}*%0A%0A` +
+      `━━━━━━━━━━━━━━━━━━━━━━%0A` +
+      `🍽️ *SİPARİŞ / ORDER:*%0A%0A` +
+      `${items}%0A%0A` +
+      `━━━━━━━━━━━━━━━━━━━━━━%0A%0A` +
+      `💰 *TOPLAM / TOTAL: €${order.total_price.toFixed(2)}*%0A%0A` +
+      `📝 Notlar / Notes: ${order.notes || 'Yok / None'}%0A%0A` +
       `⏰ Saat / Time: ${new Date().toLocaleTimeString('tr-TR')}`;
     
-    // Use WhatsApp number from settings
-    const whatsappNumber = ownerWhatsApp; // From state
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-    
-    // iOS Safari compatible method
-    const link = document.createElement('a');
-    link.href = whatsappUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Construct WhatsApp URL
+    const whatsappUrl = `https://wa.me/${ownerWhatsApp}?text=${message}`;
     
     console.log('✅ WhatsApp açılıyor / Opening WhatsApp...');
-    console.log('📱 Numara / Number:', whatsappNumber);
+    console.log('📱 Numara / Number:', ownerWhatsApp);
+    console.log('🔗 URL:', whatsappUrl);
+    
+    // iOS and Android compatible method
+    // Try to open in current window first (works better on iOS)
+    window.location.href = whatsappUrl;
   };
 
   const getStatusIcon = (status) => {

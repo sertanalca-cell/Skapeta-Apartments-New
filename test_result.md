@@ -101,3 +101,107 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Skapeta Apartments - Property Management & Restaurant System with WhatsApp Integration"
+
+backend:
+  - task: "WhatsApp Auto Notification on Order"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/routes/order_routes.py"
+    stuck_count: 3
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported multiple times WhatsApp notification not working on iOS"
+      - working: "unknown"
+        agent: "main"
+        comment: "Fixed frontend to fetch WhatsApp number from settings API (00355693227207) and use window.location.href for iOS compatibility"
+
+  - task: "Settings API - WhatsApp Number"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/settings_routes.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "WhatsApp number stored in settings: 00355693227207"
+
+  - task: "Customer Order Creation"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/order_routes.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Order creation endpoint exists and working"
+
+frontend:
+  - task: "Food Service - Parse Error Fix"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/FoodService.jsx"
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported blank white page, cannot access admin"
+      - working: true
+        agent: "main"
+        comment: "Fixed JavaScript parsing error (extra closing brace on line 213), site now loads"
+
+  - task: "WhatsApp Auto-Redirect on Order Submit"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/pages/FoodService.jsx"
+    stuck_count: 3
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported iOS WhatsApp redirect not working multiple times"
+      - working: "unknown"
+        agent: "main"
+        comment: "Implemented: Fetch WhatsApp from settings API, use window.location.href for iOS compatibility, URL-encode message with %0A for line breaks. Testing needed."
+
+  - task: "Customer Authentication Flow"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/pages/FoodService.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Customer login exists, needs end-to-end test"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "WhatsApp Auto-Redirect on Order Submit"
+    - "Customer Order Flow End-to-End"
+  stuck_tasks:
+    - "WhatsApp Auto Notification on Order (user reported 3+ times)"
+  test_all: false
+  test_priority: "critical_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Fixed critical frontend parsing error. Site now loads. Implemented WhatsApp integration: number fetched from settings API (00355693227207), iOS-compatible redirect using window.location.href. Need full E2E test: customer registration → add to cart → checkout → order submit → verify WhatsApp redirect with order details. Focus on iOS compatibility."
