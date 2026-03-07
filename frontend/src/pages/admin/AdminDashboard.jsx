@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from './AdminLayout';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit, ShoppingCart, UtensilsCrossed, DollarSign, Package, Users, FileText, Calendar, Clock } from 'lucide-react';
+import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit, ShoppingCart, UtensilsCrossed, DollarSign, Package, Users, FileText, Calendar, Clock, Trash2, Edit2 } from 'lucide-react';
 import { reportsAPI, ordersAPI } from '../../services/api';
 import { toast } from 'sonner';
 
@@ -13,6 +13,7 @@ export const AdminDashboard = () => {
   const [lastOrders, setLastOrders] = useState([]);
   const [loadingRevenue, setLoadingRevenue] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [showAllOrders, setShowAllOrders] = useState(false);
 
   useEffect(() => {
     fetchCurrentMonthRevenue();
@@ -34,12 +35,24 @@ export const AdminDashboard = () => {
 
   const fetchLastOrders = async () => {
     try {
-      const data = await ordersAPI.getClosedOrders(10);
+      const data = await ordersAPI.getClosedOrders(100);
       setLastOrders(data);
     } catch (error) {
       console.error('Failed to load last orders:', error);
     } finally {
       setLoadingOrders(false);
+    }
+  };
+
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm('Delete this order permanently?')) return;
+    try {
+      await ordersAPI.delete(orderId);
+      toast.success('Order deleted');
+      fetchLastOrders();
+    } catch (error) {
+      console.error('Failed to delete order:', error);
+      toast.error('Failed to delete order');
     }
   };
 
@@ -58,6 +71,8 @@ export const AdminDashboard = () => {
     };
     return statusColors[status] || 'bg-gray-100 text-gray-800';
   };
+
+  const displayedOrders = showAllOrders ? lastOrders : lastOrders.slice(0, 10);
 
   return (
     <AdminLayout>
@@ -156,25 +171,36 @@ export const AdminDashboard = () => {
                 <Clock className="w-6 h-6 text-sky-600" />
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">Last Orders (Closed)</h2>
               </div>
-              <Button
-                onClick={() => navigate('/admin/orders')}
-                variant="outline"
-                size="sm"
-              >
-                View All Orders
-              </Button>
+              <div className="flex gap-2">
+                {lastOrders.length > 10 && (
+                  <Button
+                    onClick={() => setShowAllOrders(!showAllOrders)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    {showAllOrders ? 'Show Less' : `Show All (${lastOrders.length})`}
+                  </Button>
+                )}
+                <Button
+                  onClick={() => navigate('/admin/orders')}
+                  variant="outline"
+                  size="sm"
+                >
+                  View Active Orders
+                </Button>
+              </div>
             </div>
             
             {loadingOrders ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500"></div>
               </div>
-            ) : lastOrders.length > 0 ? (
+            ) : displayedOrders.length > 0 ? (
               <div className="space-y-3">
-                {lastOrders.map((order) => (
+                {displayedOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-1">
@@ -192,13 +218,25 @@ export const AdminDashboard = () => {
                         Closed: {new Date(order.closed_at).toLocaleString()}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                        €{order.total_price.toFixed(2)}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-500">
-                        {order.items?.length || 0} items
-                      </p>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                          €{order.total_price.toFixed(2)}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-500">
+                          {order.items?.length || 0} items
+                        </p>
+                      </div>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteOrder(order.id)}
+                          className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}

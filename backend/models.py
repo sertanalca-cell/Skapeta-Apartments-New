@@ -105,6 +105,8 @@ class Settings(BaseModel):
     google_maps_url: str = "https://maps.google.com/?q=Saranda,Albania"
     phone: str = "+355 69 322 7207"
     address: str = "Saranda, Albania"
+    tax_number: str = ""  # Vergi numarası
+    company_name: str = "SKAPETA APARTMENTS"  # Şirket adı
     sponsored_by_text: str = "sponsored by @albaniatourism_"
     sponsored_by_url: str = "https://www.instagram.com/albaniatourism_"
     footer_custom_text: str = "This website was created by Sertan Nalça and for any support, please contact 00355692033673"
@@ -132,6 +134,8 @@ class SettingsUpdate(BaseModel):
     google_maps_url: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
+    tax_number: Optional[str] = None
+    company_name: Optional[str] = None
     sponsored_by_text: Optional[str] = None
     sponsored_by_url: Optional[str] = None
     footer_custom_text: Optional[str] = None

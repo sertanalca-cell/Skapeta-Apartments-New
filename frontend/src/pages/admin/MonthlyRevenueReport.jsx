@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import { Download, TrendingUp, ShoppingBag, Calendar, FileText } from 'lucide-react';
-import { reportsAPI } from '../../services/api';
+import { reportsAPI, settingsAPI } from '../../services/api';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 
@@ -14,6 +14,20 @@ export const MonthlyRevenueReport = () => {
   });
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const data = await settingsAPI.get();
+      setSettings(data);
+    } catch (error) {
+      console.error('Failed to load settings:', error);
+    }
+  };
 
   const fetchReport = async () => {
     setLoading(true);
