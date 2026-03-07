@@ -420,52 +420,7 @@ export const FoodService = () => {
                   </button>
                 </div>
 
-                {/* COMPACT Order Summary */}
-                <div className="mb-4 space-y-2">
-                  {cartItems.map(item => (
-                    <div key={item.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-700 rounded-lg text-sm">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-slate-900 dark:text-white truncate">{item.name}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded px-1">
-                          <button
-                            onClick={() => updateQuantity(item.id, -1)}
-                            className="p-0.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <span className="w-6 text-center text-xs font-semibold">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="p-0.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
-                        </div>
-                        <p className="font-bold text-sky-600 w-14 text-right text-sm">
-                          €{(item.price * item.quantity).toFixed(2)}
-                        </p>
-                        <button
-                          onClick={() => removeFromCart(item.id)}
-                          className="text-red-500 hover:text-red-700 p-0.5"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="flex items-center justify-between p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
-                    <span className="font-semibold text-slate-900 dark:text-white">Total:</span>
-                    <span className="text-xl font-bold text-sky-600 dark:text-sky-400">
-                      €{cartTotal.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Checkout Form */}
+                {/* Checkout Form - NOW AT TOP */}
                 <form onSubmit={handleSubmitOrder} className="space-y-3">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
@@ -494,7 +449,8 @@ export const FoodService = () => {
                     />
                   </div>
 
-                  <div className="flex gap-3 pt-2">
+                  {/* BUTTONS NOW HERE - ABOVE ITEMS */}
+                  <div className="flex gap-3 pt-2 pb-4 border-b-2 border-slate-200 dark:border-slate-700">
                     <Button
                       type="button"
                       variant="outline"
@@ -511,6 +467,55 @@ export const FoodService = () => {
                     </Button>
                   </div>
                 </form>
+
+                {/* Order Summary - NOW AT BOTTOM */}
+                <div className="mt-4 space-y-2">
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Order Summary:</h3>
+                  {cartItems.map(item => (
+                    <div key={item.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-700 rounded-lg text-sm">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-slate-900 dark:text-white truncate">{item.name}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded px-1">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.id, -1)}
+                            className="p-0.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="w-6 text-center text-xs font-semibold">{item.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.id, 1)}
+                            className="p-0.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <p className="font-bold text-sky-600 w-14 text-right text-sm">
+                          €{(item.price * item.quantity).toFixed(2)}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart(item.id)}
+                          className="text-red-500 hover:text-red-700 p-0.5"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
+                    <span className="font-semibold text-slate-900 dark:text-white">Total:</span>
+                    <span className="text-xl font-bold text-sky-600 dark:text-sky-400">
+                      €{cartTotal.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
