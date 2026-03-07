@@ -162,7 +162,7 @@ export const FoodService = () => {
       const newOrder = await ordersAPI.create(orderData);
       
       // Show success message
-      toast.success('✅ Sipariş alındı! WhatsApp açılıyor... / Order received! Opening WhatsApp...', {
+      toast.success('✅ Order received! Opening WhatsApp...', {
         duration: 3000
       });
       
@@ -191,39 +191,59 @@ export const FoodService = () => {
   const sendWhatsAppNotification = (order) => {
     if (!ownerWhatsApp) {
       console.error('❌ WhatsApp number not loaded');
-      toast.error('WhatsApp numarası yüklenemedi / WhatsApp number not loaded');
+      toast.error('WhatsApp number not loaded');
       return;
     }
 
-    // Format order details for WhatsApp
+    // Format order details for WhatsApp (English only)
     const items = order.items.map((item, idx) => 
       `${idx + 1}. ${item.menu_item_name} x${item.quantity} - €${(item.price * item.quantity).toFixed(2)}`
     ).join('%0A');
     
     const message = 
-      `🔔 *YENİ SİPARİŞ / NEW ORDER*%0A%0A` +
-      `📋 Sipariş No / Order #: *${order.order_number}*%0A` +
-      `👤 Müşteri / Customer: *${order.first_name} ${order.last_name}*%0A` +
-      `📞 Telefon / Phone: ${order.phone || 'N/A'}%0A` +
-      `🏠 Oda No / Room: *${order.apartment_number}*%0A%0A` +
+      `🔔 *NEW ORDER*%0A%0A` +
+      `📋 Order #: *${order.order_number}*%0A` +
+      `👤 Customer: *${order.first_name} ${order.last_name}*%0A` +
+      `📞 Phone: ${order.phone || 'N/A'}%0A` +
+      `🏠 Room: *${order.apartment_number}*%0A%0A` +
       `━━━━━━━━━━━━━━━━━━━━━━%0A` +
-      `🍽️ *SİPARİŞ / ORDER:*%0A%0A` +
+      `🍽️ *ORDER ITEMS:*%0A%0A` +
       `${items}%0A%0A` +
       `━━━━━━━━━━━━━━━━━━━━━━%0A%0A` +
-      `💰 *TOPLAM / TOTAL: €${order.total_price.toFixed(2)}*%0A%0A` +
-      `📝 Notlar / Notes: ${order.notes || 'Yok / None'}%0A%0A` +
-      `⏰ Saat / Time: ${new Date().toLocaleTimeString('tr-TR')}`;
+      `💰 *TOTAL: €${order.total_price.toFixed(2)}*%0A%0A` +
+      `📝 Notes: ${order.notes || 'None'}%0A%0A` +
+      `⏰ Time: ${new Date().toLocaleString('en-US')}`;
     
-    // Construct WhatsApp URL
-    const whatsappUrl = `https://wa.me/${ownerWhatsApp}?text=${message}`;
+    // Construct WhatsApp URL (ensure number starts without +)
+    const cleanNumber = ownerWhatsApp.replace(/[\s\-+]/g, '');
+    const whatsappUrl = `https://wa.me/${cleanNumber}?text=${message}`;
     
-    console.log('✅ WhatsApp açılıyor / Opening WhatsApp...');
-    console.log('📱 Numara / Number:', ownerWhatsApp);
-    console.log('🔗 URL:', whatsappUrl);
+    console.log('✅ Opening WhatsApp...');
+    console.log('📱 Number:', cleanNumber);
+    console.log('🔗 Full URL:', whatsappUrl);
     
-    // iOS and Android compatible method
-    // Try to open in current window first (works better on iOS)
-    window.location.href = whatsappUrl;
+    // Multiple fallback methods for maximum compatibility
+    try {
+      // Method 1: Create invisible link and click (best for iOS)
+      const link = document.createElement('a');
+      link.href = whatsappUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up after a delay
+      setTimeout(() => {
+        document.body.removeChild(link);
+      }, 1000);
+      
+      console.log('✅ WhatsApp link clicked successfully');
+    } catch (error) {
+      console.error('❌ Error opening WhatsApp:', error);
+      // Fallback: direct window.open
+      window.open(whatsappUrl, '_blank');
+    }
   };
 
   const getStatusIcon = (status) => {
