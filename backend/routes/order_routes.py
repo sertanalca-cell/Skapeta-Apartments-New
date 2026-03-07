@@ -41,6 +41,20 @@ async def get_orders(
     return orders
 
 
+@router.get("/orders/closed")
+async def get_closed_orders(
+    limit: int = 50,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get recently closed orders (for Last Orders view)"""
+    orders = await db.orders.find(
+        {"closed_at": {"$exists": True}},  # Check if field exists
+        {"_id": 0}
+    ).sort("closed_at", -1).limit(limit).to_list(limit)
+    return orders
+
+
 @router.get("/orders/{order_id}", response_model=Order)
 async def get_order(
     order_id: str,
@@ -269,18 +283,4 @@ async def close_day(
         "orders_closed": result.modified_count,
         "closed_at": now.isoformat()
     }
-
-
-@router.get("/orders/closed")
-async def get_closed_orders(
-    limit: int = 50,
-    db: AsyncIOMotorDatabase = Depends(get_database),
-    current_user: dict = Depends(get_current_user)
-):
-    """Get recently closed orders (for Last Orders view)"""
-    orders = await db.orders.find(
-        {"closed_at": {"$ne": None}},
-        {"_id": 0}
-    ).sort("closed_at", -1).limit(limit).to_list(limit)
-    return orders
 

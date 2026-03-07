@@ -360,83 +360,89 @@ export const FoodService = () => {
           </div>
         )}
 
-        {/* Fixed Bottom Cart Bar */}
+        {/* Fixed Bottom Bar - Cart (Left) + Create Order (Center) */}
         {cartCount > 0 && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t-2 border-sky-500 shadow-2xl z-40">
-            <div className="container mx-auto px-4 py-3">
+          <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-t-4 border-sky-500 shadow-2xl z-40">
+            <div className="container mx-auto px-4 py-4">
               <div className="flex items-center justify-between gap-4">
-                {/* Cart Summary */}
-                <div className="flex items-center gap-4 flex-1">
+                {/* Left: Cart Summary - BIGGER */}
+                <div className="flex flex-col gap-2 min-w-[140px]">
                   <div className="flex items-center gap-2">
-                    <ShoppingCart className="w-5 h-5 text-sky-600" />
-                    <span className="font-semibold text-slate-900 dark:text-white">
-                      {cartCount} {cartCount === 1 ? 'item' : 'items'}
+                    <ShoppingCart className="w-6 h-6 text-sky-600" />
+                    <span className="text-xl font-bold text-slate-900 dark:text-white">
+                      Your Cart
                     </span>
                   </div>
-                  <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">
-                    €{cartTotal.toFixed(2)}
+                  <div className="flex items-center gap-3">
+                    <span className="text-base font-semibold text-slate-700 dark:text-slate-300">
+                      {cartCount} {cartCount === 1 ? 'item' : 'items'}
+                    </span>
+                    <div className="text-3xl font-bold text-sky-600 dark:text-sky-400">
+                      €{cartTotal.toFixed(2)}
+                    </div>
                   </div>
                 </div>
 
-                {/* Cart Items Preview */}
-                <div className="hidden md:flex items-center gap-2 flex-1 overflow-x-auto">
-                  {cartItems.slice(0, 3).map(item => (
-                    <div key={item.id} className="flex items-center gap-1 bg-slate-100 dark:bg-slate-700 rounded-full px-3 py-1 text-sm whitespace-nowrap">
-                      <span className="text-slate-700 dark:text-slate-300">{item.name}</span>
+                {/* Center: Create Order Button - BIGGER & PROMINENT */}
+                <Button
+                  onClick={handleCheckout}
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold text-lg px-12 py-7 shadow-xl transform hover:scale-105 transition-all"
+                >
+                  <ShoppingCart className="w-6 h-6 mr-3" />
+                  Create Order
+                </Button>
+
+                {/* Right: Cart Items Preview (desktop only) */}
+                <div className="hidden lg:flex items-center gap-2 flex-1 overflow-x-auto max-w-md">
+                  {cartItems.slice(0, 2).map(item => (
+                    <div key={item.id} className="flex items-center gap-1 bg-sky-100 dark:bg-sky-900/30 rounded-full px-4 py-2 text-sm whitespace-nowrap">
+                      <span className="text-slate-700 dark:text-slate-300 font-medium">{item.name}</span>
                       <Badge className="bg-sky-500 text-white text-xs">{item.quantity}</Badge>
                     </div>
                   ))}
-                  {cartItems.length > 3 && (
-                    <span className="text-sm text-slate-500">+{cartItems.length - 3} more</span>
+                  {cartItems.length > 2 && (
+                    <span className="text-sm text-slate-500 font-medium">+{cartItems.length - 2} more</span>
                   )}
                 </div>
-
-                {/* Checkout Button */}
-                <Button
-                  onClick={handleCheckout}
-                  className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold px-8"
-                >
-                  Checkout
-                </Button>
               </div>
             </div>
           </div>
         )}
 
-        {/* ULTRA COMPACT Checkout Modal - No Items List */}
+        {/* Mobile-Optimized Checkout Modal */}
         {showCheckout && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-2xl max-w-lg w-full shadow-2xl max-h-[95vh] overflow-y-auto">
+              <div className="p-6 pb-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                     Complete Your Order
                   </h2>
                   <button
                     onClick={() => setShowCheckout(false)}
-                    className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                    className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 p-2"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-6 h-6" />
                   </button>
                 </div>
 
                 {/* Total Display */}
-                <div className="mb-4 p-4 bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-xl border-2 border-sky-200 dark:border-sky-800">
+                <div className="mb-6 p-5 bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-xl border-2 border-sky-200 dark:border-sky-800">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">{cartCount} items in cart</p>
-                      <p className="text-2xl font-bold text-sky-600 dark:text-sky-400">
+                      <p className="text-base text-slate-600 dark:text-slate-400 font-medium">{cartCount} items in cart</p>
+                      <p className="text-3xl font-bold text-sky-600 dark:text-sky-400 mt-1">
                         €{cartTotal.toFixed(2)}
                       </p>
                     </div>
-                    <ShoppingCart className="w-8 h-8 text-sky-500" />
+                    <ShoppingCart className="w-10 h-10 text-sky-500" />
                   </div>
                 </div>
 
                 {/* Checkout Form */}
-                <form onSubmit={handleSubmitOrder} className="space-y-4">
+                <form onSubmit={handleSubmitOrder} className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-base font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       Room / Apartment Number *
                     </label>
                     <input
@@ -445,12 +451,12 @@ export const FoodService = () => {
                       value={apartmentNumber}
                       onChange={(e) => setApartmentNumber(e.target.value)}
                       placeholder="e.g., A-101, Room 205"
-                      className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 focus:outline-none text-lg"
+                      className="w-full px-4 py-4 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 focus:outline-none text-lg"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-base font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       Special Instructions (Optional)
                     </label>
                     <textarea
@@ -458,33 +464,34 @@ export const FoodService = () => {
                       onChange={(e) => setOrderNotes(e.target.value)}
                       placeholder="Any special requests..."
                       rows={3}
-                      className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 focus:outline-none resize-none"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:border-sky-500 focus:outline-none resize-none text-base"
                     />
                   </div>
 
-                  {/* BUTTONS - BIG AND VISIBLE */}
-                  <div className="flex gap-3 pt-4">
+                  {/* MOBILE-FRIENDLY BUTTONS - ALWAYS VISIBLE */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                    <Button
+                      type="submit"
+                      className="w-full sm:flex-1 py-7 text-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-xl order-1 sm:order-2"
+                    >
+                      <CheckCircle2 className="w-6 h-6 mr-2" />
+                      Place Order
+                    </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setShowCheckout(false)}
-                      className="flex-1 py-6 text-base"
+                      className="w-full sm:flex-1 py-7 text-lg order-2 sm:order-1"
                     >
                       Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="flex-1 py-6 text-base bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-lg"
-                    >
-                      Place Order →
                     </Button>
                   </div>
                 </form>
 
-                {/* View Cart Items Link */}
-                <div className="mt-4 text-center">
+                {/* Cart Items Summary */}
+                <div className="mt-6 text-center">
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {cartItems.length} item(s) • See cart bar below
+                    {cartItems.length} item(s) • Total: €{cartTotal.toFixed(2)}
                   </p>
                 </div>
               </div>

@@ -1,0 +1,21 @@
+{
+  "test_name": "Checkout UI - Cart and Modal Visibility Test",
+  "timestamp": "2026-03-07T02:18:14.343657",
+  "results": {
+    "desktop_1920x1080": {
+      "cart_visible": true,
+      "your_cart_prominent": true,
+      "create_order_prominent": true,
+      "modal_opened": true,
+      "place_order_accessible": true
+    },
+    "mobile_iphone_se_375x667": {
+      "cart_visible": false,
+      "note": "Cart not persisted on page reload"
+    },
+    "mobile_iphone_11_414x896": {
+      "cart_visible": false,
+      "note": "Cart not persisted"
+    }
+  }
+}
