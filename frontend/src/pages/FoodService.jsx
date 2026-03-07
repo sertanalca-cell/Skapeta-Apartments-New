@@ -145,10 +145,11 @@ export const FoodService = () => {
 
       const newOrder = await ordersAPI.create(orderData);
       
-      // Send WhatsApp notification
-      sendWhatsAppNotification(newOrder);
+      toast.success('✅ Sipariş alındı! WhatsApp açılıyor... / Order placed! Opening WhatsApp...', {
+        duration: 3000
+      });
       
-      toast.success('Order placed successfully!');
+      // Clear cart and form
       setCartItems([]);
       setShowCheckout(false);
       setOrderNotes('');
@@ -156,6 +157,11 @@ export const FoodService = () => {
       
       // Reload recent orders
       fetchCustomerOrders();
+      
+      // Send WhatsApp notification automatically (after a small delay to show toast)
+      setTimeout(() => {
+        sendWhatsAppNotification(newOrder);
+      }, 1000);
       
       // Show order tracking
       setTimeout(() => setShowOrders(true), 500);
