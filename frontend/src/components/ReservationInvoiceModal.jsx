@@ -74,19 +74,19 @@ _VAT: M34631808J_
     // Encode message for URL
     const encodedMessage = encodeURIComponent(invoiceText);
     
-    // Use WhatsApp API URL that works better on all devices
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${guestPhone}&text=${encodedMessage}`;
+    // Create WhatsApp URL
+    const whatsappUrl = `https://wa.me/${guestPhone}?text=${encodedMessage}`;
     
-    // Detect iOS for better compatibility
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    // Create a temporary link and click it (works best on iPhone)
+    const link = document.createElement('a');
+    link.href = whatsappUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
     
-    if (isIOS) {
-      // iOS: Direct navigation works better
-      window.location.href = whatsappUrl;
-    } else {
-      // Desktop/Android: Open in new tab
-      window.open(whatsappUrl, '_blank');
-    }
+    // Append to body, click, and remove (required for iOS Safari)
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const formatDate = (date) => {
