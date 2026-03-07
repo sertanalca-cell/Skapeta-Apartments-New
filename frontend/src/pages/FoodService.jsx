@@ -28,6 +28,7 @@ export const FoodService = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showOrderHistory, setShowOrderHistory] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
+  const [ownerWhatsApp, setOwnerWhatsApp] = useState('905363026685');
 
   // WebSocket for live order updates
   useOrderWebSocket(customer?.id, (updatedOrder) => {
@@ -209,7 +210,6 @@ export const FoodService = () => {
     
     console.log('✅ WhatsApp açılıyor / Opening WhatsApp...');
     console.log('📱 Numara / Number:', whatsappNumber);
-  };
   };
 
   const getStatusIcon = (status) => {
