@@ -189,30 +189,44 @@ export const FoodService = () => {
   };
 
   const sendWhatsAppNotification = (order) => {
+    console.log('🔍 DEBUG: Order object received:', JSON.stringify(order, null, 2));
+    
     if (!ownerWhatsApp) {
       console.error('❌ WhatsApp number not loaded');
       toast.error('WhatsApp number not loaded');
       return;
     }
 
+    // Validate order has required fields
+    if (!order || !order.items || order.items.length === 0) {
+      console.error('❌ Invalid order object or no items');
+      toast.error('Cannot send notification: Invalid order data');
+      return;
+    }
+
     // Format order details for WhatsApp (English only)
-    const items = order.items.map((item, idx) => 
+    const itemsText = order.items.map((item, idx) => 
       `${idx + 1}. ${item.menu_item_name} x${item.quantity} - €${(item.price * item.quantity).toFixed(2)}`
     ).join('%0A');
     
+    const orderNumber = order.order_number || order.id || 'N/A';
+    const customerName = `${order.first_name || ''} ${order.last_name || ''}`.trim() || 'Guest';
+    const phone = order.phone || 'N/A';
+    const room = order.apartment_number || 'N/A';
+    const total = order.total_price ? order.total_price.toFixed(2) : '0.00';
+    const notes = order.notes || 'None';
+    const time = new Date().toLocaleString('en-US');
+    
     const message = 
       `🔔 *NEW ORDER*%0A%0A` +
-      `📋 Order #: *${order.order_number}*%0A` +
-      `👤 Customer: *${order.first_name} ${order.last_name}*%0A` +
-      `📞 Phone: ${order.phone || 'N/A'}%0A` +
-      `🏠 Room: *${order.apartment_number}*%0A%0A` +
-      `━━━━━━━━━━━━━━━━━━━━━━%0A` +
-      `🍽️ *ORDER ITEMS:*%0A%0A` +
-      `${items}%0A%0A` +
-      `━━━━━━━━━━━━━━━━━━━━━━%0A%0A` +
-      `💰 *TOTAL: €${order.total_price.toFixed(2)}*%0A%0A` +
-      `📝 Notes: ${order.notes || 'None'}%0A%0A` +
-      `⏰ Time: ${new Date().toLocaleString('en-US')}`;
+      `📋 Order: *${orderNumber}*%0A` +
+      `👤 Customer: *${customerName}*%0A` +
+      `📞 Phone: ${phone}%0A` +
+      `🏠 Room: *${room}*%0A%0A` +
+      `🍽️ *ITEMS:*%0A${itemsText}%0A%0A` +
+      `💰 *TOTAL: €${total}*%0A%0A` +
+      `📝 Notes: ${notes}%0A` +
+      `⏰ ${time}`;
     
     // Construct WhatsApp URL (ensure number starts without +)
     const cleanNumber = ownerWhatsApp.replace(/[\s\-+]/g, '');
@@ -220,7 +234,8 @@ export const FoodService = () => {
     
     console.log('✅ Opening WhatsApp...');
     console.log('📱 Number:', cleanNumber);
-    console.log('🔗 Full URL:', whatsappUrl);
+    console.log('📝 Message preview (first 200 chars):', decodeURIComponent(message).substring(0, 200));
+    console.log('🔗 Full URL length:', whatsappUrl.length);
     
     // Multiple fallback methods for maximum compatibility
     try {
@@ -235,7 +250,9 @@ export const FoodService = () => {
       
       // Clean up after a delay
       setTimeout(() => {
-        document.body.removeChild(link);
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
+        }
       }, 1000);
       
       console.log('✅ WhatsApp link clicked successfully');

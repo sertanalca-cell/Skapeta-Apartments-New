@@ -2,6 +2,7 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LandingPage } from "./pages/LandingPage";
 import { FoodService } from "./pages/FoodService";
+import { TestWhatsApp } from "./pages/TestWhatsApp";
 import { AdminLogin } from "./pages/admin/AdminLogin";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { ApartmentsManager } from "./pages/admin/ApartmentsManager";
@@ -26,6 +27,7 @@ function App() {
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/food-service" element={<FoodService />} />
+              <Route path="/test-whatsapp" element={<TestWhatsApp />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/apartments" element={<ApartmentsManager />} />
