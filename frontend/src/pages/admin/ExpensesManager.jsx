@@ -45,6 +45,7 @@ export const ExpensesManager = () => {
     payment_date: new Date().toISOString().split('T')[0],
     payment_method: 'cash',
     notes: '',
+    is_recurring: false,
   });
 
   useEffect(() => {
@@ -93,6 +94,7 @@ export const ExpensesManager = () => {
         payment_date: new Date().toISOString().split('T')[0],
         payment_method: 'cash',
         notes: '',
+        is_recurring: false,
       });
       loadExpenses();
       loadStats();
@@ -110,6 +112,7 @@ export const ExpensesManager = () => {
       payment_date: expense.payment_date,
       payment_method: expense.payment_method,
       notes: expense.notes || '',
+      is_recurring: expense.is_recurring || false,
     });
     setEditingId(expense.id);
     setShowForm(true);
@@ -177,6 +180,7 @@ export const ExpensesManager = () => {
                 payment_date: new Date().toISOString().split('T')[0],
                 payment_method: 'cash',
                 notes: '',
+                is_recurring: false,
               });
             }}
             className="bg-sky-500 hover:bg-sky-600"
@@ -230,6 +234,21 @@ export const ExpensesManager = () => {
                         <span className="font-semibold">€{amount.toFixed(2)}</span>
                       </div>
                     ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-600 mb-1">Recurring Monthly</p>
+                    <p className="text-3xl font-bold text-slate-900">€{stats.recurring_monthly_total?.toFixed(2) || '0.00'}</p>
+                    <p className="text-xs text-slate-500 mt-1">{stats.recurring_count || 0} recurring expenses</p>
+                  </div>
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Calendar className="w-6 h-6 text-purple-600" />
                   </div>
                 </div>
               </CardContent>
@@ -302,6 +321,20 @@ export const ExpensesManager = () => {
                         <option key={method} value={method}>{method.toUpperCase()}</option>
                       ))}
                     </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Recurring Monthly</label>
+                    <div className="flex items-center gap-2 h-[42px]">
+                      <input
+                        type="checkbox"
+                        checked={formData.is_recurring}
+                        onChange={(e) => setFormData({ ...formData, is_recurring: e.target.checked })}
+                        className="w-5 h-5 rounded border-slate-300"
+                      />
+                      <span className="text-sm text-slate-600">
+                        {formData.is_recurring ? '🔄 Repeats every month' : 'One-time payment'}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div>

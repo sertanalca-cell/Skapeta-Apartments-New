@@ -26,6 +26,7 @@ class ExpenseCreate(BaseModel):
     payment_method: Optional[str] = "cash"  # cash, card, transfer, other
     notes: Optional[str] = None
     receipt_url: Optional[str] = None
+    is_recurring: Optional[bool] = False  # New: Mark as recurring monthly expense
 
 
 class Expense(ExpenseCreate):
@@ -96,13 +97,32 @@ async def get_expense_stats(
         cat = expense["category"]
         by_category[cat] = by_category.get(cat, 0) + expense["amount"]
     
+    # Recurring expenses
+    recurring_expenses = [e for e in expenses if e.get("is_recurring", False)]
+    recurring_total = sum(e["amount"] for e in recurring_expenses)
+    
     return {
         "total_expenses": total,
         "month_expenses": month_total,
         "total_count": len(expenses),
         "month_count": len(month_expenses),
         "by_category": by_category,
+        "recurring_count": len(recurring_expenses),
+        "recurring_monthly_total": recurring_total,
     }
+
+
+@router.get("/expenses/recurring")
+async def get_recurring_expenses(
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all recurring monthly expenses"""
+    recurring = await db.expenses.find(
+        {"is_recurring": True}, 
+        {"_id": 0}
+    ).sort("payment_date", -1).to_list(1000)
+    return recurring
 
 
 @router.delete("/expenses/{expense_id}")
