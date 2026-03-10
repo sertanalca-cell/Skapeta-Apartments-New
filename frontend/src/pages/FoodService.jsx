@@ -14,6 +14,7 @@ export const FoodService = () => {
   const { customer, logout, loading: authLoading } = useCustomerAuth();
   const [menuItems, setMenuItems] = useState([]);
   const [cartItems, setCartItems] = useState([]);
+  const [customerOrders, setCustomerOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -28,6 +29,12 @@ export const FoodService = () => {
     loadMenu();
     loadSettings();
   }, []);
+
+  useEffect(() => {
+    if (customer?.id) {
+      loadCustomerOrders();
+    }
+  }, [customer]);
 
   const loadMenu = async () => {
     try {
@@ -50,6 +57,15 @@ export const FoodService = () => {
     } catch (error) {
       console.error('Failed to load settings:', error);
       setOwnerWhatsApp('00355693227207');
+    }
+  };
+
+  const loadCustomerOrders = async () => {
+    try {
+      const orders = await ordersAPI.getByUserId(customer.id);
+      setCustomerOrders(orders);
+    } catch (error) {
+      console.error('Failed to load customer orders:', error);
     }
   };
 
@@ -122,6 +138,9 @@ export const FoodService = () => {
       });
 
       sendWhatsAppNotification(newOrder);
+
+      // Reload customer orders
+      loadCustomerOrders();
 
       setCartItems([]);
       setShowCheckout(false);
@@ -509,6 +528,7 @@ export const FoodService = () => {
         {/* Order History Modal */}
         {showOrderHistory && (
           <OrderHistoryModal
+            orders={customerOrders}
             onClose={() => setShowOrderHistory(false)}
           />
         )}
