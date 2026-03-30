@@ -84,18 +84,22 @@ async def create_order(
     )
     next_order_number = (last_order["order_number"] + 1) if last_order and "order_number" in last_order else 1001
     
+    from datetime import datetime
+
+async def create_order(order: Order):
     new_order = Order(
         **order.dict(),
         total_price=total_price,
         status="pending",
-        order_number=next_order_number
+        order_number=next_order_number,
+        created_at=datetime.utcnow()
     )
-    
+
     await db.orders.insert_one(new_order.dict())
-    
+
     # Note: WhatsApp notification is handled on frontend automatically
     # when order is successfully placed
-    
+
     return new_order
 
 

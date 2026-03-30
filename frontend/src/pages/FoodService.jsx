@@ -13,7 +13,11 @@ import { toast } from 'sonner';
 export const FoodService = () => {
   const { customer, logout, loading: authLoading } = useCustomerAuth();
   const [menuItems, setMenuItems] = useState([]);
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    // Load cart from localStorage on component mount
+    const savedCart = localStorage.getItem('skapeta_cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
   const [customerOrders, setCustomerOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,6 +28,11 @@ export const FoodService = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showOrderHistory, setShowOrderHistory] = useState(false);
   const [ownerWhatsApp, setOwnerWhatsApp] = useState('');
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('skapeta_cart', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   useEffect(() => {
     loadMenu();
@@ -142,7 +151,10 @@ export const FoodService = () => {
       // Reload customer orders
       loadCustomerOrders();
 
+      // Clear cart from both state and localStorage
       setCartItems([]);
+      localStorage.removeItem('skapeta_cart');
+      
       setShowCheckout(false);
       setApartmentNumber('');
       setOrderNotes('');

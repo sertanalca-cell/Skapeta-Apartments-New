@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: skapeta_mongodb_prod
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - skapeta_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: skapeta_backend_prod
+    restart: always
+    environment:
+      - MONGO_URL=${MONGO_URL}
+      - DB_NAME=${DB_NAME}
+      - SECRET_KEY=${SECRET_KEY}
+      - OWNER_WHATSAPP=${OWNER_WHATSAPP}
+    depends_on:
+      - mongodb
+    volumes:
+      - backend_uploads:/app/backend/uploads
+    networks:
+      - skapeta_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        - REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
+    container_name: skapeta_frontend_prod
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      - skapeta_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: skapeta_nginx_prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - certbot_data:/var/www/certbot:ro
+      - certbot_conf:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - skapeta_network
+
+  certbot:
+    image: certbot/certbot
+    container_name: skapeta_certbot
+    volumes:
+      - certbot_data:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ${CERTBOT_EMAIL} --agree-tos --no-eff-email -d ${DOMAIN} -d www.${DOMAIN}
+
+volumes:
+  mongodb_data:
+  mongodb_config:
+  backend_uploads:
+  certbot_data:
+  certbot_conf:
+
+networks:
+  skapeta_network:
+    driver: bridge
