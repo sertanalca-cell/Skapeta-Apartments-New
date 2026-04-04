@@ -63,6 +63,45 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+# Admin connections for real-time order notifications
+admin_connections: Set[WebSocket] = set()
+
+async def broadcast_to_admins(message: dict):
+    """Broadcast message to all connected admin users"""
+    disconnected = set()
+    for connection in admin_connections:
+        try:
+            await connection.send_json(message)
+        except Exception as e:
+            logger.error(f"Error broadcasting to admin: {e}")
+            disconnected.add(connection)
+    
+    # Remove disconnected connections
+    for conn in disconnected:
+        admin_connections.discard(conn)
+
+@router.websocket("/ws/admin")
+async def admin_websocket(websocket: WebSocket):
+    """WebSocket endpoint for admin real-time notifications"""
+    await websocket.accept()
+    admin_connections.add(websocket)
+    logger.info(f"Admin connected. Total admin connections: {len(admin_connections)}")
+    
+    try:
+        while True:
+            # Keep connection alive and receive ping/pong messages
+            data = await websocket.receive_text()
+            # Echo back for ping/pong
+            await websocket.send_json({"type": "pong"})
+    except WebSocketDisconnect:
+        admin_connections.discard(websocket)
+        logger.info(f"Admin disconnected. Remaining: {len(admin_connections)}")
+    except Exception as e:
+        logger.error(f"Admin WebSocket error: {e}")
+        admin_connections.discard(websocket)
+
+manager = ConnectionManager()
+
 
 @router.websocket("/ws/orders/{customer_id}")
 async def websocket_endpoint(

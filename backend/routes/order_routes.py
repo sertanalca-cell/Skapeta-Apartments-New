@@ -94,6 +94,16 @@ async def create_order(
     
     await db.orders.insert_one(new_order.dict())
     
+    # Broadcast to all connected admins via WebSocket
+    try:
+        from routes.websocket_routes import broadcast_to_admins
+        await broadcast_to_admins({
+            "type": "new_order",
+            "order": new_order.dict()
+        })
+    except Exception as e:
+        print(f"WebSocket broadcast failed: {e}")
+    
     # Note: WhatsApp notification is handled on frontend automatically
     # when order is successfully placed
     

@@ -7,6 +7,7 @@ import { Clock, CheckCircle2, Truck, Package, X, User, Home, FileText, DoorClose
 import { ordersAPI, settingsAPI } from '../../services/api';
 import { InvoiceModal } from '../../components/InvoiceModal';
 import { toast } from 'sonner';
+import { useOrderNotifications } from '../../hooks/useOrderNotifications';
 
 export const OrdersManager = () => {
   const [orders, setOrders] = useState([]);
@@ -20,6 +21,12 @@ export const OrdersManager = () => {
 
   // Initialize notification sound
   const notificationSound = React.useRef(null);
+
+  // Use WebSocket hook for real-time notifications
+  useOrderNotifications(settings, (newOrder) => {
+    console.log('📦 New order callback:', newOrder);
+    loadOrders(); // Refresh orders list
+  });
 
   useEffect(() => {
     // Load settings for invoice and notification sound
