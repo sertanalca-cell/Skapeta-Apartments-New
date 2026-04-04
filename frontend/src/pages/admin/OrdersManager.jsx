@@ -18,6 +18,7 @@ export const OrdersManager = () => {
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState(null);
   const [settings, setSettings] = useState(null);
   const [showCloseDayModal, setShowCloseDayModal] = useState(false);
+  const [showAudioPrompt, setShowAudioPrompt] = useState(true);
 
   // Initialize notification sound
   const notificationSound = React.useRef(null);
@@ -51,15 +52,38 @@ export const OrdersManager = () => {
       // Initialize notification sound from settings or use default
       if (data.notification_sound_url) {
         notificationSound.current = new Audio(data.notification_sound_url);
+        notificationSound.current.load(); // Preload audio
       } else {
         // Default sound
         notificationSound.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE');
+        notificationSound.current.load();
       }
       
-      // Test sound on first load (user interaction required)
       console.log('🔊 Notification sound initialized');
     } catch (error) {
       console.error('Failed to load settings:', error);
+    }
+  };
+  
+  // Enable audio on user interaction
+  const enableAudioNotifications = () => {
+    if (notificationSound.current) {
+      // Play silent audio to unlock autoplay
+      notificationSound.current.volume = 0.01;
+      notificationSound.current.play()
+        .then(() => {
+          notificationSound.current.pause();
+          notificationSound.current.currentTime = 0;
+          notificationSound.current.volume = 1.0;
+          setAudioInitialized(true);
+          setShowAudioPrompt(false);
+          toast.success('🔊 Bildirim sesleri aktif!');
+          console.log('✅ Audio notifications ENABLED');
+        })
+        .catch(err => {
+          console.error('Failed to enable audio:', err);
+          toast.error('Ses etkinleştirilemedi');
+        });
     }
   };
 
@@ -89,8 +113,8 @@ export const OrdersManager = () => {
         if (newOrders.length > 0) {
           console.log(`🔔 ${newOrders.length} YENİ SİPARİŞ TESPİT EDİLDİ!`);
           
-          // SESİ ÇAL - ÖNCE İZİN KONTROLÜ
-          if (notificationSound.current) {
+          // SESİ ÇAL - Sadece audio initialized ise
+          if (notificationSound.current && audioInitialized) {
             try {
               // Ses dosyasını yeniden yükle (güncellenmiş olabilir)
               if (settings?.notification_sound_url) {
@@ -106,18 +130,15 @@ export const OrdersManager = () => {
                     console.log('✅ BİLDİRİM SESİ ÇALDI!');
                   })
                   .catch(err => {
-                    console.error('❌ Ses çalma hatası (tarayıcı izni gerekebilir):', err);
-                    // Kullanıcıya bildir
-                    toast.error('🔇 Bildirim sesi için tarayıcı izni gerekli. Sayfaya tıklayın.', {
-                      duration: 5000
-                    });
+                    console.error('❌ Ses çalma hatası:', err);
                   });
               }
             } catch (err) {
               console.error('❌ Ses hatası:', err);
             }
-          } else {
-            console.warn('⚠️ Notification sound henüz yüklenmedi');
+          } else if (!audioInitialized) {
+            console.warn('⚠️ Ses henüz aktifleştirilmedi - kullanıcı "Sesleri Aç" butonuna tıklamalı');
+            setShowAudioPrompt(true); // Show prompt again
           }
           
           // Browser notification
@@ -155,7 +176,7 @@ export const OrdersManager = () => {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
-    setAudioInitialized(true);
+    // DON'T auto-initialize audio - user must click "Enable Audio" button
   }, []);
 
   const updateOrderStatus = async (orderId, status, estimatedTime = null) => {
@@ -255,6 +276,29 @@ export const OrdersManager = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
+        {/* Audio Permission Banner */}
+        {showAudioPrompt && !audioInitialized && (
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-xl shadow-lg border-2 border-white">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center animate-pulse">
+                  <span className="text-2xl">🔔</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Bildirim Seslerini Etkinleştirin</h3>
+                  <p className="text-sm text-white/90">Yeni siparişler geldiğinde ses bildirimini duymak için bu butona tıklayın</p>
+                </div>
+              </div>
+              <Button
+                onClick={enableAudioNotifications}
+                className="bg-white text-orange-600 hover:bg-orange-50 font-bold px-6 py-3 shadow-xl"
+              >
+                🔊 Sesleri Aç
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold text-slate-900">Orders Management</h2>
@@ -263,6 +307,11 @@ export const OrdersManager = () => {
           <div className="flex gap-2">
             <Button
               onClick={() => {
+                if (!audioInitialized) {
+                  toast.error('Önce "Sesleri Aç" butonuna tıklayın');
+                  setShowAudioPrompt(true);
+                  return;
+                }
                 if (notificationSound.current) {
                   notificationSound.current.play()
                     .then(() => toast.success('🔊 Ses test edildi!'))

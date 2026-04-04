@@ -405,36 +405,6 @@ export const FoodService = () => {
           </div>
         )}
 
-        {/* Fixed Bottom Bar - Cart (Left) + Create Order (Center) */}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl font-bold text-sky-600 dark:text-sky-400">
-                              €{item.price.toFixed(2)}
-                            </span>
-                            <Badge className="bg-sky-100 text-sky-700 text-xs">
-                              {item.category}
-                            </Badge>
-                          </div>
-                        </div>
-                        
-                        {/* Add Button */}
-                        <Button
-                          onClick={() => addToCart(item)}
-                          size="sm"
-                          className="bg-sky-500 hover:bg-sky-600 text-white flex-shrink-0"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
         {/* Fixed Bottom Bar - Cart with Item List */}
         {cartCount > 0 && (
           <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-t-4 border-sky-500 shadow-2xl z-40">
