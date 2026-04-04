@@ -31,19 +31,9 @@ export const OrdersManager = () => {
     loadOrders();
   });
 
+  // Load settings once on mount
   useEffect(() => {
-    // Load settings for invoice and notification sound
     loadSettings();
-    
-    // İLK YÜKLEME - Orders'ı al
-    loadOrders();
-    
-    // Polling her 3 saniyede bir
-    const pollingInterval = setInterval(() => {
-      loadOrders();
-    }, 3000);
-    
-    return () => clearInterval(pollingInterval);
   }, []);
 
   const loadSettings = async () => {
@@ -96,6 +86,13 @@ export const OrdersManager = () => {
       // Yeni sipariş kontrolü - sadece pending olanları say
       const currentPendingCount = data.filter(o => o.status === 'pending').length;
       const previousPendingCount = previousOrdersRef.current.filter(o => o.status === 'pending').length;
+      
+      console.log('📊 ORDER CHECK:', {
+        currentPending: currentPendingCount,
+        previousPending: previousPendingCount,
+        previousOrdersLength: previousOrdersRef.current.length,
+        willCheck: currentPendingCount > previousPendingCount && previousOrdersRef.current.length > 0
+      });
       
       // Eğer pending sipariş sayısı arttıysa = yeni sipariş geldi
       if (currentPendingCount > previousPendingCount && previousOrdersRef.current.length > 0) {
