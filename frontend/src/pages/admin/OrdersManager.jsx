@@ -21,16 +21,24 @@ export const OrdersManager = () => {
 
   // Initialize notification sound
   const notificationSound = React.useRef(null);
+  const lastCheckRef = React.useRef(Date.now());
 
-  // Use WebSocket hook for real-time notifications
+  // Use WebSocket hook for real-time notifications (if available)
   useOrderNotifications(settings, (newOrder) => {
-    console.log('📦 New order callback:', newOrder);
-    loadOrders(); // Refresh orders list
+    console.log('📦 WebSocket - New order callback:', newOrder);
+    loadOrders();
   });
 
   useEffect(() => {
     // Load settings for invoice and notification sound
     loadSettings();
+    
+    // Backup: Polling her 2 saniyede bir (WebSocket çalışmazsa)
+    const pollingInterval = setInterval(() => {
+      loadOrders();
+    }, 2000); // 2 saniye
+    
+    return () => clearInterval(pollingInterval);
   }, []);
 
   const loadSettings = async () => {
@@ -44,6 +52,9 @@ export const OrdersManager = () => {
         // Default sound
         notificationSound.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE');
       }
+      
+      // Test sound on first load (user interaction required)
+      console.log('🔊 Notification sound initialized');
     } catch (error) {
       console.error('Failed to load settings:', error);
     }
@@ -61,54 +72,76 @@ export const OrdersManager = () => {
       const filter = statusFilter === 'all' ? null : statusFilter;
       const data = await ordersAPI.getAll(filter);
       
-      // Check for new orders and play sound
-      if (audioInitialized && data.length > lastOrderCount) {
+      // Yeni sipariş kontrolü - sadece pending olanları say
+      const currentPendingCount = data.filter(o => o.status === 'pending').length;
+      const previousPendingCount = orders.filter(o => o.status === 'pending').length;
+      
+      // Eğer pending sipariş sayısı arttıysa = yeni sipariş geldi
+      if (currentPendingCount > previousPendingCount && orders.length > 0) {
         const newOrders = data.filter(order => 
           order.status === 'pending' && 
           !orders.some(existing => existing.id === order.id)
         );
         
         if (newOrders.length > 0) {
-          console.log(`🔔 ${newOrders.length} new order(s) detected!`);
+          console.log(`🔔 ${newOrders.length} YENİ SİPARİŞ TESPİT EDİLDİ!`);
           
-          // Play notification sound
+          // SESİ ÇAL - ÖNCE İZİN KONTROLÜ
           if (notificationSound.current) {
             try {
-              // Reload audio source in case it was updated
+              // Ses dosyasını yeniden yükle (güncellenmiş olabilir)
               if (settings?.notification_sound_url) {
                 notificationSound.current.src = settings.notification_sound_url;
               }
-              await notificationSound.current.play();
-              console.log('✅ Notification sound played');
+              
+              // SESİ ÇALMAYA ÇALIŞ
+              const playPromise = notificationSound.current.play();
+              
+              if (playPromise !== undefined) {
+                playPromise
+                  .then(() => {
+                    console.log('✅ BİLDİRİM SESİ ÇALDI!');
+                  })
+                  .catch(err => {
+                    console.error('❌ Ses çalma hatası (tarayıcı izni gerekebilir):', err);
+                    // Kullanıcıya bildir
+                    toast.error('🔇 Bildirim sesi için tarayıcı izni gerekli. Sayfaya tıklayın.', {
+                      duration: 5000
+                    });
+                  });
+              }
             } catch (err) {
-              console.error('❌ Sound play failed:', err);
+              console.error('❌ Ses hatası:', err);
             }
+          } else {
+            console.warn('⚠️ Notification sound henüz yüklenmedi');
           }
           
           // Browser notification
-          if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification(`${newOrders.length} Yeni Sipariş!`, {
-              body: `Sipariş #${newOrders[0].order_number} - ${newOrders[0].first_name} ${newOrders[0].last_name}`,
-              icon: '/logo192.png',
-              tag: 'new-order',
-              requireInteraction: true
-            });
+          if ('Notification' in window) {
+            if (Notification.permission === 'granted') {
+              new Notification('🔔 YENİ SİPARİŞ!', {
+                body: `Sipariş #${newOrders[0].order_number} - ${newOrders[0].first_name} ${newOrders[0].last_name}\nTutar: €${newOrders[0].total_price?.toFixed(2)}`,
+                icon: '/logo192.png',
+                tag: 'new-order',
+                requireInteraction: true
+              });
+            } else if (Notification.permission === 'default') {
+              Notification.requestPermission();
+            }
           }
           
           // Toast notification
-          toast.success(`🔔 ${newOrders.length} yeni sipariş geldi!`, {
-            duration: 5000
+          toast.success(`🔔 ${newOrders.length} YENİ SİPARİŞ! #${newOrders[0].order_number} - €${newOrders[0].total_price?.toFixed(2)}`, {
+            duration: 10000
           });
         }
       }
       
       setOrders(data);
-      if (audioInitialized) {
-        setLastOrderCount(data.length);
-      }
     } catch (error) {
       console.error('Failed to load orders:', error);
-      toast.error('Failed to load orders');
+      toast.error('Siparişler yüklenemedi');
     } finally {
       setLoading(false);
     }
@@ -224,13 +257,30 @@ export const OrdersManager = () => {
             <h2 className="text-3xl font-bold text-slate-900">Orders Management</h2>
             <p className="text-slate-600">Manage food service orders</p>
           </div>
-          <Button
-            onClick={() => setShowCloseDayModal(true)}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg"
-          >
-            <DoorClosed className="w-4 h-4 mr-2" />
-            Close Day
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => {
+                if (notificationSound.current) {
+                  notificationSound.current.play()
+                    .then(() => toast.success('🔊 Ses test edildi!'))
+                    .catch(err => toast.error('❌ Ses çalınamadı: ' + err.message));
+                } else {
+                  toast.error('❌ Notification sound yüklenmedi');
+                }
+              }}
+              variant="outline"
+              className="border-green-500 text-green-600 hover:bg-green-50"
+            >
+              🔊 Sesi Test Et
+            </Button>
+            <Button
+              onClick={() => setShowCloseDayModal(true)}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg"
+            >
+              <DoorClosed className="w-4 h-4 mr-2" />
+              Close Day
+            </Button>
+          </div>
         </div>
 
         {/* Status Filter */}
