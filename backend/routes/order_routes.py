@@ -34,7 +34,7 @@ async def get_orders(
     current_user: dict = Depends(get_current_user)
 ):
     """Get all orders (admin only) - excludes closed orders"""
-    query = {"closed_at": {"$exists": False}}  # Only show orders that haven't been closed
+    query = {"closed_at": None}  # Get orders where closed_at is null
     if status:
         query["status"] = status
     orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
@@ -49,7 +49,7 @@ async def get_closed_orders(
 ):
     """Get recently closed orders (for Last Orders view)"""
     orders = await db.orders.find(
-        {"closed_at": {"$exists": True}},  # Check if field exists
+        {"closed_at": {"$ne": None}},  # Get orders where closed_at is not null
         {"_id": 0}
     ).sort("closed_at", -1).limit(limit).to_list(limit)
     return orders
@@ -88,7 +88,8 @@ async def create_order(
         **order.dict(),
         total_price=total_price,
         status="pending",
-        order_number=next_order_number
+        order_number=next_order_number,
+        closed_at=None  # Explicitly set to None for admin query to work
     )
     
     await db.orders.insert_one(new_order.dict())
