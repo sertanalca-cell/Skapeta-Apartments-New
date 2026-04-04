@@ -33,10 +33,13 @@ export const OrdersManager = () => {
     // Load settings for invoice and notification sound
     loadSettings();
     
-    // Backup: Polling her 2 saniyede bir (WebSocket çalışmazsa)
+    // İLK YÜKLEME - Orders'ı al
+    loadOrders();
+    
+    // Polling her 3 saniyede bir
     const pollingInterval = setInterval(() => {
       loadOrders();
-    }, 2000); // 2 saniye
+    }, 3000);
     
     return () => clearInterval(pollingInterval);
   }, []);

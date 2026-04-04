@@ -326,19 +326,22 @@ export const FoodService = () => {
           </div>
         </div>
 
-        {/* Menu Items - Compact Horizontal Cards */}
+        {/* Menu Items - 4 COLUMN GRID */}
         {filteredItems.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-slate-600 dark:text-slate-400">No menu items found</p>
           </div>
         ) : (
-          <div className="space-y-3 mb-6">
-            {filteredItems.map(item => (
-              <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-all">
-                <CardContent className="p-0">
-                  <div className="flex items-center gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-24">
+            {filteredItems.map(item => {
+              const cartItem = cartItems.find(ci => ci.id === item.id);
+              const quantity = cartItem?.quantity || 0;
+
+              return (
+                <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-all">
+                  <CardContent className="p-0">
                     {/* Image */}
-                    <div className="w-24 h-24 flex-shrink-0">
+                    <div className="w-full aspect-square">
                       {item.image ? (
                         <img
                           src={item.image}
@@ -347,21 +350,62 @@ export const FoodService = () => {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-sky-100 to-blue-100 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">
-                          <span className="text-3xl">🍽️</span>
+                          <span className="text-4xl">🍽️</span>
                         </div>
                       )}
                     </div>
-                    
-                    {/* Content */}
-                    <div className="flex-1 py-3 pr-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1">
-                            {item.name}
-                          </h3>
-                          {item.description && (
-                            <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-1 mb-2">
-                              {item.description}
+
+                    {/* Info */}
+                    <div className="p-3">
+                      <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1 line-clamp-1">
+                        {item.name}
+                      </h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mb-2 line-clamp-2 h-8">
+                        {item.description}
+                      </p>
+                      
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-lg font-bold text-sky-600 dark:text-sky-400">
+                          €{item.price.toFixed(2)}
+                        </span>
+
+                        {/* Add/Remove Buttons */}
+                        {quantity === 0 ? (
+                          <button
+                            onClick={() => addToCart(item)}
+                            className="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold transition-all"
+                          >
+                            Add
+                          </button>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => removeFromCart(item.id)}
+                              className="w-7 h-7 rounded-lg bg-red-500 hover:bg-red-600 text-white flex items-center justify-center text-lg font-bold"
+                            >
+                              -
+                            </button>
+                            <span className="w-7 text-center font-bold text-slate-900 dark:text-white">
+                              {quantity}
+                            </span>
+                            <button
+                              onClick={() => addToCart(item)}
+                              className="w-7 h-7 rounded-lg bg-green-500 hover:bg-green-600 text-white flex items-center justify-center text-lg font-bold"
+                            >
+                              +
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Fixed Bottom Bar - Cart (Left) + Create Order (Center) */}
                             </p>
                           )}
                           <div className="flex items-center gap-2">
@@ -391,24 +435,51 @@ export const FoodService = () => {
           </div>
         )}
 
-        {/* Fixed Bottom Bar - Cart (Left) + Create Order (Center) */}
+        {/* Fixed Bottom Bar - Cart with Item List */}
         {cartCount > 0 && (
           <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-t-4 border-sky-500 shadow-2xl z-40">
-            <div className="container mx-auto px-4 py-4">
+            <div className="container mx-auto px-4 py-3">
+              {/* Expandable Cart Items */}
+              <details className="mb-2">
+                <summary className="cursor-pointer text-sm font-semibold text-sky-600 hover:text-sky-700 mb-2">
+                  🛒 Sepetinizde {cartCount} ürün var - Görüntülemek için tıklayın
+                </summary>
+                <div className="bg-white dark:bg-slate-700 rounded-lg p-3 mb-2 max-h-48 overflow-y-auto">
+                  {cartItems.map(item => (
+                    <div key={item.id} className="flex items-center justify-between py-2 border-b border-slate-200 dark:border-slate-600 last:border-0">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm text-slate-900 dark:text-white">{item.name}</p>
+                        <p className="text-xs text-slate-500">{item.quantity} x €{item.price.toFixed(2)}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sky-600">€{(item.quantity * item.price).toFixed(2)}</span>
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center text-sm"
+                          title="Sil"
+                        >
+                          -
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </details>
+
               <div className="flex items-center justify-between gap-4">
                 {/* Left: Cart Summary - BIGGER */}
-                <div className="flex flex-col gap-2 min-w-[140px]">
+                <div className="flex flex-col gap-1 min-w-[120px]">
                   <div className="flex items-center gap-2">
-                    <ShoppingCart className="w-6 h-6 text-sky-600" />
-                    <span className="text-xl font-bold text-slate-900 dark:text-white">
+                    <ShoppingCart className="w-5 h-5 text-sky-600" />
+                    <span className="text-lg font-bold text-slate-900 dark:text-white">
                       Your Cart
                     </span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-base font-semibold text-slate-700 dark:text-slate-300">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                       {cartCount} {cartCount === 1 ? 'item' : 'items'}
                     </span>
-                    <div className="text-3xl font-bold text-sky-600 dark:text-sky-400">
+                    <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">
                       €{cartTotal.toFixed(2)}
                     </div>
                   </div>
@@ -417,24 +488,11 @@ export const FoodService = () => {
                 {/* Center: Create Order Button - BIGGER & PROMINENT */}
                 <Button
                   onClick={handleCheckout}
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold text-lg px-12 py-7 shadow-xl transform hover:scale-105 transition-all"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold text-base px-8 py-6 shadow-xl transform hover:scale-105 transition-all"
                 >
-                  <ShoppingCart className="w-6 h-6 mr-3" />
+                  <ShoppingCart className="w-5 h-5 mr-2" />
                   Create Order
                 </Button>
-
-                {/* Right: Cart Items Preview (desktop only) */}
-                <div className="hidden lg:flex items-center gap-2 flex-1 overflow-x-auto max-w-md">
-                  {cartItems.slice(0, 2).map(item => (
-                    <div key={item.id} className="flex items-center gap-1 bg-sky-100 dark:bg-sky-900/30 rounded-full px-4 py-2 text-sm whitespace-nowrap">
-                      <span className="text-slate-700 dark:text-slate-300 font-medium">{item.name}</span>
-                      <Badge className="bg-sky-500 text-white text-xs">{item.quantity}</Badge>
-                    </div>
-                  ))}
-                  {cartItems.length > 2 && (
-                    <span className="text-sm text-slate-500 font-medium">+{cartItems.length - 2} more</span>
-                  )}
-                </div>
               </div>
             </div>
           </div>
