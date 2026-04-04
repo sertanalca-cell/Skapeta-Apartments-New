@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: skapeta_mongodb_local
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=skapeta_admin_2024
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - skapeta_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: skapeta_backend_local
+    restart: unless-stopped
+    environment:
+      - MONGO_URL=mongodb://admin:skapeta_admin_2024@mongodb:27017/
+      - DB_NAME=skapeta_db
+      - SECRET_KEY=local-dev-secret-key-2024
+      - OWNER_WHATSAPP=355693227207
+    ports:
+      - "8001:8001"
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/app/backend
+      - backend_uploads:/app/backend/uploads
+    networks:
+      - skapeta_network
+    command: uvicorn server:app --host 0.0.0.0 --port 8001 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: skapeta_frontend_local
+    restart: unless-stopped
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules
+    networks:
+      - skapeta_network
+
+volumes:
+  mongodb_data:
+  backend_uploads:
+
+networks:
+  skapeta_network:
+    driver: bridge

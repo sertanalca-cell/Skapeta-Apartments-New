@@ -266,14 +266,19 @@ export const MonthlyRevenueReport = () => {
     doc.setTextColor(...secondaryColor);
     doc.setFontSize(8);
     doc.setFont(undefined, 'italic');
-    const generatedDate = new Date().toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
+    
+    // Fix date format - use Turkish locale and correct timezone
+    const now = new Date();
+    const generatedDate = new Intl.DateTimeFormat('tr-TR', {
+      year: 'numeric',
+      month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    });
-    doc.text(`Generated on: ${generatedDate}`, 15, footerY);
+      minute: '2-digit',
+      hour12: false
+    }).format(now);
+    
+    doc.text(`Oluşturulma: ${generatedDate}`, 15, footerY);
     doc.text(`${settings?.company_name || 'Skapeta Apartments'}`, pageWidth - 15, footerY, { align: 'right' });
 
     // Save PDF
