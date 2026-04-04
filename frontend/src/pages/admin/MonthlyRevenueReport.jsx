@@ -6,6 +6,7 @@ import { Download, TrendingUp, ShoppingBag, Calendar, FileText } from 'lucide-re
 import { reportsAPI, settingsAPI } from '../../services/api';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export const MonthlyRevenueReport = () => {
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -48,114 +49,237 @@ export const MonthlyRevenueReport = () => {
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     
-    // Logo (if available - placeholder for now)
-    // You can add actual logo here: doc.addImage(logoBase64, 'PNG', x, y, width, height);
+    // Define colors
+    const primaryColor = [41, 128, 185]; // Professional blue
+    const secondaryColor = [52, 73, 94]; // Dark gray
+    const successColor = [39, 174, 96]; // Green
+    const lightGray = [236, 240, 241];
     
-    // Company Name
-    doc.setFontSize(24);
-    doc.setFont(undefined, 'bold');
-    doc.text('SKAPETA APARTMENTS', pageWidth / 2, 20, { align: 'center' });
-    
-    // Title
-    doc.setFontSize(18);
-    doc.setFont(undefined, 'bold');
-    doc.text('Monthly Revenue Report', pageWidth / 2, 32, { align: 'center' });
-    
-    // Month
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'normal');
-    const monthName = new Date(selectedMonth + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    doc.text(monthName, pageWidth / 2, 42, { align: 'center' });
-    
-    // Date generated
-    doc.setFontSize(10);
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 50, { align: 'center' });
-    
-    // Line separator
-    doc.setLineWidth(0.5);
-    doc.line(15, 54, pageWidth - 15, 54);
-    
-    let yPos = 67;
-    
-    // Food Orders Section
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text('🍽️ Food Orders', 15, yPos);
-    yPos += 8;
-    
-    doc.setFontSize(11);
-    doc.setFont(undefined, 'normal');
-    doc.text(`Orders: ${report.food_orders_count}`, 20, yPos);
-    yPos += 6;
-    doc.setFont(undefined, 'bold');
-    doc.text(`Total: €${report.food_orders_total.toFixed(2)}`, 20, yPos);
-    yPos += 12;
-    
-    // Manual Reservations Section
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text('🏠 Manual Reservations', 15, yPos);
-    yPos += 8;
-    
-    doc.setFontSize(11);
-    doc.setFont(undefined, 'normal');
-    doc.text(`Reservations: ${report.manual_reservations_count}`, 20, yPos);
-    yPos += 6;
-    doc.setFont(undefined, 'bold');
-    doc.text(`Total: €${report.manual_reservations_total.toFixed(2)}`, 20, yPos);
-    yPos += 12;
-    
-    // Booking.com Reservations Section
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text('🌐 Booking.com Reservations', 15, yPos);
-    yPos += 8;
-    
-    doc.setFontSize(11);
-    doc.setFont(undefined, 'normal');
-    doc.text(`Reservations: ${report.booking_reservations_count}`, 20, yPos);
-    yPos += 6;
-    doc.setFont(undefined, 'bold');
-    doc.text(`Total: €${report.booking_reservations_total.toFixed(2)}`, 20, yPos);
-    yPos += 15;
-    
-    // Total Section
-    doc.setLineWidth(1);
-    doc.line(15, yPos, pageWidth - 15, yPos);
-    yPos += 10;
-    
-    doc.setFontSize(16);
-    doc.setFont(undefined, 'bold');
-    doc.text('💰 TOTAL REVENUE', 15, yPos);
-    doc.setFontSize(20);
-    doc.text(`€${report.total_revenue.toFixed(2)}`, pageWidth - 15, yPos, { align: 'right' });
-    yPos += 15;
-    
-    doc.setLineWidth(1);
-    doc.line(15, yPos, pageWidth - 15, yPos);
-    yPos += 12;
-    
-    // Summary
-    doc.setFontSize(10);
-    doc.setFont(undefined, 'normal');
-    const totalTransactions = report.food_orders_count + report.manual_reservations_count + report.booking_reservations_count;
-    doc.text(`Total Transactions: ${totalTransactions}`, 15, yPos);
-    yPos += 6;
-    
-    if (totalTransactions > 0) {
-      const avgTransaction = report.total_revenue / totalTransactions;
-      doc.text(`Average Transaction: €${avgTransaction.toFixed(2)}`, 15, yPos);
+    let yPos = 20;
+
+    // HEADER SECTION
+    // Add logo if available
+    if (settings?.logo_url) {
+      try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = settings.logo_url;
+        await new Promise((resolve) => {
+          img.onload = () => {
+            doc.addImage(img, 'PNG', 15, yPos, 40, 20);
+            resolve();
+          };
+          img.onerror = () => resolve(); // Skip if logo fails to load
+        });
+      } catch (error) {
+        console.error('Logo load failed:', error);
+      }
     }
     
-    // Footer
+    // Company info (right side)
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(...secondaryColor);
+    doc.text(settings?.company_name || 'SKAPETA APARTMENTS', pageWidth - 15, yPos + 5, { align: 'right' });
+    
+    if (settings?.tax_number) {
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Tax No: ${settings.tax_number}`, pageWidth - 15, yPos + 12, { align: 'right' });
+    }
+    
+    doc.setFontSize(9);
+    doc.text(`${settings?.address || 'Saranda, Albania'}`, pageWidth - 15, yPos + 17, { align: 'right' });
+    
+    yPos = 50;
+
+    // TITLE BOX
+    doc.setFillColor(...primaryColor);
+    doc.rect(0, yPos, pageWidth, 25, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont(undefined, 'bold');
+    doc.text('MONTHLY REVENUE REPORT', pageWidth / 2, yPos + 10, { align: 'center' });
+    
+    const monthName = new Date(selectedMonth + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'normal');
+    doc.text(monthName.toUpperCase(), pageWidth / 2, yPos + 18, { align: 'center' });
+    
+    yPos = 85;
+
+    // SUMMARY CARDS
+    const cardWidth = (pageWidth - 45) / 3;
+    const cardData = [
+      { label: 'Total Revenue', value: `€${report.total_revenue.toFixed(2)}`, color: successColor },
+      { label: 'Food Orders', value: report.food_orders_count, color: primaryColor },
+      { label: 'Reservations', value: report.manual_reservations_count + report.booking_reservations_count, color: secondaryColor }
+    ];
+    
+    cardData.forEach((card, index) => {
+      const x = 15 + (index * (cardWidth + 7.5));
+      
+      // Card background
+      doc.setFillColor(...lightGray);
+      doc.roundedRect(x, yPos, cardWidth, 22, 2, 2, 'F');
+      
+      // Value
+      doc.setTextColor(...card.color);
+      doc.setFontSize(16);
+      doc.setFont(undefined, 'bold');
+      doc.text(String(card.value), x + cardWidth / 2, yPos + 10, { align: 'center' });
+      
+      // Label
+      doc.setTextColor(...secondaryColor);
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      doc.text(card.label, x + cardWidth / 2, yPos + 17, { align: 'center' });
+    });
+    
+    yPos = 115;
+    
+    // FOOD ORDERS TABLE
+    doc.setTextColor(...secondaryColor);
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('🍽️ Food Service Revenue', 15, yPos);
+    yPos += 5;
+    
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Total Orders', report.food_orders_count.toString()],
+        ['Total Revenue', `€${report.food_orders_total.toFixed(2)}`],
+        ['Average Order Value', `€${report.food_orders_count > 0 ? (report.food_orders_total / report.food_orders_count).toFixed(2) : '0.00'}`]
+      ],
+      theme: 'striped',
+      headStyles: { 
+        fillColor: primaryColor,
+        fontSize: 10,
+        fontStyle: 'bold',
+        halign: 'left'
+      },
+      bodyStyles: { 
+        fontSize: 9,
+        textColor: secondaryColor
+      },
+      columnStyles: {
+        0: { cellWidth: 100, fontStyle: 'bold' },
+        1: { cellWidth: 'auto', halign: 'right', fontStyle: 'bold', textColor: successColor }
+      },
+      margin: { left: 15, right: 15 }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 10;
+
+    // MANUAL RESERVATIONS TABLE
+    doc.setTextColor(...secondaryColor);
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('🏠 Manual Reservations', 15, yPos);
+    yPos += 5;
+    
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Total Reservations', report.manual_reservations_count.toString()],
+        ['Total Revenue', `€${report.manual_reservations_total.toFixed(2)}`]
+      ],
+      theme: 'striped',
+      headStyles: { 
+        fillColor: primaryColor,
+        fontSize: 10,
+        fontStyle: 'bold',
+        halign: 'left'
+      },
+      bodyStyles: { 
+        fontSize: 9,
+        textColor: secondaryColor
+      },
+      columnStyles: {
+        0: { cellWidth: 100, fontStyle: 'bold' },
+        1: { cellWidth: 'auto', halign: 'right', fontStyle: 'bold', textColor: successColor }
+      },
+      margin: { left: 15, right: 15 }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 10;
+
+    // BOOKING.COM RESERVATIONS TABLE
+    doc.setTextColor(...secondaryColor);
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('🌐 Booking.com Reservations', 15, yPos);
+    yPos += 5;
+    
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Metric', 'Value']],
+      body: [
+        ['Total Reservations', report.booking_reservations_count.toString()],
+        ['Total Revenue', `€${report.booking_reservations_total.toFixed(2)}`]
+      ],
+      theme: 'striped',
+      headStyles: { 
+        fillColor: primaryColor,
+        fontSize: 10,
+        fontStyle: 'bold',
+        halign: 'left'
+      },
+      bodyStyles: { 
+        fontSize: 9,
+        textColor: secondaryColor
+      },
+      columnStyles: {
+        0: { cellWidth: 100, fontStyle: 'bold' },
+        1: { cellWidth: 'auto', halign: 'right', fontStyle: 'bold', textColor: successColor }
+      },
+      margin: { left: 15, right: 15 }
+    });
+    
+    yPos = doc.lastAutoTable.finalY + 15;
+
+    // TOTAL REVENUE BOX (Highlighted)
+    doc.setFillColor(...successColor);
+    doc.roundedRect(15, yPos, pageWidth - 30, 18, 3, 3, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'normal');
+    doc.text('TOTAL MONTHLY REVENUE', pageWidth / 2, yPos + 8, { align: 'center' });
+    
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text(`€${report.total_revenue.toFixed(2)}`, pageWidth / 2, yPos + 15, { align: 'center' });
+
+    // FOOTER
+    const footerY = pageHeight - 15;
+    doc.setDrawColor(...lightGray);
+    doc.setLineWidth(0.5);
+    doc.line(15, footerY - 5, pageWidth - 15, footerY - 5);
+    
+    doc.setTextColor(...secondaryColor);
     doc.setFontSize(8);
     doc.setFont(undefined, 'italic');
-    doc.text('Skapeta Apartments - Financial Report', pageWidth / 2, 280, { align: 'center' });
-    
+    const generatedDate = new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    doc.text(`Generated on: ${generatedDate}`, 15, footerY);
+    doc.text(`${settings?.company_name || 'Skapeta Apartments'}`, pageWidth - 15, footerY, { align: 'right' });
+
     // Save PDF
-    doc.save(`revenue-report-${selectedMonth}.pdf`);
-    toast.success('PDF downloaded successfully');
+    const fileName = `Monthly_Revenue_Report_${selectedMonth}.pdf`;
+    doc.save(fileName);
+    toast.success('PDF downloaded successfully!');
   };
 
   return (
