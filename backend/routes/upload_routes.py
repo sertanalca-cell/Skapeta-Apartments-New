@@ -15,7 +15,8 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 # Allowed file extensions
 ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".webm", ".mov", ".avi", ".mkv"}
-ALLOWED_EXTENSIONS = ALLOWED_IMAGE_EXTENSIONS | ALLOWED_VIDEO_EXTENSIONS
+ALLOWED_AUDIO_EXTENSIONS = {".mp3", ".wav", ".ogg", ".m4a", ".aac"}
+ALLOWED_EXTENSIONS = ALLOWED_IMAGE_EXTENSIONS | ALLOWED_VIDEO_EXTENSIONS | ALLOWED_AUDIO_EXTENSIONS
 
 
 def validate_file(filename: str) -> tuple[bool, str]:
@@ -25,6 +26,8 @@ def validate_file(filename: str) -> tuple[bool, str]:
         return True, "image"
     elif ext in ALLOWED_VIDEO_EXTENSIONS:
         return True, "video"
+    elif ext in ALLOWED_AUDIO_EXTENSIONS:
+        return True, "audio"
     return False, None
 
 
@@ -33,13 +36,13 @@ async def upload_image(
     file: UploadFile = File(...),
     current_user = Depends(get_current_user)
 ):
-    """Upload a single image or video (admin only)"""
+    """Upload a single image, video, or audio file (admin only)"""
     # Validate file type
     is_valid, media_type = validate_file(file.filename)
     if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File type not allowed. Allowed types: Images ({', '.join(ALLOWED_IMAGE_EXTENSIONS)}), Videos ({', '.join(ALLOWED_VIDEO_EXTENSIONS)})"
+            detail=f"File type not allowed. Allowed types: Images ({', '.join(ALLOWED_IMAGE_EXTENSIONS)}), Videos ({', '.join(ALLOWED_VIDEO_EXTENSIONS)}), Audio ({', '.join(ALLOWED_AUDIO_EXTENSIONS)})"
         )
     
     # Generate unique filename

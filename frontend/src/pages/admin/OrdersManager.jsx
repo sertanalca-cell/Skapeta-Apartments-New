@@ -61,17 +61,37 @@ export const OrdersManager = () => {
           !orders.some(existing => existing.id === order.id)
         );
         
-        if (newOrders.length > 0 && notificationSound.current) {
-          notificationSound.current.play().catch(err => console.log('Sound play failed:', err));
+        if (newOrders.length > 0) {
+          console.log(`🔔 ${newOrders.length} new order(s) detected!`);
+          
+          // Play notification sound
+          if (notificationSound.current) {
+            try {
+              // Reload audio source in case it was updated
+              if (settings?.notification_sound_url) {
+                notificationSound.current.src = settings.notification_sound_url;
+              }
+              await notificationSound.current.play();
+              console.log('✅ Notification sound played');
+            } catch (err) {
+              console.error('❌ Sound play failed:', err);
+            }
+          }
           
           // Browser notification
           if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification(`${newOrders.length} New Order${newOrders.length > 1 ? 's' : ''}!`, {
-              body: `Order #${newOrders[0].order_number} from ${newOrders[0].first_name} ${newOrders[0].last_name}`,
+            new Notification(`${newOrders.length} Yeni Sipariş!`, {
+              body: `Sipariş #${newOrders[0].order_number} - ${newOrders[0].first_name} ${newOrders[0].last_name}`,
               icon: '/logo192.png',
-              tag: 'new-order'
+              tag: 'new-order',
+              requireInteraction: true
             });
           }
+          
+          // Toast notification
+          toast.success(`🔔 ${newOrders.length} yeni sipariş geldi!`, {
+            duration: 5000
+          });
         }
       }
       
