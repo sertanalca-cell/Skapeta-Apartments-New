@@ -24,6 +24,8 @@ export const OrdersManager = () => {
   const notificationSound = React.useRef(null);
   const lastCheckRef = React.useRef(Date.now());
   const previousOrdersRef = React.useRef([]);
+  const isPlayingSoundRef = React.useRef(false); // Prevent multiple simultaneous plays
+  const lastNotifiedOrderIdsRef = React.useRef(new Set()); // Track notified orders
 
   // Use WebSocket hook for real-time notifications (if available)
   useOrderNotifications(settings, (newOrder) => {
@@ -59,15 +61,32 @@ export const OrdersManager = () => {
   // Enable audio on user interaction
   const enableAudioNotifications = () => {
     if (notificationSound.current) {
-      // MOBİL CİHAZLAR İÇİN ÖZEL UNLOCK
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
       
-      console.log('🎵 Enabling audio notifications...', { isMobile });
+      console.log('🎵 Enabling audio notifications...', { isMobile, isIOS });
       
-      // Mobilde önce ses dosyasını yükle
+      // iOS ÖZELİNDE: AudioContext unlock
+      if (isIOS) {
+        console.log('🍎 iOS detected - using special unlock mechanism');
+        
+        // Create a silent audio context to unlock
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          const ctx = new AudioContext();
+          const buffer = ctx.createBuffer(1, 1, 22050);
+          const source = ctx.createBufferSource();
+          source.buffer = buffer;
+          source.connect(ctx.destination);
+          source.start(0);
+          console.log('🍎 iOS AudioContext unlocked');
+        }
+      }
+      
+      // Ses dosyasını yükle
       notificationSound.current.load();
       
-      // Ses dosyasını düşük volumede çal ve durdur (unlock için)
+      // Unlock için düşük volumede çal
       notificationSound.current.volume = 0.01;
       const unlockPromise = notificationSound.current.play();
       
@@ -82,24 +101,28 @@ export const OrdersManager = () => {
             setAudioInitialized(true);
             setShowAudioPrompt(false);
             
-            // MOBİL İÇİN TEST SESİ ÇAL
-            if (isMobile) {
-              console.log('📱 Mobile device - playing test sound...');
-              setTimeout(() => {
-                notificationSound.current.currentTime = 0;
-                notificationSound.current.play()
-                  .then(() => {
-                    console.log('✅ Mobile test sound played successfully!');
-                    toast.success('🔊 Bildirim sesleri aktif! (Test sesi çaldı)');
-                  })
-                  .catch(err => {
-                    console.error('❌ Mobile test sound failed:', err);
-                    toast.warning('⚠️ Ses aktif ama test başarısız. Yeni sipariş geldiğinde tekrar denenecek.');
+            // TEST SESİ ÇAL (hem iOS hem Android için)
+            console.log(`${isIOS ? '🍎' : '📱'} ${isIOS ? 'iOS' : 'Mobile'} device - playing test sound...`);
+            setTimeout(() => {
+              notificationSound.current.currentTime = 0;
+              notificationSound.current.play()
+                .then(() => {
+                  console.log(`✅ ${isIOS ? 'iOS' : 'Mobile'} test sound played successfully!`);
+                  toast.success('🔊 Bildirim sesleri aktif! (Test sesi çaldı)', {
+                    duration: isIOS ? 4000 : 3000
                   });
-              }, 100);
-            } else {
-              toast.success('🔊 Bildirim sesleri aktif!');
-            }
+                })
+                .catch(err => {
+                  console.error(`❌ ${isIOS ? 'iOS' : 'Mobile'} test sound failed:`, err);
+                  if (isIOS) {
+                    toast.warning('⚠️ iOS: Ses aktif ancak test başarısız. Sessize alma kapalı mı kontrol edin.', {
+                      duration: 5000
+                    });
+                  } else {
+                    toast.warning('⚠️ Ses aktif ama test başarısız. Yeni sipariş geldiğinde tekrar denenecek.');
+                  }
+                });
+            }, 150);
             
             console.log('✅ Audio notifications ENABLED');
           })
@@ -131,26 +154,35 @@ export const OrdersManager = () => {
       if (currentPendingCount > previousPendingCount && previousOrdersRef.current.length > 0) {
         const newOrders = data.filter(order => 
           order.status === 'pending' && 
-          !previousOrdersRef.current.some(existing => existing.id === order.id)
+          !previousOrdersRef.current.some(existing => existing.id === order.id) &&
+          !lastNotifiedOrderIdsRef.current.has(order.id) // Bu sipariş için zaten bildirim yapılmadı mı?
         );
         
         if (newOrders.length > 0) {
-          console.log(`🔔 ${newOrders.length} YENİ SİPARİŞ TESPİT EDİLDİ!`);
+          console.log(`🔔 ${newOrders.length} YENİ SİPARİŞ TESPİT EDİLDİ!`, newOrders.map(o => o.order_number));
           
-          // SESİ ÇAL - Sadece audio initialized ise
-          if (notificationSound.current && audioInitialized) {
+          // Bu siparişleri "bildirildi" olarak işaretle
+          newOrders.forEach(order => {
+            lastNotifiedOrderIdsRef.current.add(order.id);
+          });
+          
+          // SESİ ÇAL - Sadece audio initialized ise VE şu anda çalmıyorsa
+          if (notificationSound.current && audioInitialized && !isPlayingSoundRef.current) {
+            isPlayingSoundRef.current = true; // Flag set et - tekrar çalmasın
+            
             try {
               const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+              const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
               
               console.log('🎵 Attempting to play notification sound...');
-              console.log('🎵 Device type:', isMobile ? 'MOBILE' : 'DESKTOP');
+              console.log('🎵 Device:', isIOS ? 'iOS' : (isMobile ? 'Android' : 'Desktop'));
               console.log('🎵 Audio initialized:', audioInitialized);
               console.log('🎵 Sound URL:', settings?.notification_sound_url);
               
               // MOBİL İÇİN: Ses dosyasını yeniden yükle
               if (isMobile) {
                 notificationSound.current.load();
-                console.log('📱 Mobile: Audio reloaded');
+                console.log(`${isIOS ? '🍎' : '📱'} Audio reloaded`);
               }
               
               // Reset audio to beginning
@@ -165,13 +197,16 @@ export const OrdersManager = () => {
               if (playPromise !== undefined) {
                 playPromise
                   .then(() => {
-                    console.log('✅ BİLDİRİM SESİ ÇALDI!');
-                    if (isMobile) {
-                      console.log('📱 Mobile notification sound played successfully!');
-                    }
+                    console.log(`✅ BİLDİRİM SESİ ÇALDI! ${isIOS ? '🍎' : isMobile ? '📱' : '💻'}`);
+                    
+                    // Ses bitince flag'i sıfırla
+                    setTimeout(() => {
+                      isPlayingSoundRef.current = false;
+                    }, 2000); // 2 saniye sonra tekrar çalabilir
                   })
                   .catch(err => {
                     console.error('❌ Ses çalma hatası:', err);
+                    isPlayingSoundRef.current = false; // Hata durumunda flag sıfırla
                     
                     // MOBİL HATA DURUMU: Kullanıcıya bildir
                     if (isMobile) {
@@ -179,11 +214,15 @@ export const OrdersManager = () => {
                         duration: 5000
                       });
                       setShowAudioPrompt(true);
+                      setAudioInitialized(false); // Re-initialize gerekli
                     }
                   });
+              } else {
+                isPlayingSoundRef.current = false;
               }
             } catch (err) {
               console.error('❌ Ses hatası:', err);
+              isPlayingSoundRef.current = false;
             }
           } else if (!audioInitialized) {
             console.warn('⚠️ Ses henüz aktifleştirilmedi - kullanıcı "Sesleri Aç" butonuna tıklamalı');
@@ -216,6 +255,13 @@ export const OrdersManager = () => {
       // Update ref with current orders
       previousOrdersRef.current = data;
       setOrders(data);
+      
+      // Clean up old notified order IDs (keep only current order IDs)
+      const currentOrderIds = new Set(data.map(o => o.id));
+      lastNotifiedOrderIdsRef.current = new Set(
+        [...lastNotifiedOrderIdsRef.current].filter(id => currentOrderIds.has(id))
+      );
+      
     } catch (error) {
       console.error('Failed to load orders:', error);
       toast.error('Siparişler yüklenemedi');
