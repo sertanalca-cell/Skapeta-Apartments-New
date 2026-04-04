@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from './AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -23,6 +23,7 @@ export const OrdersManager = () => {
   // Initialize notification sound
   const notificationSound = React.useRef(null);
   const lastCheckRef = React.useRef(Date.now());
+  const previousOrdersRef = React.useRef([]);
 
   // Use WebSocket hook for real-time notifications (if available)
   useOrderNotifications(settings, (newOrder) => {
@@ -87,27 +88,20 @@ export const OrdersManager = () => {
     }
   };
 
-  useEffect(() => {
-    loadOrders();
-    // Poll for new orders every 5 seconds
-    const interval = setInterval(loadOrders, 5000);
-    return () => clearInterval(interval);
-  }, [statusFilter]);
-
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async () => {
     try {
       const filter = statusFilter === 'all' ? null : statusFilter;
       const data = await ordersAPI.getAll(filter);
       
       // Yeni sipariş kontrolü - sadece pending olanları say
       const currentPendingCount = data.filter(o => o.status === 'pending').length;
-      const previousPendingCount = orders.filter(o => o.status === 'pending').length;
+      const previousPendingCount = previousOrdersRef.current.filter(o => o.status === 'pending').length;
       
       // Eğer pending sipariş sayısı arttıysa = yeni sipariş geldi
-      if (currentPendingCount > previousPendingCount && orders.length > 0) {
+      if (currentPendingCount > previousPendingCount && previousOrdersRef.current.length > 0) {
         const newOrders = data.filter(order => 
           order.status === 'pending' && 
-          !orders.some(existing => existing.id === order.id)
+          !previousOrdersRef.current.some(existing => existing.id === order.id)
         );
         
         if (newOrders.length > 0) {
@@ -116,10 +110,15 @@ export const OrdersManager = () => {
           // SESİ ÇAL - Sadece audio initialized ise
           if (notificationSound.current && audioInitialized) {
             try {
-              // Ses dosyasını yeniden yükle (güncellenmiş olabilir)
-              if (settings?.notification_sound_url) {
-                notificationSound.current.src = settings.notification_sound_url;
-              }
+              console.log('🎵 Attempting to play notification sound...');
+              console.log('🎵 Audio initialized:', audioInitialized);
+              console.log('🎵 Sound URL:', settings?.notification_sound_url);
+              
+              // Reset audio to beginning
+              notificationSound.current.currentTime = 0;
+              
+              // Ensure volume is at max
+              notificationSound.current.volume = 1.0;
               
               // SESİ ÇALMAYA ÇALIŞ
               const playPromise = notificationSound.current.play();
@@ -139,6 +138,8 @@ export const OrdersManager = () => {
           } else if (!audioInitialized) {
             console.warn('⚠️ Ses henüz aktifleştirilmedi - kullanıcı "Sesleri Aç" butonuna tıklamalı');
             setShowAudioPrompt(true); // Show prompt again
+          } else {
+            console.warn('⚠️ Notification sound object yok');
           }
           
           // Browser notification
@@ -162,6 +163,8 @@ export const OrdersManager = () => {
         }
       }
       
+      // Update ref with current orders
+      previousOrdersRef.current = data;
       setOrders(data);
     } catch (error) {
       console.error('Failed to load orders:', error);
@@ -169,7 +172,15 @@ export const OrdersManager = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, audioInitialized, settings]);
+
+  // Polling effect - runs after loadOrders is defined
+  useEffect(() => {
+    loadOrders();
+    // Poll for new orders every 5 seconds
+    const interval = setInterval(loadOrders, 5000);
+    return () => clearInterval(interval);
+  }, [loadOrders]);
 
   // Request notification permission on mount
   useEffect(() => {
