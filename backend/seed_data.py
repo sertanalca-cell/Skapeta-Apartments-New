@@ -29,7 +29,7 @@ async def seed_database():
         admin_user = {
             "id": str(uuid4()),
             "email": "admin@skapeta.com",
-            "password": pwd_context.hash("admin123"),
+            "hashed_password": pwd_context.hash("admin123"),
             "role": "admin",
             "created_at": datetime.now(timezone.utc)
         }

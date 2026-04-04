@@ -15,8 +15,9 @@ export const SettingsEditor = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState({ logo: false, hero: false, about: false });
+  const [uploading, setUploading] = useState({ logo: false, hero: false, about: false, notification: false });
   const [newLink, setNewLink] = useState({ name: '', url: '' });
+  const [testingSound, setTestingSound] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -38,6 +39,14 @@ export const SettingsEditor = () => {
     const file = e.target.files[0];
     if (!file) return;
 
+    // For notification sound, accept only audio files
+    if (type === 'notification') {
+      if (!file.type.startsWith('audio/')) {
+        toast.error('Lütfen sadece ses dosyası yükleyin (MP3, WAV, etc.)');
+        return;
+      }
+    }
+
     setUploading(prev => ({ ...prev, [type]: true }));
     try {
       const result = await uploadAPI.uploadImage(file);
@@ -53,15 +62,38 @@ export const SettingsEditor = () => {
         }));
       } else if (type === 'about') {
         setSettings(prev => ({ ...prev, about_image_url: fileUrl }));
+      } else if (type === 'notification') {
+        setSettings(prev => ({ ...prev, notification_sound_url: fileUrl }));
       }
       
-      toast.success(`${type} uploaded`);
+      toast.success(`${type === 'notification' ? 'Bildirim sesi' : type} yüklendi`);
     } catch (error) {
       console.error('Upload failed:', error);
-      toast.error(`Failed to upload ${type}`);
+      toast.error(`Yükleme başarısız`);
     } finally {
       setUploading(prev => ({ ...prev, [type]: false }));
     }
+  };
+
+  const testNotificationSound = () => {
+    if (!settings?.notification_sound_url) {
+      toast.error('Önce bir bildirim sesi yükleyin');
+      return;
+    }
+
+    setTestingSound(true);
+    const audio = new Audio(settings.notification_sound_url);
+    audio.play()
+      .then(() => {
+        toast.success('Ses çalıyor!');
+      })
+      .catch(err => {
+        console.error('Sound play error:', err);
+        toast.error('Ses çalınamadı');
+      })
+      .finally(() => {
+        setTestingSound(false);
+      });
   };
 
   const handleSave = async (e) => {
@@ -77,6 +109,9 @@ export const SettingsEditor = () => {
         google_maps_url: settings.google_maps_url,
         phone: settings.phone,
         address: settings.address,
+        tax_number: settings.tax_number,
+        company_name: settings.company_name,
+        notification_sound_url: settings.notification_sound_url,
         sponsored_by_text: settings.sponsored_by_text,
         sponsored_by_url: settings.sponsored_by_url,
         footer_custom_text: settings.footer_custom_text,
@@ -271,6 +306,55 @@ export const SettingsEditor = () => {
                   <Upload className="w-4 h-4 mr-2" />
                   {uploading.about ? 'Uploading...' : 'Upload About Image'}
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Notification Sound */}
+          <Card>
+            <CardHeader>
+              <CardTitle>🔔 Bildirim Sesi</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Sipariş Bildirim Sesi</Label>
+                <p className="text-sm text-slate-500 mb-2">Yeni sipariş geldiğinde çalacak ses dosyasını yükleyin (MP3, WAV, vb.)</p>
+                {settings.notification_sound_url && (
+                  <div className="mt-2 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                    <p className="text-sm text-green-700 mb-2">✅ Bildirim sesi yüklendi</p>
+                    <audio src={settings.notification_sound_url} controls className="w-full" />
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="audio/*"
+                  onChange={(e) => handleFileUpload(e, 'notification')}
+                  className="hidden"
+                  id="notification-upload"
+                  disabled={uploading.notification}
+                />
+                <div className="flex gap-2 mt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('notification-upload').click()}
+                    disabled={uploading.notification}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploading.notification ? 'Yükleniyor...' : 'Ses Dosyası Yükle'}
+                  </Button>
+                  {settings.notification_sound_url && (
+                    <Button
+                      type="button"
+                      variant="default"
+                      onClick={testNotificationSound}
+                      disabled={testingSound}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      {testingSound ? 'Çalıyor...' : '🔊 Sesi Test Et'}
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

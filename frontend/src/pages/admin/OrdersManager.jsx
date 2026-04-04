@@ -22,16 +22,21 @@ export const OrdersManager = () => {
   const notificationSound = React.useRef(null);
 
   useEffect(() => {
-    // Load settings for invoice
+    // Load settings for invoice and notification sound
     loadSettings();
-    // Create audio element for notification
-    notificationSound.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE'); 
   }, []);
 
   const loadSettings = async () => {
     try {
       const data = await settingsAPI.get();
       setSettings(data);
+      // Initialize notification sound from settings or use default
+      if (data.notification_sound_url) {
+        notificationSound.current = new Audio(data.notification_sound_url);
+      } else {
+        // Default sound
+        notificationSound.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE');
+      }
     } catch (error) {
       console.error('Failed to load settings:', error);
     }
