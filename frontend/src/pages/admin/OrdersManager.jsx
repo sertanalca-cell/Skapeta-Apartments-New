@@ -59,22 +59,55 @@ export const OrdersManager = () => {
   // Enable audio on user interaction
   const enableAudioNotifications = () => {
     if (notificationSound.current) {
-      // Play silent audio to unlock autoplay
+      // MOBİL CİHAZLAR İÇİN ÖZEL UNLOCK
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      
+      console.log('🎵 Enabling audio notifications...', { isMobile });
+      
+      // Mobilde önce ses dosyasını yükle
+      notificationSound.current.load();
+      
+      // Ses dosyasını düşük volumede çal ve durdur (unlock için)
       notificationSound.current.volume = 0.01;
-      notificationSound.current.play()
-        .then(() => {
-          notificationSound.current.pause();
-          notificationSound.current.currentTime = 0;
-          notificationSound.current.volume = 1.0;
-          setAudioInitialized(true);
-          setShowAudioPrompt(false);
-          toast.success('🔊 Bildirim sesleri aktif!');
-          console.log('✅ Audio notifications ENABLED');
-        })
-        .catch(err => {
-          console.error('Failed to enable audio:', err);
-          toast.error('Ses etkinleştirilemedi');
-        });
+      const unlockPromise = notificationSound.current.play();
+      
+      if (unlockPromise !== undefined) {
+        unlockPromise
+          .then(() => {
+            // Başarıyla çaldı - hemen durdur
+            notificationSound.current.pause();
+            notificationSound.current.currentTime = 0;
+            notificationSound.current.volume = 1.0;
+            
+            setAudioInitialized(true);
+            setShowAudioPrompt(false);
+            
+            // MOBİL İÇİN TEST SESİ ÇAL
+            if (isMobile) {
+              console.log('📱 Mobile device - playing test sound...');
+              setTimeout(() => {
+                notificationSound.current.currentTime = 0;
+                notificationSound.current.play()
+                  .then(() => {
+                    console.log('✅ Mobile test sound played successfully!');
+                    toast.success('🔊 Bildirim sesleri aktif! (Test sesi çaldı)');
+                  })
+                  .catch(err => {
+                    console.error('❌ Mobile test sound failed:', err);
+                    toast.warning('⚠️ Ses aktif ama test başarısız. Yeni sipariş geldiğinde tekrar denenecek.');
+                  });
+              }, 100);
+            } else {
+              toast.success('🔊 Bildirim sesleri aktif!');
+            }
+            
+            console.log('✅ Audio notifications ENABLED');
+          })
+          .catch(err => {
+            console.error('Failed to enable audio:', err);
+            toast.error('Ses etkinleştirilemedi: ' + err.message);
+          });
+      }
     }
   };
 
@@ -107,9 +140,18 @@ export const OrdersManager = () => {
           // SESİ ÇAL - Sadece audio initialized ise
           if (notificationSound.current && audioInitialized) {
             try {
+              const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+              
               console.log('🎵 Attempting to play notification sound...');
+              console.log('🎵 Device type:', isMobile ? 'MOBILE' : 'DESKTOP');
               console.log('🎵 Audio initialized:', audioInitialized);
               console.log('🎵 Sound URL:', settings?.notification_sound_url);
+              
+              // MOBİL İÇİN: Ses dosyasını yeniden yükle
+              if (isMobile) {
+                notificationSound.current.load();
+                console.log('📱 Mobile: Audio reloaded');
+              }
               
               // Reset audio to beginning
               notificationSound.current.currentTime = 0;
@@ -124,9 +166,20 @@ export const OrdersManager = () => {
                 playPromise
                   .then(() => {
                     console.log('✅ BİLDİRİM SESİ ÇALDI!');
+                    if (isMobile) {
+                      console.log('📱 Mobile notification sound played successfully!');
+                    }
                   })
                   .catch(err => {
                     console.error('❌ Ses çalma hatası:', err);
+                    
+                    // MOBİL HATA DURUMU: Kullanıcıya bildir
+                    if (isMobile) {
+                      toast.error('⚠️ Ses çalamadı. Lütfen "Sesleri Aç" butonuna tekrar tıklayın.', {
+                        duration: 5000
+                      });
+                      setShowAudioPrompt(true);
+                    }
                   });
               }
             } catch (err) {
@@ -287,19 +340,24 @@ export const OrdersManager = () => {
         {/* Audio Permission Banner */}
         {showAudioPrompt && !audioInitialized && (
           <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-xl shadow-lg border-2 border-white">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center animate-pulse">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3 flex-1">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center animate-pulse flex-shrink-0">
                   <span className="text-2xl">🔔</span>
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-bold text-lg">Bildirim Seslerini Etkinleştirin</h3>
-                  <p className="text-sm text-white/90">Yeni siparişler geldiğinde ses bildirimini duymak için bu butona tıklayın</p>
+                  <p className="text-sm text-white/90 mt-1">
+                    Yeni siparişler geldiğinde ses bildirimini duymak için bu butona tıklayın
+                  </p>
+                  <p className="text-xs text-white/80 mt-2 flex items-center gap-1">
+                    📱 <span className="font-semibold">Mobil kullanıcılar:</span> Butona tıkladıktan sonra test sesi çalacak
+                  </p>
                 </div>
               </div>
               <Button
                 onClick={enableAudioNotifications}
-                className="bg-white text-orange-600 hover:bg-orange-50 font-bold px-6 py-3 shadow-xl"
+                className="bg-white text-orange-600 hover:bg-orange-50 font-bold px-6 py-3 shadow-xl w-full sm:w-auto"
               >
                 🔊 Sesleri Aç
               </Button>
@@ -321,9 +379,30 @@ export const OrdersManager = () => {
                   return;
                 }
                 if (notificationSound.current) {
+                  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                  
+                  // Mobilde önce load et
+                  if (isMobile) {
+                    notificationSound.current.load();
+                  }
+                  
+                  notificationSound.current.currentTime = 0;
                   notificationSound.current.play()
-                    .then(() => toast.success('🔊 Ses test edildi!'))
-                    .catch(err => toast.error('❌ Ses çalınamadı: ' + err.message));
+                    .then(() => {
+                      toast.success('🔊 Ses test edildi!');
+                      console.log('✅ Test sound played', { isMobile });
+                    })
+                    .catch(err => {
+                      toast.error('❌ Ses çalınamadı: ' + err.message);
+                      console.error('Test sound error:', err, { isMobile });
+                      
+                      // Mobilde hata olursa kullanıcıya özel mesaj
+                      if (isMobile) {
+                        toast.warning('⚠️ Mobil cihazda ses sorunu. "Sesleri Aç" butonuna tekrar tıklayın.', {
+                          duration: 5000
+                        });
+                      }
+                    });
                 } else {
                   toast.error('❌ Notification sound yüklenmedi');
                 }
