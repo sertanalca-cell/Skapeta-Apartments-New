@@ -46,7 +46,7 @@ async def create_expense(
         "id": str(uuid4()),
         **expense.dict(),
         "created_at": datetime.now(timezone.utc),
-        "created_by": current_user["email"],
+        "created_by": current_user.get("email") if isinstance(current_user, dict) else current_user.email,
     }
     
     await db.expenses.insert_one(expense_data)
