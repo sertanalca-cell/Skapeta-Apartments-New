@@ -4,6 +4,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from datetime import datetime, timezone
 from models import Order, OrderCreate, OrderUpdate
 from auth import get_current_user
+from utils.timezone import now_albania, get_today_range_albania, albania_to_utc
 import os
 
 router = APIRouter()
@@ -268,23 +269,22 @@ async def close_day(
 ):
     """
     Close all today's orders (mark them as closed for the day)
-    This is for daily reporting and archiving purposes
+    Uses Albania timezone (Europe/Tirane)
     """
-    # Get today's date range (UTC)
-    now = datetime.now(timezone.utc)
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    today_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+    # Get today's date range in Albania timezone
+    today_start_utc, today_end_utc = get_today_range_albania()
+    now_utc = albania_to_utc(now_albania())
     
     # Find all orders from today that haven't been closed yet and are not cancelled
     result = await db.orders.update_many(
         {
-            "created_at": {"$gte": today_start, "$lte": today_end},
-            "closed_at": {"$exists": False},  # Not closed yet
+            "created_at": {"$gte": today_start_utc, "$lte": today_end_utc},
+            "closed_at": None,  # ✅ FIXED: Check for None instead of $exists
             "status": {"$ne": "cancelled"}
         },
         {
             "$set": {
-                "closed_at": now
+                "closed_at": now_utc
             }
         }
     )
@@ -292,6 +292,7 @@ async def close_day(
     return {
         "message": "Day closed successfully",
         "orders_closed": result.modified_count,
-        "closed_at": now.isoformat()
+        "closed_at": now_albania().isoformat(),  # Return in Albania time
+        "timezone": "Europe/Tirane (Albania)"
     }
 
