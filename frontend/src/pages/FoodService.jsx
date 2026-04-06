@@ -106,11 +106,19 @@ export const FoodService = () => {
   };
 
   const loadCustomerOrders = async () => {
+    if (!customer?.id) {
+      console.warn('⚠️ No customer ID - skipping order load');
+      return;
+    }
+    
     try {
+      console.log('📦 Loading orders for customer:', customer.id);
       const orders = await ordersAPI.getByUserId(customer.id);
+      console.log(`✅ Loaded ${orders.length} orders for customer`);
       setCustomerOrders(orders);
     } catch (error) {
       console.error('Failed to load customer orders:', error);
+      toast.error('Siparişler yüklenemedi');
     }
   };
 
@@ -315,12 +323,16 @@ export const FoodService = () => {
                 <Button
                   variant="outline"
                   onClick={() => setShowOrderHistory(true)}
-                  className="hidden sm:flex"
+                  className="flex items-center bg-gradient-to-r from-sky-500 to-blue-600 text-white hover:from-sky-600 hover:to-blue-700 border-none"
                 >
                   <Receipt className="w-4 h-4 mr-2" />
                   My Orders
                 </Button>
-                <Button variant="outline" onClick={logout}>
+                <Button 
+                  variant="outline" 
+                  onClick={logout}
+                  className="hidden sm:flex"
+                >
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
                 </Button>
