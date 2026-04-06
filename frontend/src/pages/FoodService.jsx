@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -6,6 +6,7 @@ import { ShoppingCart, Search, Clock, CheckCircle2, Truck, Package, LogOut, User
 import { menuAPI, ordersAPI, settingsAPI } from '../services/api';
 import { CustomerLoginModal } from '../components/CustomerLoginModal';
 import { OrderHistoryModal } from '../components/OrderHistoryModal';
+import { OrderStatusTracker } from '../components/OrderStatusTracker';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { useOrderWebSocket } from '../hooks/useOrderWebSocket';
 import { toast } from 'sonner';
@@ -28,6 +29,41 @@ export const FoodService = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showOrderHistory, setShowOrderHistory] = useState(false);
   const [ownerWhatsApp, setOwnerWhatsApp] = useState('');
+  const [activeOrder, setActiveOrder] = useState(null); // Currently active order to track
+
+  // Real-time order updates via WebSocket
+  const handleOrderUpdate = useCallback((updatedOrder) => {
+    console.log('📡 Real-time order update received:', updatedOrder);
+    
+    // Update activeOrder if it's the same order
+    setActiveOrder(prev => {
+      if (prev && prev.id === updatedOrder.id) {
+        return updatedOrder;
+      }
+      return prev;
+    });
+    
+    // Update customerOrders list
+    setCustomerOrders(prevOrders => {
+      const orderIndex = prevOrders.findIndex(o => o.id === updatedOrder.id);
+      if (orderIndex >= 0) {
+        const newOrders = [...prevOrders];
+        newOrders[orderIndex] = updatedOrder;
+        return newOrders;
+      } else {
+        // New order, add to beginning
+        return [updatedOrder, ...prevOrders];
+      }
+    });
+    
+    // Show toast notification
+    toast.success(`Order #${updatedOrder.order_number} status: ${updatedOrder.status.replace('_', ' ').toUpperCase()}`, {
+      duration: 4000
+    });
+  }, []);
+
+  // Connect to WebSocket for real-time updates
+  useOrderWebSocket(customer?.id, handleOrderUpdate);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
@@ -142,11 +178,14 @@ export const FoodService = () => {
 
       const newOrder = await ordersAPI.create(orderData);
       
-      toast.success('✅ Order received! Opening WhatsApp...', {
-        duration: 3000
+      toast.success('✅ Order received! Track your order below', {
+        duration: 4000
       });
 
       sendWhatsAppNotification(newOrder);
+
+      // Set as active order for tracking
+      setActiveOrder(newOrder);
 
       // Reload customer orders
       loadCustomerOrders();
@@ -297,6 +336,13 @@ export const FoodService = () => {
 
         {/* Search and Filters */}
         <div className="mb-8 space-y-4">
+          {/* Active Order Tracker */}
+          {activeOrder && activeOrder.status !== 'delivered' && activeOrder.status !== 'cancelled' && (
+            <div className="mb-6">
+              <OrderStatusTracker order={activeOrder} />
+            </div>
+          )}
+
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
             <input

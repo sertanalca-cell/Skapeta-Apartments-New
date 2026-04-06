@@ -183,15 +183,15 @@ async def update_order(
     
     updated_order = await db.orders.find_one({"id": order_id}, {"_id": 0})
     
-    # Send WebSocket notification to customer
-    if _websocket_manager and existing_order.get("customer_id"):
-        try:
-            await _websocket_manager.broadcast_to_customer(
-                existing_order["customer_id"],
-                updated_order
-            )
-        except Exception as e:
-            print(f"Failed to send WebSocket notification: {e}")
+    # Send WebSocket notification to customer (using user_id)
+    try:
+        from routes.websocket_routes import manager
+        user_id = existing_order.get("user_id")
+        if user_id:
+            await manager.broadcast_to_customer(user_id, updated_order)
+            print(f"📡 WebSocket: Sent order update to customer {user_id}")
+    except Exception as e:
+        print(f"⚠️ Failed to send WebSocket notification: {e}")
     
     # Send phone notification when order is accepted with estimated time
     if order_update.status == "accepted" and order_update.estimated_time:
