@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Building2, Image, Settings as SettingsIcon, TrendingUp, Utensils, MapIcon, Edit, ShoppingCart, UtensilsCrossed, DollarSign, Package, Users, FileText, Calendar, Clock, Trash2, Edit2 } from 'lucide-react';
 import { reportsAPI, ordersAPI } from '../../services/api';
 import { toast } from 'sonner';
+import { LastOrdersSection } from '../../components/admin/LastOrdersSection';
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -13,7 +14,6 @@ export const AdminDashboard = () => {
   const [lastOrders, setLastOrders] = useState([]);
   const [loadingRevenue, setLoadingRevenue] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(true);
-  const [showAllOrders, setShowAllOrders] = useState(false);
 
   useEffect(() => {
     fetchCurrentMonthRevenue();
@@ -71,8 +71,6 @@ export const AdminDashboard = () => {
     };
     return statusColors[status] || 'bg-gray-100 text-gray-800';
   };
-
-  const displayedOrders = showAllOrders ? lastOrders : lastOrders.slice(0, 10);
 
   return (
     <AdminLayout>
@@ -163,92 +161,18 @@ export const AdminDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Last Orders Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <Clock className="w-6 h-6 text-sky-600" />
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Last Orders (Closed)</h2>
-              </div>
-              <div className="flex gap-2">
-                {lastOrders.length > 10 && (
-                  <Button
-                    onClick={() => setShowAllOrders(!showAllOrders)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    {showAllOrders ? 'Show Less' : `Show All (${lastOrders.length})`}
-                  </Button>
-                )}
-                <Button
-                  onClick={() => navigate('/admin/orders')}
-                  variant="outline"
-                  size="sm"
-                >
-                  View Active Orders
-                </Button>
-              </div>
-            </div>
-            
-            {loadingOrders ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500"></div>
-              </div>
-            ) : displayedOrders.length > 0 ? (
-              <div className="space-y-3">
-                {displayedOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1">
-                        <span className="font-semibold text-slate-900 dark:text-white">
-                          Order #{order.order_number || order.id.slice(0, 6)}
-                        </span>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadge(order.status)}`}>
-                          {order.status}
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
-                        {order.first_name} {order.last_name} • Room: {order.apartment_number}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
-                        Closed: {new Date(order.closed_at).toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                          €{order.total_price.toFixed(2)}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-500">
-                          {order.items?.length || 0} items
-                        </p>
-                      </div>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteOrder(order.id)}
-                          className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Clock className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-                <p className="text-slate-600 dark:text-slate-400">No closed orders yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Last Orders Section */}
+        <LastOrdersSection
+          lastOrders={lastOrders}
+          loadingOrders={loadingOrders}
+          onOrderDeleted={(orderId) => {
+            setLastOrders(lastOrders.filter(o => o.id !== orderId));
+          }}
+          onOrderUpdated={(updatedOrder) => {
+            setLastOrders(lastOrders.map(o => o.id === updatedOrder.id ? updatedOrder : o));
+            toast.success('Order updated successfully');
+          }}
+        />
 
         {/* Management Sections */}
         <div>

@@ -3,6 +3,12 @@ from typing import List, Optional
 from datetime import datetime
 import uuid
 
+# Albania timezone helper
+def now_albania_utc():
+    """Get current Albania time but stored as UTC for MongoDB"""
+    from utils.timezone import albania_to_utc, now_albania
+    return albania_to_utc(now_albania())
+
 
 # User/Admin Models
 class UserBase(BaseModel):
@@ -14,7 +20,7 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=now_albania_utc)
 
 class UserInDB(User):
     hashed_password: str
@@ -35,8 +41,8 @@ class ApartmentCreate(ApartmentBase):
 class Apartment(ApartmentBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     images: List[str] = []
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=now_albania_utc)
+    updated_at: datetime = Field(default_factory=now_albania_utc)
 
 class ApartmentUpdate(BaseModel):
     name: Optional[str] = None
@@ -55,7 +61,7 @@ class GalleryImage(BaseModel):
     caption: Optional[str] = None
     category: str = "general"  # general, apartment, food, sightseeing
     media_type: str = "image"  # image or video
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=now_albania_utc)
 
 
 # Food Menu Models
@@ -65,7 +71,7 @@ class FoodMenuItem(BaseModel):
     description: Optional[str] = None
     image_url: Optional[str] = None
     category: str = "meal"  # breakfast, lunch, dinner, dessert, meal
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=now_albania_utc)
 
 
 # Sightseeing Models
@@ -75,7 +81,7 @@ class SightseeingPlace(BaseModel):
     description: str
     image_url: str
     order: int = 0
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=now_albania_utc)
 
 class SightseeingPlaceCreate(BaseModel):
     name: str
@@ -125,7 +131,7 @@ class Settings(BaseModel):
     food_service_subtitle: str = "All meals are prepared with love, care, and quality ingredients."
     # Custom contact links
     custom_contact_links: List[dict] = []
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=now_albania_utc)
 
 class SettingsUpdate(BaseModel):
     logo_url: Optional[str] = None
@@ -166,7 +172,7 @@ class Customer(BaseModel):
     first_name: str
     last_name: str
     phone: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=now_albania_utc)
 
 class CustomerLogin(BaseModel):
     first_name: str
@@ -186,7 +192,7 @@ class MenuItemCreate(MenuItemBase):
 
 class MenuItem(MenuItemBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=now_albania_utc)
 
 class MenuItemUpdate(BaseModel):
     name: Optional[str] = None
@@ -221,8 +227,8 @@ class Order(OrderBase):
     status: str = "pending"  # pending, accepted, preparing, on_the_way, delivered, cancelled
     estimated_time: Optional[int] = None  # in minutes
     total_price: float
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=now_albania_utc)
+    updated_at: datetime = Field(default_factory=now_albania_utc)
     closed_at: Optional[datetime] = None  # When order was closed for the day
 
 class OrderUpdate(BaseModel):
@@ -258,7 +264,7 @@ class BookingReservationCreate(BookingReservationBase):
 
 class BookingReservation(BookingReservationBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=now_albania_utc)
 
 class BookingReservationUpdate(BaseModel):
     guest_name: Optional[str] = None
