@@ -14,6 +14,7 @@ import QRCode from 'qrcode';
 import { Star } from 'lucide-react';
 import { SplashScreen } from '../components/SplashScreen';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { LiveOrderStatus } from '../components/LiveOrderStatus';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { useOrderWebSocket } from '../hooks/useOrderWebSocket';
 
@@ -279,9 +280,12 @@ export const LandingPage = () => {
               </div>
             )}
             
-            <p className="text-xl md:text-2xl text-slate-600 mb-10 leading-relaxed whitespace-pre-line">
+            <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 mb-10 leading-relaxed whitespace-pre-line">
               {settings?.hero_subtitle || t.hero.subtitle}
             </p>
+            
+            {/* Live Order Status - Above buttons */}
+            <LiveOrderStatus />
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 

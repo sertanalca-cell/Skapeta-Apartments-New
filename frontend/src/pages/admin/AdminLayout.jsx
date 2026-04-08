@@ -81,10 +81,11 @@ export const AdminLayout = ({ children }) => {
         </div>
       </header>
 
-      {/* Navigation */}
+      {/* Navigation - 2 rows on mobile, horizontal scroll on desktop */}
       <nav className="bg-white border-b border-slate-200">
         <div className="container mx-auto px-4">
-          <div className="flex gap-1">
+          {/* Mobile: 2 rows x 5 items */}
+          <div className="grid grid-cols-5 gap-1 md:hidden py-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -93,7 +94,30 @@ export const AdminLayout = ({ children }) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
+                  className={`flex flex-col items-center gap-1 px-2 py-3 rounded-lg transition-all ${
+                    isActive
+                      ? 'bg-sky-500 text-white shadow-lg scale-105'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-xs font-medium text-center leading-tight">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Desktop: Horizontal scroll */}
+          <div className="hidden md:flex gap-1 overflow-x-auto">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors whitespace-nowrap ${
                     isActive
                       ? 'border-sky-500 text-sky-600 bg-sky-50'
                       : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
