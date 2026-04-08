@@ -229,44 +229,44 @@ export const LandingPage = () => {
 
           {/* Quick Navigation Menu - Inside navbar */}
           <div className="border-t border-slate-200 dark:border-slate-700 py-2">
-            <div className="flex items-center justify-center gap-2 flex-wrap">
+            <div className="flex items-center justify-center gap-2 overflow-x-auto scrollbar-hide">
               <button
                 onClick={() => document.getElementById('apartments')?.scrollIntoView({ behavior: 'smooth' })}
-                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-lg"
+                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-lg flex-shrink-0"
               >
                 <div className="relative z-10 flex items-center gap-1.5">
                   <Building2 className="w-3.5 h-3.5 text-white" />
-                  <span className="text-white font-semibold text-xs">Apartments</span>
+                  <span className="text-white font-semibold text-xs whitespace-nowrap">Apartments</span>
                 </div>
               </button>
 
               <button
                 onClick={() => navigate('/food-service')}
-                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-orange-500 to-red-600 hover:shadow-lg"
+                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-orange-500 to-red-600 hover:shadow-lg flex-shrink-0"
               >
                 <div className="relative z-10 flex items-center gap-1.5">
                   <UtensilsCrossed className="w-3.5 h-3.5 text-white" />
-                  <span className="text-white font-semibold text-xs">Menu</span>
+                  <span className="text-white font-semibold text-xs whitespace-nowrap">Menu</span>
                 </div>
               </button>
 
               <button
                 onClick={() => document.getElementById('sightseeing')?.scrollIntoView({ behavior: 'smooth' })}
-                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-purple-500 to-purple-700 hover:shadow-lg"
+                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-purple-500 to-purple-700 hover:shadow-lg flex-shrink-0"
               >
                 <div className="relative z-10 flex items-center gap-1.5">
                   <MapIcon className="w-3.5 h-3.5 text-white" />
-                  <span className="text-white font-semibold text-xs">Things to Do</span>
+                  <span className="text-white font-semibold text-xs whitespace-nowrap">Things to Do</span>
                 </div>
               </button>
 
               <button
                 onClick={() => window.open(`https://www.google.com/search?q=weather+${encodeURIComponent(settings?.weather_location || 'Tirana, Albania')}`, '_blank')}
-                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-lg"
+                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-lg flex-shrink-0"
               >
                 <div className="relative z-10 flex items-center gap-1.5">
                   <CloudSun className="w-3.5 h-3.5 text-white" />
-                  <span className="text-white font-semibold text-xs">{settings?.weather_location || 'Weather'}</span>
+                  <span className="text-white font-semibold text-xs whitespace-nowrap">{settings?.weather_location || 'Weather'}</span>
                 </div>
               </button>
             </div>
