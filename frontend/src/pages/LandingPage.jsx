@@ -188,19 +188,21 @@ export const LandingPage = () => {
       <ThemeToggle />
       
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md z-50 border-b border-slate-200 dark:border-slate-700 shadow-sm">
-        <div className="container mx-auto px-4 py-5">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              {settings?.logo_url ? (
-                <img src={settings.logo_url} alt="Logo" className="w-12 h-12 rounded-full object-cover border-2 border-sky-500" />
-              ) : (
-                <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">S</span>
-                </div>
-              )}
-              <span className="font-semibold text-xl text-slate-800 dark:text-white">Skapeta</span>
-            </div>
+      <nav className="fixed top-0 w-full z-50 shadow-sm">
+        {/* Top part - Transparent */}
+        <div className="backdrop-blur-md" style={{ background: 'rgba(255, 255, 255, 0.5)' }}>
+          <div className="container mx-auto px-4 py-5">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                {settings?.logo_url ? (
+                  <img src={settings.logo_url} alt="Logo" className="w-12 h-12 rounded-full object-cover border-2 border-sky-500" />
+                ) : (
+                  <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-xl">S</span>
+                  </div>
+                )}
+                <span className="font-semibold text-xl text-slate-800 dark:text-white">Skapeta</span>
+              </div>
             
             <div className="hidden md:flex items-center gap-6">
               <button onClick={() => scrollToSection('home')} className="text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{t.nav.home}</button>
@@ -227,10 +229,13 @@ export const LandingPage = () => {
               </button>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Quick Navigation Menu - Inside navbar */}
-          <div className="border-t border-slate-200 dark:border-slate-700 mt-4 pt-2 pb-2">
-            <div className="flex items-center justify-center gap-1.5 overflow-x-auto scrollbar-hide">
+      {/* Quick Navigation Menu - White background */}
+      <div className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
+        <div className="container mx-auto px-4 py-2">
+          <div className="flex items-start gap-1.5 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {/* Default items if no quick_nav_items in settings */}
               {(!settings?.quick_nav_items || settings.quick_nav_items.length === 0) ? (
                 <>

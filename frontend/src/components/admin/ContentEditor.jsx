@@ -52,7 +52,8 @@ export const ContentEditor = () => {
 
     setUploadingIcon(prev => ({ ...prev, [itemId]: true }));
     try {
-      const url = await uploadAPI.upload(file);
+      const result = await uploadAPI.uploadImage(file);
+      const url = result.url || result.image_url;
       
       const updatedItems = (settings?.quick_nav_items || []).map(item =>
         item.id === itemId ? { ...item, icon: url } : item
@@ -79,7 +80,8 @@ export const ContentEditor = () => {
 
     setUploadingContent(prev => ({ ...prev, [itemId]: true }));
     try {
-      const url = await uploadAPI.upload(file);
+      const result = await uploadAPI.uploadImage(file);
+      const url = result.url || result.image_url;
       
       const updatedItems = (settings?.quick_nav_items || []).map(item => {
         if (item.id === itemId) {
