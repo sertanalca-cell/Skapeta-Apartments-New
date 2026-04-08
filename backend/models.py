@@ -124,7 +124,8 @@ class Settings(BaseModel):
     address: str = "Saranda, Albania"
     tax_number: str = ""  # Vergi numarası
     company_name: str = "SKAPETA APARTMENTS"  # Şirket adı
-    notification_sound_url: Optional[str] = None  # Custom notification sound
+    notification_sound_url: Optional[str] = None  # Admin notification sound (new orders)
+    customer_ready_sound_url: Optional[str] = None  # Customer notification sound (order ready)
     sponsored_by_text: str = "sponsored by @albaniatourism_"
     sponsored_by_url: str = "https://www.instagram.com/albaniatourism_"
     footer_custom_text: str = "This website was created by Sertan Nalça and for any support, please contact 00355692033673"
@@ -157,6 +158,7 @@ class SettingsUpdate(BaseModel):
     tax_number: Optional[str] = None
     company_name: Optional[str] = None
     notification_sound_url: Optional[str] = None
+    customer_ready_sound_url: Optional[str] = None
     sponsored_by_text: Optional[str] = None
     sponsored_by_url: Optional[str] = None
     footer_custom_text: Optional[str] = None

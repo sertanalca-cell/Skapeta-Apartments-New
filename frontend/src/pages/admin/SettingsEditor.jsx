@@ -16,9 +16,16 @@ export const SettingsEditor = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState({ logo: false, hero: false, about: false, notification: false });
+  const [uploading, setUploading] = useState({ 
+    logo: false, 
+    hero: false, 
+    about: false, 
+    notification: false,
+    customerReady: false 
+  });
   const [newLink, setNewLink] = useState({ name: '', url: '' });
   const [testingSound, setTestingSound] = useState(false);
+  const [testingCustomerSound, setTestingCustomerSound] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -41,7 +48,7 @@ export const SettingsEditor = () => {
     if (!file) return;
 
     // For notification sound, accept only audio files
-    if (type === 'notification') {
+    if (type === 'notification' || type === 'customerReady') {
       if (!file.type.startsWith('audio/')) {
         toast.error('Lütfen sadece ses dosyası yükleyin (MP3, WAV, etc.)');
         return;
@@ -65,9 +72,11 @@ export const SettingsEditor = () => {
         setSettings(prev => ({ ...prev, about_image_url: fileUrl }));
       } else if (type === 'notification') {
         setSettings(prev => ({ ...prev, notification_sound_url: fileUrl }));
+      } else if (type === 'customerReady') {
+        setSettings(prev => ({ ...prev, customer_ready_sound_url: fileUrl }));
       }
       
-      toast.success(`${type === 'notification' ? 'Bildirim sesi' : type} yüklendi`);
+      toast.success(`${type === 'notification' ? 'Bildirim sesi' : type === 'customerReady' ? 'Müşteri bildirim sesi' : type} yüklendi`);
     } catch (error) {
       console.error('Upload failed:', error);
       toast.error(`Yükleme başarısız`);
@@ -97,6 +106,27 @@ export const SettingsEditor = () => {
       });
   };
 
+  const testCustomerReadySound = () => {
+    if (!settings?.customer_ready_sound_url) {
+      toast.error('Önce müşteri bildirim sesi yükleyin');
+      return;
+    }
+
+    setTestingCustomerSound(true);
+    const audio = new Audio(settings.customer_ready_sound_url);
+    audio.play()
+      .then(() => {
+        toast.success('Müşteri bildirim sesi çalıyor!');
+      })
+      .catch(err => {
+        console.error('Sound play error:', err);
+        toast.error('Ses çalınamadı');
+      })
+      .finally(() => {
+        setTestingCustomerSound(false);
+      });
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -113,6 +143,7 @@ export const SettingsEditor = () => {
         tax_number: settings.tax_number,
         company_name: settings.company_name,
         notification_sound_url: settings.notification_sound_url,
+        customer_ready_sound_url: settings.customer_ready_sound_url,
         sponsored_by_text: settings.sponsored_by_text,
         sponsored_by_url: settings.sponsored_by_url,
         footer_custom_text: settings.footer_custom_text,
@@ -356,6 +387,60 @@ export const SettingsEditor = () => {
                     </Button>
                   )}
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Customer Ready Notification Sound */}
+          <Card>
+            <CardHeader>
+              <CardTitle>🎉 Müşteri Bildirim Sesi (Sipariş Hazır)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Ana Panel Bildirim Sesi</Label>
+                <p className="text-sm text-slate-500 mb-2">
+                  Sipariş "Ready" durumuna geldiğinde müşterinin tarayıcısında çalacak ses (Landing Page)
+                </p>
+                {settings.customer_ready_sound_url && (
+                  <div className="mt-2 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-700 mb-2">✅ Müşteri bildirim sesi yüklendi</p>
+                    <audio src={settings.customer_ready_sound_url} controls className="w-full" />
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="audio/*"
+                  onChange={(e) => handleFileUpload(e, 'customerReady')}
+                  className="hidden"
+                  id="customer-ready-upload"
+                  disabled={uploading.customerReady}
+                />
+                <div className="flex gap-2 mt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('customer-ready-upload').click()}
+                    disabled={uploading.customerReady}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploading.customerReady ? 'Yükleniyor...' : 'Ses Dosyası Yükle'}
+                  </Button>
+                  {settings.customer_ready_sound_url && (
+                    <Button
+                      type="button"
+                      variant="default"
+                      onClick={testCustomerReadySound}
+                      disabled={testingCustomerSound}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {testingCustomerSound ? 'Çalıyor...' : '🔊 Sesi Test Et'}
+                    </Button>
+                  )}
+                </div>
+                <p className="text-xs text-slate-400 mt-2">
+                  💡 Bu ses müşteri landing page'deyken siparişi hazır olunca otomatik çalar
+                </p>
               </div>
             </CardContent>
           </Card>

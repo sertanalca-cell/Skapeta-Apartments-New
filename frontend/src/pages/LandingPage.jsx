@@ -108,10 +108,11 @@ export const LandingPage = () => {
       if (currentOrder?.status === 'ready' && previousOrderStatus !== 'ready') {
         setPreviousOrderStatus('ready');
         
-        // Play notification sound
-        if (settings?.notification_sound_url) {
+        // Play notification sound (use customer_ready_sound_url)
+        const soundUrl = settings?.customer_ready_sound_url || settings?.notification_sound_url;
+        if (soundUrl) {
           try {
-            const audio = new Audio(settings.notification_sound_url);
+            const audio = new Audio(soundUrl);
             audio.volume = 1.0;
             
             // Try to play
@@ -139,7 +140,7 @@ export const LandingPage = () => {
     };
     
     playReadyNotification();
-  }, [currentOrder?.status, previousOrderStatus, settings?.notification_sound_url, audioUnlocked]);
+  }, [currentOrder?.status, previousOrderStatus, settings?.customer_ready_sound_url, settings?.notification_sound_url, audioUnlocked]);
 
   useEffect(() => {
     // Generate QR code for the website
