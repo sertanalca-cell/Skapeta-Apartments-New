@@ -34,6 +34,8 @@ export const LandingPage = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentOrder, setCurrentOrder] = useState(null);
   const [modalContent, setModalContent] = useState(null); // For custom modal
+  const [previousOrderStatus, setPreviousOrderStatus] = useState(null); // Track status changes
+  const [audioUnlocked, setAudioUnlocked] = useState(false); // For mobile audio
   
   const t = translations[language];
 
@@ -98,6 +100,46 @@ export const LandingPage = () => {
     
     return () => clearInterval(interval);
   }, [customer]);
+
+  // Play notification sound when order becomes ready
+  useEffect(() => {
+    const playReadyNotification = async () => {
+      // Check if status changed to ready
+      if (currentOrder?.status === 'ready' && previousOrderStatus !== 'ready') {
+        setPreviousOrderStatus('ready');
+        
+        // Play notification sound
+        if (settings?.notification_sound_url) {
+          try {
+            const audio = new Audio(settings.notification_sound_url);
+            audio.volume = 1.0;
+            
+            // Try to play
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+              playPromise.catch(error => {
+                console.log('Notification sound blocked by browser:', error);
+                // If blocked, try to unlock audio on next user interaction
+                if (!audioUnlocked) {
+                  document.addEventListener('click', () => {
+                    audio.play().then(() => {
+                      setAudioUnlocked(true);
+                    }).catch(e => console.log('Audio unlock failed:', e));
+                  }, { once: true });
+                }
+              });
+            }
+          } catch (error) {
+            console.error('Failed to play notification sound:', error);
+          }
+        }
+      } else if (currentOrder?.status !== 'ready') {
+        setPreviousOrderStatus(currentOrder?.status || null);
+      }
+    };
+    
+    playReadyNotification();
+  }, [currentOrder?.status, previousOrderStatus, settings?.notification_sound_url, audioUnlocked]);
 
   useEffect(() => {
     // Generate QR code for the website
