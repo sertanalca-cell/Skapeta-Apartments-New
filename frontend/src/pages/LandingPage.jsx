@@ -80,7 +80,8 @@ export const LandingPage = () => {
           o.status === 'pending' || 
           o.status === 'accepted' || 
           o.status === 'preparing' || 
-          o.status === 'delivering'
+          o.status === 'delivering' ||
+          o.status === 'ready'
         );
         setCurrentOrder(activeOrder || null);
       } catch (error) {
@@ -89,6 +90,13 @@ export const LandingPage = () => {
     };
     
     fetchCurrentOrder();
+    
+    // Live polling - update every 3 seconds
+    const interval = setInterval(() => {
+      fetchCurrentOrder();
+    }, 3000);
+    
+    return () => clearInterval(interval);
   }, [customer]);
 
   useEffect(() => {
@@ -382,50 +390,65 @@ export const LandingPage = () => {
               {settings?.hero_subtitle || t.hero.subtitle}
             </p>
             
-            {/* Order Status Tracker - Compact & Transparent */}
+            {/* Order Status Tracker - Wide & Live */}
             {customer && currentOrder && (
-              <div className="mb-4">
-                <div className="flex items-center justify-center gap-2 relative px-4">
+              <div className="mb-4 w-full max-w-xl mx-auto px-4">
+                <div className="flex items-center justify-between relative">
                   {/* Progress Line */}
-                  <div className="absolute top-3 left-0 right-0 h-0.5 bg-slate-300/50 dark:bg-slate-600/50 mx-8"></div>
+                  <div className="absolute top-3 left-0 right-0 h-0.5 bg-slate-300/50 dark:bg-slate-600/50"></div>
                   <div 
-                    className="absolute top-3 left-0 h-0.5 bg-blue-500 mx-8 transition-all duration-500"
+                    className="absolute top-3 left-0 h-0.5 bg-blue-500 transition-all duration-500"
                     style={{
                       width: 
                         currentOrder.status === 'pending' ? '0%' :
-                        currentOrder.status === 'accepted' || currentOrder.status === 'preparing' ? '33%' :
-                        currentOrder.status === 'delivering' ? '66%' :
-                        currentOrder.status === 'delivered' ? '100%' : '0%'
+                        currentOrder.status === 'accepted' ? '33%' :
+                        currentOrder.status === 'preparing' ? '66%' :
+                        currentOrder.status === 'ready' || currentOrder.status === 'delivering' || currentOrder.status === 'delivered' ? '100%' : '0%'
                     }}
                   ></div>
 
-                  {/* Steps - Very Compact */}
+                  {/* Steps - Wide spread */}
                   {[
-                    { status: 'pending', icon: '📋', step: 0 },
-                    { status: 'preparing', icon: '👨‍🍳', step: 1 },
-                    { status: 'delivering', icon: '🛵', step: 2 },
-                    { status: 'delivered', icon: '🏠', step: 3 }
+                    { status: 'pending', label: 'Pending', icon: '📋', step: 0 },
+                    { status: 'accepted', label: 'Accepted', icon: '✅', step: 1 },
+                    { status: 'preparing', label: 'Estimated', icon: '⏱️', step: 2, showTime: true },
+                    { status: 'ready', label: 'Ready', icon: '🎉', step: 3 }
                   ].map((item) => {
                     const isActive = 
                       (item.status === 'pending' && currentOrder.status === 'pending') ||
-                      (item.status === 'preparing' && (currentOrder.status === 'accepted' || currentOrder.status === 'preparing')) ||
-                      (item.status === 'delivering' && currentOrder.status === 'delivering') ||
-                      (item.status === 'delivered' && currentOrder.status === 'delivered');
+                      (item.status === 'accepted' && currentOrder.status === 'accepted') ||
+                      (item.status === 'preparing' && currentOrder.status === 'preparing') ||
+                      (item.status === 'ready' && (currentOrder.status === 'ready' || currentOrder.status === 'delivering' || currentOrder.status === 'delivered'));
                     
                     const isPast = 
                       (item.step === 0 && currentOrder.status !== 'pending') ||
-                      (item.step === 1 && (currentOrder.status === 'delivering' || currentOrder.status === 'delivered')) ||
-                      (item.step === 2 && currentOrder.status === 'delivered');
+                      (item.step === 1 && (currentOrder.status === 'preparing' || currentOrder.status === 'ready' || currentOrder.status === 'delivering' || currentOrder.status === 'delivered')) ||
+                      (item.step === 2 && (currentOrder.status === 'ready' || currentOrder.status === 'delivering' || currentOrder.status === 'delivered'));
 
                     return (
-                      <div key={item.status} className="flex items-center justify-center z-10">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
-                          isActive ? 'bg-blue-500 shadow-md scale-110' : 
+                      <div key={item.status} className="flex flex-col items-center z-10 flex-1">
+                        {/* Circle with icon */}
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ${
+                          isActive ? 'bg-blue-500 shadow-md scale-125' : 
                           isPast ? 'bg-blue-500' :
                           'bg-slate-200/80 dark:bg-slate-700/80'
                         }`}>
-                          <span className="text-xs">{item.icon}</span>
+                          <span className="text-sm">{item.icon}</span>
                         </div>
+                        
+                        {/* Label & Estimated Time */}
+                        <p className={`text-[10px] font-medium mt-1 ${
+                          isActive || isPast ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'
+                        }`}>
+                          {item.label}
+                        </p>
+                        
+                        {/* Show estimated time for "Estimated" step */}
+                        {item.showTime && currentOrder.estimated_time && isActive && (
+                          <p className="text-[9px] text-blue-600 dark:text-blue-400 font-bold mt-0.5">
+                            {currentOrder.estimated_time} min
+                          </p>
+                        )}
                       </div>
                     );
                   })}
