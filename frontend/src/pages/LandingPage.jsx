@@ -101,12 +101,15 @@ export const LandingPage = () => {
     return () => clearInterval(interval);
   }, [customer]);
 
-  // Play notification sound when order becomes ready
+  // Play notification sound when order becomes ready or delivering
   useEffect(() => {
     const playReadyNotification = async () => {
-      // Check if status changed to ready
-      if (currentOrder?.status === 'ready' && previousOrderStatus !== 'ready') {
-        setPreviousOrderStatus('ready');
+      // Check if status changed to ready OR delivering
+      const isReadyOrDelivering = currentOrder?.status === 'ready' || currentOrder?.status === 'delivering';
+      const wasNotReadyOrDelivering = previousOrderStatus !== 'ready' && previousOrderStatus !== 'delivering';
+      
+      if (isReadyOrDelivering && wasNotReadyOrDelivering) {
+        setPreviousOrderStatus(currentOrder?.status);
         
         // Play notification sound (use customer_ready_sound_url)
         const soundUrl = settings?.customer_ready_sound_url || settings?.notification_sound_url;
@@ -118,23 +121,30 @@ export const LandingPage = () => {
             // Try to play
             const playPromise = audio.play();
             if (playPromise !== undefined) {
-              playPromise.catch(error => {
+              playPromise.then(() => {
+                console.log('✅ Notification sound played successfully');
+              }).catch(error => {
                 console.log('Notification sound blocked by browser:', error);
                 // If blocked, try to unlock audio on next user interaction
                 if (!audioUnlocked) {
-                  document.addEventListener('click', () => {
+                  const unlockAudio = () => {
                     audio.play().then(() => {
                       setAudioUnlocked(true);
+                      console.log('✅ Audio unlocked and played');
                     }).catch(e => console.log('Audio unlock failed:', e));
-                  }, { once: true });
+                  };
+                  document.addEventListener('click', unlockAudio, { once: true });
+                  document.addEventListener('touchstart', unlockAudio, { once: true });
                 }
               });
             }
           } catch (error) {
             console.error('Failed to play notification sound:', error);
           }
+        } else {
+          console.log('⚠️ No notification sound URL configured');
         }
-      } else if (currentOrder?.status !== 'ready') {
+      } else if (!isReadyOrDelivering) {
         setPreviousOrderStatus(currentOrder?.status || null);
       }
     };
