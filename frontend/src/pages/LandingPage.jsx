@@ -6,7 +6,8 @@ import { Badge } from '../components/ui/badge';
 import { 
   MapPin, Phone, Instagram, MessageCircle, 
   MapIcon, Check, ChevronLeft, ChevronRight,
-  Upload, Calendar, Package, Clock, Truck, CheckCircle2
+  Upload, Calendar, Package, Clock, Truck, CheckCircle2,
+  Building2, UtensilsCrossed, CloudSun
 } from 'lucide-react';
 import { apartmentsAPI, galleryAPI, sightseeingAPI, settingsAPI, analyticsAPI, ordersAPI } from '../services/api';
 import { translations } from '../mockData';
@@ -225,11 +226,53 @@ export const LandingPage = () => {
               </button>
             </div>
           </div>
+
+          {/* Quick Navigation Menu - Inside navbar */}
+          <div className="border-t border-slate-200 dark:border-slate-700 py-2">
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              <button
+                onClick={() => document.getElementById('apartments')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-lg"
+              >
+                <div className="relative z-10 flex items-center gap-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-white" />
+                  <span className="text-white font-semibold text-xs">Apartments</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => navigate('/food-service')}
+                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-orange-500 to-red-600 hover:shadow-lg"
+              >
+                <div className="relative z-10 flex items-center gap-1.5">
+                  <UtensilsCrossed className="w-3.5 h-3.5 text-white" />
+                  <span className="text-white font-semibold text-xs">Menu</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => document.getElementById('sightseeing')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-purple-500 to-purple-700 hover:shadow-lg"
+              >
+                <div className="relative z-10 flex items-center gap-1.5">
+                  <MapIcon className="w-3.5 h-3.5 text-white" />
+                  <span className="text-white font-semibold text-xs">Things to Do</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => window.open(`https://www.google.com/search?q=weather+${encodeURIComponent(settings?.weather_location || 'Tirana, Albania')}`, '_blank')}
+                className="group relative overflow-hidden rounded-lg px-3 py-1.5 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-lg"
+              >
+                <div className="relative z-10 flex items-center gap-1.5">
+                  <CloudSun className="w-3.5 h-3.5 text-white" />
+                  <span className="text-white font-semibold text-xs">{settings?.weather_location || 'Weather'}</span>
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
       </nav>
-
-      {/* Quick Navigation Menu */}
-      <QuickNavMenu settings={settings} />
 
       {/* Hero Section */}
       <section id="home" className="pt-32 pb-20 px-4 relative overflow-hidden">
