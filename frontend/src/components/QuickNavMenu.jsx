@@ -11,7 +11,6 @@ export const QuickNavMenu = ({ settings }) => {
       icon: Building2,
       label: 'Apartments',
       color: 'from-blue-500 to-blue-700',
-      bgColor: 'bg-blue-500',
       onClick: () => document.getElementById('apartments')?.scrollIntoView({ behavior: 'smooth' })
     },
     {
@@ -19,7 +18,6 @@ export const QuickNavMenu = ({ settings }) => {
       icon: UtensilsCrossed,
       label: 'Menu',
       color: 'from-orange-500 to-red-600',
-      bgColor: 'bg-orange-500',
       onClick: () => navigate('/food-service')
     },
     {
@@ -27,7 +25,6 @@ export const QuickNavMenu = ({ settings }) => {
       icon: MapIcon,
       label: 'Things to Do',
       color: 'from-purple-500 to-purple-700',
-      bgColor: 'bg-purple-500',
       onClick: () => document.getElementById('sightseeing')?.scrollIntoView({ behavior: 'smooth' })
     },
     {
@@ -35,48 +32,35 @@ export const QuickNavMenu = ({ settings }) => {
       icon: CloudSun,
       label: settings?.weather_location || 'Weather',
       color: 'from-green-500 to-emerald-600',
-      bgColor: 'bg-green-500',
       onClick: () => window.open(`https://www.google.com/search?q=weather+${encodeURIComponent(settings?.weather_location || 'Tirana, Albania')}`, '_blank')
     }
   ];
 
   return (
-    <div className="w-full py-8 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 border-t border-slate-200 dark:border-slate-700">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-          {menuItems.map((item, index) => {
+    <div className="w-full border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+      <div className="container mx-auto px-4 py-3">
+        {/* Tek satır, küçük butonlar */}
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          {menuItems.map((item) => {
             const Icon = item.icon;
             return (
               <button
                 key={item.id}
                 onClick={item.onClick}
-                className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${
-                  item.bgColor
-                } animate-fadeIn`}
-                style={{
-                  animationDelay: `${index * 100}ms`
-                }}
+                className={`group relative overflow-hidden rounded-lg px-4 py-2 transition-all duration-300 transform hover:scale-105 hover:shadow-lg bg-gradient-to-r ${item.color}`}
               >
-                {/* Background gradient overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-90 group-hover:opacity-100 transition-opacity`}></div>
-                
                 {/* Shine effect on hover */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent transform -skew-x-12 group-hover:translate-x-full transition-transform duration-1000"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent transform -skew-x-12 group-hover:translate-x-full transition-transform duration-700"></div>
                 </div>
 
                 {/* Content */}
-                <div className="relative z-10 flex flex-col items-center gap-3">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Icon className="w-7 h-7 text-white" />
-                  </div>
-                  <span className="text-white font-bold text-lg text-center">
+                <div className="relative z-10 flex items-center gap-2">
+                  <Icon className="w-4 h-4 text-white" />
+                  <span className="text-white font-semibold text-sm whitespace-nowrap">
                     {item.label}
                   </span>
                 </div>
-
-                {/* Bottom accent */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/30 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
               </button>
             );
           })}
