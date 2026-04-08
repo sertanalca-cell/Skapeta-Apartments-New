@@ -8,6 +8,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { settingsAPI, uploadAPI } from '../../services/api';
 import { Upload, Save, Star, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { ContentEditor } from '../../components/admin/ContentEditor';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -637,6 +638,11 @@ export const SettingsEditor = () => {
             </Button>
           </div>
         </form>
+
+        {/* Quick Navigation Menu Editor */}
+        <div className="mt-8">
+          <ContentEditor />
+        </div>
       </div>
     </AdminLayout>
   );

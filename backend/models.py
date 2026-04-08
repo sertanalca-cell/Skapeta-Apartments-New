@@ -102,6 +102,15 @@ class CustomLink(BaseModel):
     url: str
     icon: str = "link"  # lucide icon name
 
+class QuickNavItem(BaseModel):
+    id: str
+    label: str
+    icon: str  # lucide icon name
+    color: str  # gradient color classes
+    action_type: str = "scroll"  # scroll, navigate, external
+    action_value: str  # section id, route, or URL
+    order: int = 0
+
 class Settings(BaseModel):
     id: str = "settings"
     logo_url: Optional[str] = None
@@ -121,6 +130,7 @@ class Settings(BaseModel):
     hero_background_type: str = "none"  # none, image, video
     about_image_url: Optional[str] = None
     star_rating: int = 3
+    weather_location: str = "Tirana, Albania"
     # Content sections
     hero_title: str = "Skapeta Apartments"
     hero_subtitle: str = "3-star apartments in Saranda.\nLocated 8–10 minutes walk to the city center,\n3–5 minutes walk to the beach."
@@ -129,8 +139,9 @@ class Settings(BaseModel):
     food_service_title: str = "Food Service"
     food_service_description: str = "We also offer breakfast, lunch, and dinner service for our guests."
     food_service_subtitle: str = "All meals are prepared with love, care, and quality ingredients."
-    # Custom contact links
+    # Custom contact links and quick nav
     custom_contact_links: List[dict] = []
+    quick_nav_items: List[dict] = []
     updated_at: datetime = Field(default_factory=now_albania_utc)
 
 class SettingsUpdate(BaseModel):
@@ -158,7 +169,9 @@ class SettingsUpdate(BaseModel):
     food_service_title: Optional[str] = None
     food_service_description: Optional[str] = None
     food_service_subtitle: Optional[str] = None
+    weather_location: Optional[str] = None
     custom_contact_links: Optional[List[dict]] = None
+    quick_nav_items: Optional[List[dict]] = None
 
 
 # Customer Authentication

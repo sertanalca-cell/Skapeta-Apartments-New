@@ -188,7 +188,7 @@ export const LandingPage = () => {
       
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md z-50 border-b border-slate-200 dark:border-slate-700 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-5">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               {settings?.logo_url ? (
@@ -228,47 +228,86 @@ export const LandingPage = () => {
           </div>
 
           {/* Quick Navigation Menu - Inside navbar */}
-          <div className="border-t border-slate-200 dark:border-slate-700 py-1.5">
+          <div className="border-t border-slate-200 dark:border-slate-700 mt-4 py-1">
             <div className="flex items-center justify-center gap-1.5 overflow-x-auto scrollbar-hide">
-              <button
-                onClick={() => document.getElementById('apartments')?.scrollIntoView({ behavior: 'smooth' })}
-                className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-md flex-shrink-0"
-              >
-                <div className="relative z-10 flex items-center gap-1">
-                  <Building2 className="w-3 h-3 text-white" />
-                  <span className="text-white font-semibold text-[10px] whitespace-nowrap">Apartments</span>
-                </div>
-              </button>
+              {/* Default items if no quick_nav_items in settings */}
+              {(!settings?.quick_nav_items || settings.quick_nav_items.length === 0) ? (
+                <>
+                  <button
+                    onClick={() => document.getElementById('apartments')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-md flex-shrink-0"
+                  >
+                    <div className="relative z-10 flex items-center gap-1">
+                      <Building2 className="w-3 h-3 text-white" />
+                      <span className="text-white font-semibold text-[10px] whitespace-nowrap">Apartments</span>
+                    </div>
+                  </button>
 
-              <button
-                onClick={() => navigate('/food-service')}
-                className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-orange-500 to-red-600 hover:shadow-md flex-shrink-0"
-              >
-                <div className="relative z-10 flex items-center gap-1">
-                  <UtensilsCrossed className="w-3 h-3 text-white" />
-                  <span className="text-white font-semibold text-[10px] whitespace-nowrap">Menu</span>
-                </div>
-              </button>
+                  <button
+                    onClick={() => navigate('/food-service')}
+                    className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-orange-500 to-red-600 hover:shadow-md flex-shrink-0"
+                  >
+                    <div className="relative z-10 flex items-center gap-1">
+                      <UtensilsCrossed className="w-3 h-3 text-white" />
+                      <span className="text-white font-semibold text-[10px] whitespace-nowrap">Menu</span>
+                    </div>
+                  </button>
 
-              <button
-                onClick={() => document.getElementById('sightseeing')?.scrollIntoView({ behavior: 'smooth' })}
-                className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-purple-500 to-purple-700 hover:shadow-md flex-shrink-0"
-              >
-                <div className="relative z-10 flex items-center gap-1">
-                  <MapIcon className="w-3 h-3 text-white" />
-                  <span className="text-white font-semibold text-[10px] whitespace-nowrap">Things to Do</span>
-                </div>
-              </button>
+                  <button
+                    onClick={() => document.getElementById('sightseeing')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-purple-500 to-purple-700 hover:shadow-md flex-shrink-0"
+                  >
+                    <div className="relative z-10 flex items-center gap-1">
+                      <MapIcon className="w-3 h-3 text-white" />
+                      <span className="text-white font-semibold text-[10px] whitespace-nowrap">Things to Do</span>
+                    </div>
+                  </button>
 
-              <button
-                onClick={() => window.open(`https://www.google.com/search?q=weather+${encodeURIComponent(settings?.weather_location || 'Tirana, Albania')}`, '_blank')}
-                className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-md flex-shrink-0"
-              >
-                <div className="relative z-10 flex items-center gap-1">
-                  <CloudSun className="w-3 h-3 text-white" />
-                  <span className="text-white font-semibold text-[10px] whitespace-nowrap">Weather</span>
-                </div>
-              </button>
+                  <button
+                    onClick={() => window.open(`https://www.google.com/search?q=weather+${encodeURIComponent(settings?.weather_location || 'Tirana, Albania')}`, '_blank')}
+                    className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-md flex-shrink-0"
+                  >
+                    <div className="relative z-10 flex items-center gap-1">
+                      <CloudSun className="w-3 h-3 text-white" />
+                      <span className="text-white font-semibold text-[10px] whitespace-nowrap">Weather</span>
+                    </div>
+                  </button>
+                </>
+              ) : (
+                /* Dynamic items from settings */
+                settings.quick_nav_items.sort((a, b) => a.order - b.order).map((item) => {
+                  const iconMap = {
+                    'Building2': Building2,
+                    'UtensilsCrossed': UtensilsCrossed,
+                    'MapIcon': MapIcon,
+                    'CloudSun': CloudSun
+                  };
+                  const IconComponent = iconMap[item.icon] || Building2;
+                  
+                  const handleClick = () => {
+                    if (item.action_type === 'scroll') {
+                      document.getElementById(item.action_value)?.scrollIntoView({ behavior: 'smooth' });
+                    } else if (item.action_type === 'navigate') {
+                      navigate(item.action_value);
+                    } else if (item.action_type === 'external') {
+                      window.open(item.action_value, '_blank');
+                    }
+                  };
+
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={handleClick}
+                      className={`group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r ${item.color} hover:shadow-md flex-shrink-0`}
+                    >
+                      <div className="relative z-10 flex items-center gap-1">
+                        <IconComponent className="w-3 h-3 text-white" />
+                        <span className="text-white font-semibold text-[10px] whitespace-nowrap">{item.label}</span>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
