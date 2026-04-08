@@ -236,51 +236,49 @@ export const LandingPage = () => {
       <div className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-start gap-1.5 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              {/* Default items if no quick_nav_items in settings */}
-              {(!settings?.quick_nav_items || settings.quick_nav_items.length === 0) ? (
-                <>
-                  <button
-                    onClick={() => document.getElementById('apartments')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-md flex-shrink-0"
-                  >
-                    <div className="relative z-10 flex items-center gap-1">
-                      <Building2 className="w-3 h-3 text-white" />
-                      <span className="text-white font-semibold text-[10px] whitespace-nowrap">Apartments</span>
-                    </div>
-                  </button>
+              {/* Always show default items first */}
+              <button
+                onClick={() => document.getElementById('apartments')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-blue-500 to-blue-700 hover:shadow-md flex-shrink-0"
+              >
+                <div className="relative z-10 flex items-center gap-1">
+                  <Building2 className="w-3 h-3 text-white" />
+                  <span className="text-white font-semibold text-[10px] whitespace-nowrap">Apartments</span>
+                </div>
+              </button>
 
-                  <button
-                    onClick={() => navigate('/food-service')}
-                    className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-orange-500 to-red-600 hover:shadow-md flex-shrink-0"
-                  >
-                    <div className="relative z-10 flex items-center gap-1">
-                      <UtensilsCrossed className="w-3 h-3 text-white" />
-                      <span className="text-white font-semibold text-[10px] whitespace-nowrap">Menu</span>
-                    </div>
-                  </button>
+              <button
+                onClick={() => navigate('/food-service')}
+                className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-orange-500 to-red-600 hover:shadow-md flex-shrink-0"
+              >
+                <div className="relative z-10 flex items-center gap-1">
+                  <UtensilsCrossed className="w-3 h-3 text-white" />
+                  <span className="text-white font-semibold text-[10px] whitespace-nowrap">Menu</span>
+                </div>
+              </button>
 
-                  <button
-                    onClick={() => document.getElementById('sightseeing')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-purple-500 to-purple-700 hover:shadow-md flex-shrink-0"
-                  >
-                    <div className="relative z-10 flex items-center gap-1">
-                      <MapIcon className="w-3 h-3 text-white" />
-                      <span className="text-white font-semibold text-[10px] whitespace-nowrap">Things to Do</span>
-                    </div>
-                  </button>
+              <button
+                onClick={() => document.getElementById('sightseeing')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-purple-500 to-purple-700 hover:shadow-md flex-shrink-0"
+              >
+                <div className="relative z-10 flex items-center gap-1">
+                  <MapIcon className="w-3 h-3 text-white" />
+                  <span className="text-white font-semibold text-[10px] whitespace-nowrap">Things to Do</span>
+                </div>
+              </button>
 
-                  <button
-                    onClick={() => window.open(`https://www.google.com/search?q=weather+${encodeURIComponent(settings?.weather_location || 'Tirana, Albania')}`, '_blank')}
-                    className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-md flex-shrink-0"
-                  >
-                    <div className="relative z-10 flex items-center gap-1">
-                      <CloudSun className="w-3 h-3 text-white" />
-                      <span className="text-white font-semibold text-[10px] whitespace-nowrap">Weather</span>
-                    </div>
-                  </button>
-                </>
-              ) : (
-                /* Dynamic items from settings */
+              <button
+                onClick={() => window.open(`https://www.google.com/search?q=weather+${encodeURIComponent(settings?.weather_location || 'Tirana, Albania')}`, '_blank')}
+                className="group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-md flex-shrink-0"
+              >
+                <div className="relative z-10 flex items-center gap-1">
+                  <CloudSun className="w-3 h-3 text-white" />
+                  <span className="text-white font-semibold text-[10px] whitespace-nowrap">Weather</span>
+                </div>
+              </button>
+
+              {/* Then show custom items to the right */}
+              {settings?.quick_nav_items && settings.quick_nav_items.length > 0 && (
                 settings.quick_nav_items.sort((a, b) => a.order - b.order).map((item) => {
                   const iconMap = {
                     'Building2': Building2,
@@ -301,7 +299,6 @@ export const LandingPage = () => {
                     }
                   };
 
-                  // Check if icon is a URL (custom) or a component name
                   const isCustomIcon = item.icon.startsWith('http');
                   const IconComponent = isCustomIcon ? null : (iconMap[item.icon] || Building2);
 
@@ -381,12 +378,28 @@ export const LandingPage = () => {
               </div>
             )}
             
-            <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 mb-10 leading-relaxed whitespace-pre-line">
+            <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 mb-6 leading-relaxed whitespace-pre-line">
               {settings?.hero_subtitle || t.hero.subtitle}
             </p>
             
-            {/* Live Order Status - Above buttons */}
-            <LiveOrderStatus />
+            {/* Live Order Status - Small version above Book Now */}
+            {customer && currentOrder && (
+              <div className="mb-4 inline-block">
+                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 px-4 py-2">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      currentOrder.status === 'pending' ? 'bg-yellow-500' :
+                      currentOrder.status === 'preparing' ? 'bg-purple-500' :
+                      currentOrder.status === 'delivering' ? 'bg-blue-500' :
+                      'bg-green-500'
+                    } animate-pulse`}></div>
+                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                      Order: {currentOrder.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
