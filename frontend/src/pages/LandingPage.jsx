@@ -15,6 +15,7 @@ import { Star } from 'lucide-react';
 import { SplashScreen } from '../components/SplashScreen';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { LiveOrderStatus } from '../components/LiveOrderStatus';
+import { QuickNavMenu } from '../components/QuickNavMenu';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { useOrderWebSocket } from '../hooks/useOrderWebSocket';
 
@@ -158,7 +159,7 @@ export const LandingPage = () => {
   };
 
   if (showSplash) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} logoUrl={settings?.logo_url} />;
+    return <SplashScreen onComplete={() => setShowSplash(false)} logoUrl={settings?.logo_url} settings={settings} />;
   }
 
   if (loading) {
@@ -226,6 +227,9 @@ export const LandingPage = () => {
           </div>
         </div>
       </nav>
+
+      {/* Quick Navigation Menu */}
+      <QuickNavMenu settings={settings} />
 
       {/* Hero Section */}
       <section id="home" className="pt-32 pb-20 px-4 relative overflow-hidden">
