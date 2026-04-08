@@ -7,7 +7,7 @@ import {
   MapPin, Phone, Instagram, MessageCircle, 
   MapIcon, Check, ChevronLeft, ChevronRight,
   Upload, Calendar, Package, Clock, Truck, CheckCircle2,
-  Building2, UtensilsCrossed, CloudSun
+  Building2, UtensilsCrossed, CloudSun, X
 } from 'lucide-react';
 import { apartmentsAPI, galleryAPI, sightseeingAPI, settingsAPI, analyticsAPI, ordersAPI } from '../services/api';
 import { translations } from '../mockData';
@@ -33,6 +33,7 @@ export const LandingPage = () => {
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
   const [currentOrder, setCurrentOrder] = useState(null);
+  const [modalContent, setModalContent] = useState(null); // For custom modal
   
   const t = translations[language];
 
@@ -228,7 +229,7 @@ export const LandingPage = () => {
           </div>
 
           {/* Quick Navigation Menu - Inside navbar */}
-          <div className="border-t border-slate-200 dark:border-slate-700 mt-4 py-1">
+          <div className="border-t border-slate-200 dark:border-slate-700 mt-4 pt-2 pb-2">
             <div className="flex items-center justify-center gap-1.5 overflow-x-auto scrollbar-hide">
               {/* Default items if no quick_nav_items in settings */}
               {(!settings?.quick_nav_items || settings.quick_nav_items.length === 0) ? (
@@ -282,7 +283,6 @@ export const LandingPage = () => {
                     'MapIcon': MapIcon,
                     'CloudSun': CloudSun
                   };
-                  const IconComponent = iconMap[item.icon] || Building2;
                   
                   const handleClick = () => {
                     if (item.action_type === 'scroll') {
@@ -291,8 +291,14 @@ export const LandingPage = () => {
                       navigate(item.action_value);
                     } else if (item.action_type === 'external') {
                       window.open(item.action_value, '_blank');
+                    } else if (item.action_type === 'modal') {
+                      setModalContent(item.custom_content);
                     }
                   };
+
+                  // Check if icon is a URL (custom) or a component name
+                  const isCustomIcon = item.icon.startsWith('http');
+                  const IconComponent = isCustomIcon ? null : (iconMap[item.icon] || Building2);
 
                   return (
                     <button
@@ -301,7 +307,11 @@ export const LandingPage = () => {
                       className={`group relative overflow-hidden rounded-md px-2 py-1 transition-all duration-300 transform hover:scale-105 bg-gradient-to-r ${item.color} hover:shadow-md flex-shrink-0`}
                     >
                       <div className="relative z-10 flex items-center gap-1">
-                        <IconComponent className="w-3 h-3 text-white" />
+                        {isCustomIcon ? (
+                          <img src={item.icon} alt={item.label} className="w-3 h-3 object-cover rounded" />
+                        ) : (
+                          <IconComponent className="w-3 h-3 text-white" />
+                        )}
                         <span className="text-white font-semibold text-[10px] whitespace-nowrap">{item.label}</span>
                       </div>
                     </button>
@@ -839,6 +849,61 @@ export const LandingPage = () => {
           </div>
         </div>
       </footer>
+
+      {/* Custom Content Modal */}
+      {modalContent && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in duration-200">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 flex items-center justify-between z-10">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{modalContent.title}</h2>
+              <button
+                onClick={() => setModalContent(null)}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors"
+              >
+                <X className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-4">
+              {/* Description */}
+              {modalContent.description && (
+                <p className="text-slate-700 dark:text-slate-300 text-lg leading-relaxed whitespace-pre-wrap">
+                  {modalContent.description}
+                </p>
+              )}
+
+              {/* Images Grid */}
+              {modalContent.images && modalContent.images.length > 0 && (
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  {modalContent.images.map((img, idx) => (
+                    <div key={idx} className="relative group">
+                      <img
+                        src={img}
+                        alt={`${modalContent.title} ${idx + 1}`}
+                        className="w-full h-48 object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow cursor-pointer"
+                        onClick={() => window.open(img, '_blank')}
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-lg"></div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 p-4">
+              <Button
+                onClick={() => setModalContent(null)}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

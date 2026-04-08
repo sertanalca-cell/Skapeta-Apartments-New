@@ -105,11 +105,13 @@ class CustomLink(BaseModel):
 class QuickNavItem(BaseModel):
     id: str
     label: str
-    icon: str  # lucide icon name
+    icon: str  # lucide icon name OR custom icon URL (http/https)
     color: str  # gradient color classes
-    action_type: str = "scroll"  # scroll, navigate, external
-    action_value: str  # section id, route, or URL
+    action_type: str = "scroll"  # scroll, navigate, external, modal
+    action_value: str  # section id, route, URL, or modal content id
     order: int = 0
+    custom_content: Optional[dict] = None  # For modal: {title, description, images: []}
+
 
 class Settings(BaseModel):
     id: str = "settings"
